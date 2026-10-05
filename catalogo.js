@@ -5,7 +5,8 @@
 // Este arquivo é um .js, e não um .json, para o hub abrir também com dois cliques, sem servidor.
 window.CATALOGO = {
   titulo: 'NeuroHub',
-  descricao: 'Modelos 3D, mapas mentais e outros materiais interativos para estudar neurociência. Tudo abre direto no navegador.',
+  // Aparece em letra menor, embaixo do título. Vazio esconde a linha.
+  autor: 'Felipe Tsuchida',
   // Endereço do repositório no GitHub, por exemplo 'https://github.com/usuario/repo'. Vazio esconde o link.
   repo: 'https://github.com/ftsuchida/neurohub',
 

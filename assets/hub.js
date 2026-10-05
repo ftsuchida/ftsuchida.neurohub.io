@@ -8,7 +8,7 @@
   const tipoNome = (t) => (C.tipos && C.tipos[t]) || t || '';
 
   if (C.titulo) { $('titulo').textContent = C.titulo; document.title = C.titulo; }
-  if (C.descricao) $('descricao').textContent = C.descricao;
+  if (C.autor) { $('autor').textContent = C.autor; $('autor').hidden = false; }
   if (C.repo) { $('repo').href = C.repo; $('repo').hidden = false; }
 
   // mais recentes primeiro; no empate, ordem alfabética
