@@ -1,0 +1,42 @@
+<div id="app">
+  <canvas id="gl" tabindex="0" aria-label="Modelo 3D de um neurônio. Use a lista de estruturas para navegar pelo teclado."></canvas>
+  <svg id="leaders" aria-hidden="true"></svg>
+  <div id="labels"></div>
+  <div id="nogl" hidden>Este navegador não conseguiu abrir a cena 3D. A lista e as fichas continuam funcionando.</div>
+
+  <div id="toolbar" class="glass">
+    <div class="seg" id="seg" role="group" aria-label="Vistas"></div>
+    <button type="button" class="tb" id="liq" aria-pressed="false" title="Mostrar os líquidos dentro e fora das células"><svg class="ic" viewBox="0 0 16 16"><path d="M8 1.800c2.400 2.900 4.200 5.200 4.200 7.600a4.200 4.200 0 0 1-8.400 0c0-2.400 1.800-4.700 4.200-7.600z"/></svg><span>Líquidos</span></button>
+    <button type="button" class="tb icon" id="tags" aria-pressed="true" aria-label="Mostrar rótulos" title="Rótulos"><svg class="ic" viewBox="0 0 16 16"><path d="M2.5 3.6v3.7c0 .3.1.6.3.8l5.6 5.6c.4.4 1.1.4 1.6 0l3.7-3.7c.4-.5.4-1.200 0-1.6L8.100 2.800a1.100 1.100 0 0 0-.8-.3H3.600c-.6 0-1.100.5-1.100 1.100z"/><circle cx="5.4" cy="5.4" r=".9"/></svg></button>
+  </div>
+  <button type="button" id="play" class="glass pill" hidden><svg class="ic fill" viewBox="0 0 16 16"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.3-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z"/></svg><span>Disparar sinal</span></button>
+  <section id="apcard" class="glass" aria-label="Potencial de ação" hidden>
+    <header class="ap-head">
+      <h2>Potencial de ação</h2>
+      <output id="apRead" class="ap-read"></output>
+      <button type="button" class="close" id="apClose" aria-label="Fechar gráfico"><svg class="ic" viewBox="0 0 16 16"><path d="m4 4 8 8M12 4l-8 8"/></svg></button>
+    </header>
+    <svg id="apSvg" class="ap-svg" role="img" aria-label="Potencial de membrana ao longo do tempo"></svg>
+    <p id="apPhase" class="ap-phase" role="status"></p>
+    <div class="ap-ctl" id="apCtl">
+      <button type="button" class="tb icon" id="apPlay" aria-label="Reproduzir"></button>
+      <label class="ap-stim" for="apStim"><span>Estímulo</span><input type="range" id="apStim" min="0" max="2.5" step="0.05" value="1.5"><output id="apStimV"></output></label>
+    </div>
+    <div class="ap-ctl" id="apCtlWorld">
+      <button type="button" class="tb" id="apAgain"><svg class="ic fill" viewBox="0 0 16 16"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.3-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z"/></svg>Repetir</button>
+      <button type="button" class="tb" id="apGo">Ver os canais na membrana<svg class="ic chev" viewBox="0 0 16 16"><path d="m6 3.500 4.500 4.500L6 12.500"/></svg></button>
+    </div>
+  </section>
+  <div id="tip" class="glass" hidden></div>
+  <div id="legend" class="glass" role="group" aria-label="Líquidos" hidden></div>
+  <div id="busy" class="glass" role="status" hidden>Montando a vista…</div>
+
+  <div id="panes" data-pane="list">
+    <div id="grab" aria-hidden="true"></div>
+    <aside id="sidebar" class="glass" aria-label="Estruturas">
+      <label class="search"><svg class="ic" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.3"/><path d="m10.300 10.300 3.200 3.200"/></svg><input id="q" type="search" placeholder="Buscar estrutura" autocomplete="off" spellcheck="false" aria-label="Buscar estrutura"></label>
+      <nav id="list"></nav>
+    </aside>
+    <aside id="inspector" class="glass" aria-live="polite"></aside>
+  </div>
+</div>

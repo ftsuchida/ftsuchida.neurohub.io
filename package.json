@@ -1,0 +1,19 @@
+{
+  "name": "neurohub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hub de materiais interativos para estudar neurociência: modelos 3D, mapas mentais e afins.",
+  "homepage": "https://ftsuchida.github.io/neurohub/",
+  "repository": "github:ftsuchida/neurohub",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "three": "^0.186.1",
+    "three-mesh-bvh": "^0.9.15"
+  }
+}
