@@ -7,9 +7,12 @@
   const plain = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const tipoNome = (t) => (C.tipos && C.tipos[t]) || t || '';
 
-  if (C.titulo) { $('titulo').textContent = C.titulo; document.title = C.titulo; }
-  if (C.autor) { $('autor').textContent = C.autor; $('autor').hidden = false; }
-  if (C.repo) { $('repo').href = C.repo; $('repo').hidden = false; }
+  // Cada parte do cabeçalho é opcional: se o index.html em cache for de outra versão e não tiver
+  // o elemento, o resto da página continua sendo montado.
+  const show = (id, fn) => { const el = $(id); if (el) { fn(el); el.hidden = false; } };
+  if (C.titulo) { show('titulo', (el) => { el.textContent = C.titulo; }); document.title = C.titulo; }
+  if (C.autor) show('autor', (el) => { el.textContent = C.autor; });
+  if (C.repo) show('repo', (el) => { el.href = C.repo; });
 
   // mais recentes primeiro; no empate, ordem alfabética
   const itens = (C.itens || []).slice().sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')) || String(a.titulo).localeCompare(String(b.titulo), 'pt-BR'));
