@@ -22,7 +22,7 @@ catalogo.js           a lista de itens que o hub mostra
 assets/               estilo e script do hub, e as capas dos itens
 itens/<id>/           a página publicada de cada item (arquivo único, já montado)
 fontes/<id>/src/      o código-fonte dos itens que têm etapa de montagem
-fontes/comum/         o que os itens compartilham: idioma, painéis recolhíveis e o estilo comum
+fontes/comum/         o que os itens compartilham: idioma, painéis recolhíveis, controle da câmera e o estilo comum
 scripts/build.mjs     monta fontes/<id> em itens/<id>/index.html
 scripts/check-i18n.mjs  confere se o inglês cobre tudo o que o português tem
 scripts/serve.mjs     servidor local para testar
@@ -96,6 +96,7 @@ O que vale para todos os modelos fica em `fontes/comum/`:
 |---|---|
 | `lang.js` | Escolha do idioma e a função `tr()` |
 | `panes.js` | Os dois botões da barra de vistas que recolhem a lista (esquerda) e a ficha (direita). A escolha fica guardada no navegador |
+| `nav.js` | Controle da câmera pelo teclado (setas giram, Shift + setas e W A S D Q E movem, + e − aproximam, 0 recentraliza) e por um painel na cena, que liga e desliga por um botão na barra de vistas. Mover leva junto o ponto de giro, e aproximar no limite do zoom (pela roda também) anda para a frente em vez de travar |
 | `comum.css` | Estilo comum, juntado ao fim do `style.css` de cada modelo na montagem |
 
 ## Idiomas

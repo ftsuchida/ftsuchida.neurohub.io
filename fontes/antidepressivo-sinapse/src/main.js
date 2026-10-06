@@ -5,6 +5,7 @@ import { GROUPS, ITEMS, BY_ID, VIEWS, STEPS } from './data.js';
 import { buildScene } from './scene.js';
 import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
 import { initPanes } from '../../comum/panes.js';
+import { initNav } from '../../comum/nav.js';
 
 applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
 
@@ -58,7 +59,7 @@ function renderIntro() {
     <p>${tr('No cartão do gráfico, use Disparar para soltar serotonina e a chave ISRS para ligar o fármaco. As duas curvas ficam lado a lado.', 'On the graph card, use Fire to release serotonin and the SSRI switch to turn the drug on. The two curves stay side by side.')}</p>
     <h2>${tr('Passo a passo', 'Step by step')}</h2>
     <ol class="rows links">${STEPS.map((s, i) => `<li><button type="button" data-step="${i}"><span class="num">${i + 1}</span><span class="name">${s.title}</span>${ICON.chev}</button></li>`).join('')}</ol>
-    <p class="foot">${tr('Clique em qualquer estrutura para abrir a ficha. Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Formas, quantidades e tempos estão exagerados e fora de escala. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 5 e 6; o que vem de fora dos capítulos 1 a 6 aparece marcado como extra. É material de estudo, não orientação sobre tratamento.', 'Click any structure to open its card. Drag to rotate, scroll or pinch to zoom, use two fingers or the right button to pan. Shapes, amounts and times are exaggerated and not to scale. Content follows Bear, Connors and Paradiso, Neuroscience: Exploring the Brain, 4th ed., chapters 5 and 6; anything from outside chapters 1 to 6 is marked as extra. This is study material, not guidance about treatment.')}</p>
+    <p class="foot">${tr('Clique em qualquer estrutura para abrir a ficha. Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Pelo teclado, as setas giram, W A S D movem e 0 recentraliza. Formas, quantidades e tempos estão exagerados e fora de escala. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 5 e 6; o que vem de fora dos capítulos 1 a 6 aparece marcado como extra. É material de estudo, não orientação sobre tratamento.', 'Click any structure to open its card. Drag to rotate, scroll or pinch to zoom, use two fingers or the right button to pan. On the keyboard, the arrows rotate, W A S D move and 0 recenters. Shapes, amounts and times are exaggerated and not to scale. Content follows Bear, Connors and Paradiso, Neuroscience: Exploring the Brain, 4th ed., chapters 5 and 6; anything from outside chapters 1 to 6 is marked as extra. This is study material, not guidance about treatment.')}</p>
   </div>`;
 }
 function renderItem(id) {
@@ -296,6 +297,7 @@ function start3D() {
   function goHome(id) { const v = home[id]; markView('syn'); goTo(v && (v.t || v.box) ? v : whole('syn')); }
   controls.addEventListener('start', () => { fly = null; });
   controls.addEventListener('change', dirty);
+  const nav = initNav({ app, camera, controls, recenter: () => goTo(lastView || whole(state.stage)), bounds: () => { const b = stages[state.stage].box; return { c: b.c, r: 2 * Math.max(b.hw, b.hh) }; } });
 
   /* ---------- rótulos ---------- */
   const labelsEl = $('labels'), svg = $('leaders'), NS = 'http://www.w3.org/2000/svg';
@@ -515,6 +517,7 @@ function start3D() {
     }
     const p = stp.done ? 1 : stp.t / s.dur;
     stBar.style.transform = `scaleX(${p.toFixed(4)})`;
+    nav.step(dt);
     controls.update();
     if (updateFocus(dt)) needs = true;
     if (!needs) return;
