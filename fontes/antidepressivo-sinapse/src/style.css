@@ -276,3 +276,7 @@ a.tb { color: var(--label); text-decoration: none; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* gráfico minimizado: só o cabeçalho, a leitura e os controles, para ver a cena */
+#gcard.min .g-svg, #gcard.min .g-leg, #gcard.min .g-note { display: none; }
+.g-head h2 { flex: 1 1 auto; } /* o botão de minimizar fica na ponta, depois da chave */

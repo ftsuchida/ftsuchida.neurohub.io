@@ -53,3 +53,13 @@
 .spd input { width: 84px; accent-color: var(--accent); cursor: pointer; }
 .spd output { min-width: 3.1em; text-align: right; font-variant-numeric: tabular-nums; color: var(--label); font-weight: 600; }
 @media (max-width: 900px) { .spd > span { display: none; } .spd input { width: 64px; } }
+
+/* minimizar os cartões sobre a cena */
+.min-tg { width: 26px; height: 26px; font-size: 13px; }
+#stepper > .min-tg { position: absolute; top: 10px; right: 10px; }
+#stepper.min .st-text, #stepper.min .st-dots { display: none; }
+#stepper.min h2 { padding-right: 30px; font-size: 16px; }
+/* passo a passo estreito: some o rótulo da velocidade e os pontinhos; se ainda faltar espaço, os controles quebram a linha */
+#stepper { container-type: inline-size; }
+#stepper .st-ctl { flex-wrap: wrap; row-gap: 6px; }
+@container (max-width: 520px) { #stepper .spd > span, #stepper .st-dots { display: none; } #stepper .spd input { width: 56px; } }

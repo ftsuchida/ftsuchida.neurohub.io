@@ -7,6 +7,7 @@ import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
 import { initPanes } from '../../comum/panes.js';
 import { initNav } from '../../comum/nav.js';
 import { initSpeed } from '../../comum/speed.js';
+import { initMinimize } from '../../comum/minimize.js';
 
 applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
 
@@ -205,6 +206,7 @@ function start3D() {
   controls.enableDamping = true; controls.dampingFactor = 0.1; controls.screenSpacePanning = true; controls.zoomSpeed = 0.9; controls.rotateSpeed = 0.8;
   controls.zoomToCursor = true;
   const busy = $('busy'), stepper = $('stepper');
+  initMinimize(stepper, { onChange: () => resize() }); // recolhe o texto do passo para ver a cena
 
   /* ---------- tamanho, áreas livres e enquadramento ---------- */
   let W = 0, H = 0, needs = true, vis = { x: 0, y: 0, w: 1, h: 1 };
