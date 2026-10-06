@@ -51,7 +51,7 @@ function ghostMaterial(planes) {
   });
 }
 
-const _ray = new THREE.Ray(), _dir = V(0.3713, 0.7421, 0.5583).normalize(), _p = V(), _z = V(0, 0, 1), _c = new THREE.Color();
+const _ray = new THREE.Ray(), _dir = V(0.3713, 0.7421, 0.5583).normalize(), _p = V(), _z = V(0, 0, 1), _c = new THREE.Color(), _pl = new THREE.Plane();
 
 export class Stage {
   /**
@@ -135,7 +135,7 @@ export class Stage {
     ready(geo);
     const map = {}; for (const [k, v] of Object.entries(o.map || { n: card })) map[k] = Array.isArray(v) ? v : [v];
     if (!map.n) map.n = [card];
-    const it = { card, geo, key: o.key || card, side: o.side || 'm', layer: o.layer || '', pri: o.pri ?? 1, capable: o.cap !== false, map, state: o.state || 'solid', pick: o.pick !== false, label: o.label !== false, mat: o.mat || {}, capColor: o.capColor, capCard: o.capCard };
+    const it = { card, geo, key: o.key || card, side: o.side || 'm', layer: o.layer || '', pri: o.pri ?? 1, capable: o.cap !== false, map, state: o.state || 'solid', pick: o.pick !== false, label: o.label !== false, mat: o.mat || {}, capColor: o.capColor, capCard: o.capCard, name: o.name || '', cut: false };
     it.mesh = new THREE.Mesh(geo, null); it.mesh.userData.inst = it;
     (o.parent || this.group).add(it.mesh);
     if (it.capable) {
@@ -160,7 +160,7 @@ export class Stage {
       it.mesh.material = ms.every((m) => m === this.ghost) ? this.ghost : ms.length > 1 ? ms : ms[0];
     } else it.mesh.material = it.mats.length > 1 ? it.mats : it.mats[0];
     it.mesh.renderOrder = s === 'ghost' ? 6 : it.mats[0].transparent ? 2 : 0;
-    if (it.cap) it.cap.visible = it.mark.visible = s === 'solid';
+    if (it.cap) it.cap.visible = it.mark.visible = s === 'solid' && it.cut;
   }
   /** Modo de cor: 'n' natural, 'l' lobos, 'a' áreas, 'o' origem. Decide a que ficha cada peça responde.
       vivid: as fichas que aparecem com a cor própria nesse modo; as outras ficam na cor natural. */
@@ -179,6 +179,9 @@ export class Stage {
     if (normal) {
       this.plane.setFromNormalAndCoplanarPoint(_p.copy(normal).normalize(), point.clone().add(this.origin));
       this.capFrame.position.copy(point); this.capFrame.quaternion.setFromUnitVectors(_z, _p.negate()); // +Z da tampa aponta para o lado retirado
+      // só tem face de corte a peça que o plano atravessa (a caixa dela, pelo menos): poupa desenhos
+      _pl.setFromNormalAndCoplanarPoint(_p.negate(), point);
+      for (const it of this.insts) if (it.cap) { it.cut = it.geo.boundingBox.intersectsPlane(_pl); it.cap.visible = it.mark.visible = it.state === 'solid' && it.cut; }
     } else this.plane.set(V(0, -1, 0), FAR);
   }
   /** Antes de cada quadro: as faces de corte só são desenhadas quando a câmera está do lado retirado. */
@@ -234,7 +237,7 @@ export class Stage {
       if (t !== null && (!best || t < best.distance)) {
         const P = raycaster.ray.at(t, V());
         let top = null;
-        for (const it of this.insts) if (it.cap && it.state === 'solid' && it.pick && (!top || it.pri > top.pri) && this.contains(it, P)) top = it;
+        for (const it of this.insts) if (it.cap && it.cut && it.state === 'solid' && it.pick && (!top || it.pri > top.pri) && this.contains(it, P)) top = it;
         if (top) return { id: top.capCard || top.cards[0], point: P, normal: pl.normal.clone().negate(), inst: top, cap: true, distance: t };
       }
     }
@@ -258,17 +261,18 @@ export class Stage {
    * ficha visível, o ponto mais "de dentro" da área que ela ocupa: [{ id, pos, n, area }]. Vale para superfícies
    * e para faces de corte. skip(peça) = true tira a peça da rotulagem, mas ela continua tapando o que está atrás.
    */
-  scan(renderer, scene, cam, skip) {
-    const W = 448, H = 336, ids = [], idx = new Map();
-    const num = (card) => { let i = idx.get(card); if (i === undefined) { ids.push(card); i = ids.length; idx.set(card, i); } return i; };
+  scan(renderer, scene, cam, skip, minArea = 50) {
+    const W = 640, H = 480, ids = [], idx = new Map();
+    // unidade de rótulo: a ficha; peças com nome próprio (it.name) ganham rótulo separado
+    const num = (card, it) => { const u = card + '|' + it.name; let i = idx.get(u); if (i === undefined) { ids.push(u); i = ids.length; idx.set(u, i); } return i; };
     const keep = [];
     for (const it of this.insts) {
       keep.push([it.mesh.material, it.mesh.visible, it.cap && it.cap.material]);
       if (it.state !== 'solid') { it.mesh.visible = false; continue; }
       const mute = !it.label || (skip && skip(it));
-      const ms = it.cards.map((c) => this.idMat(mute ? 0 : num(c)));
+      const ms = it.cards.map((c) => this.idMat(mute ? 0 : num(c, it)));
       it.mesh.material = ms.length > 1 ? ms : ms[0];
-      if (it.cap) it.cap.material = this.idMat(mute ? 0 : num(it.capCard || it.cards[0]), true);
+      if (it.cap) it.cap.material = this.idMat(mute ? 0 : num(it.capCard || it.cards[0], it), true);
     }
     const ex = this.extras.map((x) => x.visible); for (const x of this.extras) x.visible = false;
     const rt = Stage.rt || (Stage.rt = new THREE.WebGLRenderTarget(W, H, { stencilBuffer: true })), buf = new Uint8Array(W * H * 4);
@@ -292,11 +296,11 @@ export class Stage {
     for (let p = 0; p < W * H; p++) { const v = map[p]; if (!v) continue; const b = best[v - 1]; b.area++; if (d[p] > b.d) { b.d = d[p]; b.i = p; } }
     const out = [], rc = new THREE.Raycaster(), ndc = new THREE.Vector2();
     best.forEach((b, k) => {
-      if (b.i < 0 || b.area < 26) return;
+      if (b.i < 0 || b.area < minArea) return;
       ndc.set(((b.i % W) + 0.5) / W * 2 - 1, (Math.floor(b.i / W) + 0.5) / H * 2 - 1);
       rc.setFromCamera(ndc, cam);
       const h = this.pick(rc);
-      if (h && h.id === ids[k]) out.push({ id: h.id, pos: h.point.clone(), n: h.normal.clone(), area: b.area, cap: h.cap });
+      if (h && h.id + '|' + h.inst.name === ids[k]) out.push({ id: h.id, name: h.inst.name, pair: h.inst.side !== 'm', pos: h.point.clone(), n: h.normal.clone(), area: b.area, cap: h.cap });
     });
     return out;
   }

@@ -34,33 +34,33 @@ export const PARTS = {
   septo: tel('septo-pelucido', { pri: 4 }),
   fornice: tel('fornice', { pri: 5 }),
   'fornice-c': tel('fornice', { pri: 5 }),
-  caudado: tel('nucleo-caudado', { pri: 4 }),
-  putame: tel('putame', { pri: 4 }),
-  palido: tel('globo-palido', { pri: 4 }),
-  amigdala: tel('amigdala', { pri: 4 }),
-  hipocampo: tel('hipocampo', { pri: 4 }),
+  caudado: tel('nucleo-caudado', { pri: 4, g: 'telencefalo-basal' }),
+  putame: tel('putame', { pri: 4, g: 'telencefalo-basal' }),
+  palido: tel('globo-palido', { pri: 4, g: 'telencefalo-basal' }),
+  amigdala: tel('amigdala', { pri: 4, g: 'telencefalo-basal' }),
+  hipocampo: tel('hipocampo', { pri: 4, g: 'lobo-temporal' }),
   capsula: tel('capsula-interna', { pri: 3 }),
   // diencéfalo e via óptica
   talamo: die('talamo'),
   hipotalamo: die('hipotalamo'),
   tuber: die('hipotalamo'),
-  mamilar: die('corpo-mamilar', { pri: 5 }),
+  mamilar: die('corpo-mamilar', { pri: 5, g: 'hipotalamo' }),
   hipofise: die('hipofise'),
   pineal: die('pineal'),
-  'gen-lat': die('nucleo-geniculado-lateral', { pri: 5 }),
-  'gen-med': die('nucleo-geniculado-medial', { pri: 5 }),
+  'gen-lat': die('nucleo-geniculado-lateral', { pri: 5, g: 'talamo' }),
+  'gen-med': die('nucleo-geniculado-medial', { pri: 5, g: 'talamo' }),
   'nervo-optico': { c: 'nervo-optico', L: 'opt', pri: 4, o: 'vesicula-optica' },
   quiasma: { c: 'quiasma-optico', L: 'opt', pri: 5, o: 'vesicula-optica' },
   'tracto-optico': { c: 'tracto-optico', L: 'opt', pri: 5, o: 'vesicula-optica' },
   olho: { c: 'olho', L: 'olho', pri: 3, o: 'vesicula-optica' },
   // mesencéfalo, ponte, bulbo e cerebelo
-  mesencefalo: { c: ['tegmento', 'coliculo-superior', 'coliculo-inferior'], L: 'mes', pri: 2, o: 'mesencefalo', capCard: 'tegmento' },
+  mesencefalo: { c: ['tegmento', 'coliculo-superior', 'coliculo-inferior'], L: 'mes', pri: 2, o: 'mesencefalo' },
   pedunculo: { c: 'tegmento', L: 'mes', pri: 2, o: 'mesencefalo' },
   'coliculo-sup': { c: 'coliculo-superior', L: 'mes', pri: 3, o: 'mesencefalo' },
   'coliculo-inf': { c: 'coliculo-inferior', L: 'mes', pri: 3, o: 'mesencefalo' },
-  ponte: { c: 'ponte', L: 'pon', pri: 2 },
-  bulbo: { c: 'bulbo', L: 'bul', pri: 2 },
-  cerebelo: { c: ['hemisferio-cerebelar', 'verme'], L: 'cb', pri: 2, o: ['cerebelo', 'cerebelo'], capCard: 'cerebelo' },
+  ponte: { c: 'ponte', L: 'pon', pri: 2, o: 'rombencefalo' },
+  bulbo: { c: 'bulbo', L: 'bul', pri: 2, o: 'rombencefalo' },
+  cerebelo: { c: ['hemisferio-cerebelar', 'verme'], L: 'cb', pri: 2, o: ['rombencefalo', 'rombencefalo'], capCard: 'cerebelo' },
   // ventrículos
   'vent-lateral': ven('ventriculo-lateral'),
   forame: ven('ventriculo-lateral'),
@@ -77,11 +77,13 @@ export const PARTS = {
   'osso-esfenoide': { c: 'cranio', L: 'osso', pri: 0 },
 };
 
-/** Fichas por modo de cor para uma peça: { n, l, a, o }, cada uma com uma ficha por região. */
+/** Fichas por modo de cor para uma peça: { n, l, a, o, g, c }, cada uma com uma ficha por região.
+    g e c são as duas camadas dos cortes 1 a 3: "características gerais" e "células e fibras". */
 export function mapOf(p) {
   const arr = (v) => (Array.isArray(v) ? v : [v]), n = arr(p.c);
   const fill = (v) => (v ? (arr(v).length === n.length ? arr(v) : n.map(() => arr(v)[0])) : n);
-  return { n, l: fill(p.l), a: fill(p.a), o: fill(p.o) };
+  const cx = p.L === 'cx';
+  return { n, l: fill(p.l), a: fill(p.a), o: fill(p.o), g: fill(p.g || (cx ? p.l : p.L === 'mes' ? 'mesencefalo' : null)), c: fill(cx ? 'cortex-cerebral' : null) };
 }
 
 /* Cor "natural": o que aparece na superfície quando a ficha não está escolhida nem é o assunto do modo de cor. */
@@ -109,7 +111,10 @@ export const VIVID = {
   n: [],
   l: ['lobo-frontal', 'lobo-parietal', 'lobo-temporal', 'lobo-occipital', 'insula'],
   a: ['cortex-motor-primario', 'area-motora-suplementar', 'area-pre-motora', 'cortex-somatossensorial', 'cortex-parietal-posterior', 'cortex-visual', 'cortex-auditivo', 'cortex-gustatorio', 'cortex-pre-frontal', 'cortex-temporal-inferior'],
-  o: ['telencefalo', 'diencefalo', 'mesencefalo', 'ponte', 'bulbo', 'cerebelo', 'medula-espinhal', 'vesicula-optica'],
+  // código de cores do capítulo: prosencéfalo em azul (telencéfalo mais claro), mesencéfalo em vermelho, rombencéfalo em verde, medula em amarelo
+  o: ['telencefalo', 'diencefalo', 'mesencefalo', 'rombencefalo', 'medula-espinhal', 'vesicula-optica'],
+  g: ['lobo-frontal', 'lobo-parietal', 'lobo-temporal', 'lobo-occipital', 'insula', 'mesencefalo'],
+  c: [],
 };
 
 /* Quem acende junto: escolher a ficha da esquerda acende também as da direita. */

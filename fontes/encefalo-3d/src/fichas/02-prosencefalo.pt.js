@@ -51,14 +51,14 @@ export default [
     rel: ['fornice', 'hipocampo', 'septo-pelucido'],
   },
   {
-    id: 'capsula-interna', g: 'tel', name: 'Cápsula interna', color: '#B9C8E0', sub: 'c1',
+    id: 'capsula-interna', g: 'tel', name: 'Cápsula interna', color: '#B8936A', sub: 'c1',
     rows: [['No modelo', M + ' (parte da frente) e desenho esquemático (parte de trás)']],
     morf: 'Grande agrupamento de axônios que passa entre o tálamo e o núcleo caudado, de um lado, e o putame e o globo pálido, do outro. É contínua com a substância branca cortical.',
     func: 'Conecta o córtex com estruturas mais caudais, como o tronco encefálico e, sobretudo, o tálamo. Os neurônios do tálamo mandam axônios ao córtex por ela, e o córtex manda axônios ao tronco encefálico por ela.',
     clueTitle: 'Lado oposto',
     clue: 'Como regra geral, os axônios de cada cápsula interna levam ao córtex informação do lado contralateral do corpo. Um percevejo no pé direito é sentido pelo córtex esquerdo, via tálamo esquerdo e cápsula interna esquerda.',
     more: ['Alguns axônios corticais descem por ela e seguem até a medula espinhal: é o tracto corticospinal.'],
-    where: 'Cortes 1 e 2: a faixa azul-acinzentada entre o tálamo e o putame.',
+    where: 'Cortes 1 e 2: a faixa castanha entre o tálamo e o putame.',
     rel: ['talamo', 'substancia-branca', 'tracto-corticospinal', 'voc-capsula'],
   },
   {
@@ -79,11 +79,11 @@ export default [
     rel: ['nucleo-caudado', 'putame', 'globo-palido', 'telencefalo-basal', 'substancia-nigra', 'subtalamo'],
   },
   {
-    id: 'nucleo-caudado', g: 'tel', name: 'Núcleo caudado', color: '#7FB2E5', sub: 'dentro',
+    id: 'nucleo-caudado', g: 'tel', name: 'Núcleo caudado', color: '#F08C5A', sub: 'dentro',
     rows: [['No modelo', M], ['Volta em', 'cap. 14']],
     morf: 'Um dos núcleos da base. Fica junto à parede do ventrículo lateral, do lado de dentro da cápsula interna.',
     func: 'Com o putame e o globo pálido, faz parte dos sistemas encefálicos que controlam o movimento.',
-    where: 'Corte 1, camada de células e fibras: a região azul junto ao ventrículo lateral. Em Por dentro, o arco azul que acompanha o ventrículo.',
+    where: 'Corte 1, camada de células e fibras: a região laranja junto ao ventrículo lateral. Em Por dentro, o arco laranja que acompanha o ventrículo.',
     rel: ['nucleos-da-base', 'putame', 'globo-palido', 'ventriculo-lateral', 'capsula-interna'],
   },
   {

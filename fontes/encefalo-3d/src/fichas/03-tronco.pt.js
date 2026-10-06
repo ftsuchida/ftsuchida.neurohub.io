@@ -27,7 +27,7 @@ export default [
     rel: ['coliculo-superior', 'coliculo-inferior', 'tegmento', 'aqueduto', 'mesencefalo'],
   },
   {
-    id: 'tegmento', g: 'mes', name: 'Tegmento', aka: 'tegmento mesencefálico', color: '#F2B8C6', sub: 'medial',
+    id: 'tegmento', g: 'mes', name: 'Tegmento', aka: 'tegmento mesencefálico', color: '#F0A098', sub: 'medial',
     rows: [['No modelo', M]],
     morf: 'A parte do mesencéfalo ventral ao aqueduto. Vem do assoalho da vesícula mesencefálica.',
     func: 'É uma das porções mais "coloridas" do encéfalo: contém a substância nigra e o núcleo rubro, os dois ligados ao controle do movimento voluntário.',
@@ -61,13 +61,13 @@ export default [
     rel: ['aqueduto', 'tegmento', 'nucleo-da-rafe'],
   },
   {
-    id: 'substancia-nigra', g: 'mes', name: 'Substância nigra', color: '#4E5D78', sub: 'c4',
+    id: 'substancia-nigra', g: 'mes', name: 'Substância nigra', color: '#3BA58B', sub: 'c4',
     rows: [['No modelo', E], ['Volta em', 'cap. 14']],
     morf: 'Grupo de células na base do mesencéfalo, em faixa, dos dois lados. É o exemplo que o livro dá de "substância": um grupo de neurônios com limites menos precisos que os de um núcleo.',
     func: 'Está envolvida no controle do movimento voluntário.',
     clueTitle: 'Por que importa',
     clue: 'A doença de Parkinson resulta da degeneração dessa estrutura.',
-    where: 'Cortes 4 e 5: a faixa cinza-azulada escura na parte de baixo da secção. No Corte 2 aparece a ponta dela, na base.',
+    where: 'Cortes 4 e 5: a faixa verde na parte de baixo da secção. No Corte 2 aparece a ponta dela, na base.',
     rel: ['tegmento', 'nucleo-rubro', 'nucleos-da-base', 'subtalamo', 'voc-substancia'],
   },
   {
@@ -82,14 +82,14 @@ export default [
 
   /* ===================== ponte e cerebelo ===================== */
   {
-    id: 'ponte', g: 'rom', name: 'Ponte', color: '#3FB3A0', sub: 'medial',
+    id: 'ponte', g: 'rom', name: 'Ponte', color: '#EFA3CF', sub: 'medial',
     rows: [['No modelo', M], ['Origem', 'rombencéfalo rostral'], ['Referência', 'quarto ventrículo']],
     morf: 'A protuberância na superfície ventral do tronco encefálico, entre o mesencéfalo e o bulbo. Forma-se da parede ventral do rombencéfalo rostral, que se dilata.',
     func: 'Funciona como um grande painel de distribuição que conecta o córtex cerebral ao cerebelo. Daí o nome.',
     clueTitle: 'O número',
     clue: 'De todos os axônios que descem pelo mesencéfalo, mais de 90%, cerca de 20 milhões no ser humano, fazem sinapse nos neurônios da ponte. Estes mandam toda essa informação ao cerebelo do lado oposto.',
     more: ['Os axônios que não terminam na ponte seguem para baixo e formam as pirâmides bulbares.', 'A protuberância existe para alojar toda essa circuitaria.'],
-    where: 'Atlas, vistas Ventral e Medial: o volume saliente abaixo do mesencéfalo, à frente do cerebelo. Fica verde-azulada quando escolhida. Corte 6.',
+    where: 'Atlas, vistas Ventral e Medial: o volume saliente abaixo do mesencéfalo, à frente do cerebelo. Fica rosa quando escolhida. Corte 6.',
     rel: ['nucleos-pontinos', 'cerebelo', 'bulbo', 'quarto-ventriculo', 'formacao-reticular', 'mesencefalo'],
   },
   {
@@ -242,11 +242,11 @@ export default [
     rel: ['cortex-gustatorio', 'bulbo', 'talamo'],
   },
   {
-    id: 'lemnisco-medial', g: 'rom', name: 'Lemnisco medial', color: '#5CA9E6', sub: 'c8',
+    id: 'lemnisco-medial', g: 'rom', name: 'Lemnisco medial', color: '#7CC4F0', sub: 'c8',
     rows: [['No modelo', E], ['Volta em', 'cap. 12']],
     morf: 'Tracto em forma de fita, junto à linha média do bulbo. Lemniscus é "fita" em latim.',
     func: 'Os axônios dele levam a informação somatossensorial ao tálamo. São os axônios que saíram dos núcleos da coluna dorsal e cruzaram para o lado oposto.',
-    where: 'Cortes 8 e 9: a faixa azul vertical junto à linha média, acima das pirâmides. Em Vias › Tato, é o trecho que sobe do bulbo ao tálamo.',
+    where: 'Cortes 8 e 9: a faixa azul-clara, vertical, junto à linha média, acima das pirâmides. Em Vias › Tato, é o trecho que sobe do bulbo ao tálamo.',
     rel: ['nucleos-da-coluna-dorsal', 'talamo', 'nucleo-ventral-posterior', 'coluna-dorsal', 'voc-lemnisco'],
   },
   {

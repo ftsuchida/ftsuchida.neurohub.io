@@ -7,6 +7,7 @@
 //   seg      um segmento da medula e o mapa dos tractos
 // Só o encéfalo é montado na abertura; os outros palcos e os acréscimos do encéfalo são montados quando pedidos.
 import { BY_ID, SUB, STEPS } from './data.js';
+import { tr } from '../../comum/lang.js';
 import { buildBrain, REVEAL } from './encefalo.js';
 import { CHILDREN } from './partes.js';
 import { addSections } from './cortes.js';
@@ -16,6 +17,8 @@ import { buildLayers } from './camadas.js';
 import { buildOrigin } from './origem.js';
 import { buildSpine, buildSegment } from './medula.js';
 
+/* Nome no rótulo quando difere do nome da ficha (que, nos nervos cranianos, começa pelo número). */
+const LABEL = { 'nervo-optico': tr('Nervo óptico', 'Optic nerve') };
 const STAGE_OF = { camadas: 'camadas', origem: 'origem', coluna: 'coluna', segmento: 'seg', tractos: 'seg' };
 const BUILD = { camadas: buildLayers, origem: buildOrigin, coluna: buildSpine, seg: buildSegment };
 // acréscimos do palco do encéfalo, por módulo: entram na primeira vez que o módulo abre
@@ -29,7 +32,7 @@ export function buildScene() {
   const addonOf = (sub) => { const m = SUB[sub] && SUB[sub].mod; return ADDON[m] ? m : null; };
   /** Monta um palco ('camadas') ou um acréscimo do encéfalo ('+volta'), se ainda não existe. */
   function ensure(name) {
-    if (name[0] === '+') { const k = name.slice(1); if (!added.has(k)) { added.add(k); ADDON[k](stages.enc); } return; }
+    if (name[0] === '+') { const k = name.slice(1); if (!added.has(k)) { added.add(k); ADDON[k](stages.enc); stages.enc.refresh(); } return; }
     if (!stages[name]) { stages[name] = BUILD[name](); if (theme) stages[name].setTheme(theme); }
   }
   const pending = () => [...Object.keys(ADDON).filter((k) => !added.has(k)).map((k) => '+' + k), ...Object.keys(BUILD).filter((k) => !stages[k])];
@@ -48,16 +51,32 @@ export function buildScene() {
     if (!s) return [];
     const o = st.opts || {}, out = [];
     const only = typeof s.only === 'function' ? s.only(o) : s.only, boost = (typeof s.boost === 'function' ? s.boost(o) : s.boost) || {};
-    const toCam = (p) => cam.position.clone().sub(p).normalize();
+    const toCam = (p) => cam.position.clone().sub(p).normalize(), alias = typeof s.alias === 'function' ? s.alias(o) : s.alias;
     if (s.auto !== false) {
-      for (const l of st.scan(renderer, scene, cam, s.skip)) {
-        if (only && !only.has(l.id)) continue;
+      for (const l of st.scan(renderer, scene, cam, s.skip, s.minArea)) {
         if (s.capOnly && !l.cap) continue;
-        out.push({ id: l.id, pos: l.pos, n: toCam(l.pos), rank: Math.min(30, l.area / 60) + (l.cap ? 40 : 0) + (boost[l.id] || 0) });
+        const id = (alias && alias[l.id]) || l.id; // a vista pode rotular a peça pelo nome do conjunto (ponte → tronco encefálico)
+        if (only && !only.has(id)) continue;
+        const text = (s.names && s.names[id]) || l.name || LABEL[id] || undefined, rank = Math.min(30, l.area / 60) + (l.cap ? 40 : 0) + (boost[id] || 0);
+        const same = out.find((x) => x.id === id && x.text === text);
+        if (same) { if (rank > same.rank) Object.assign(same, { pos: l.pos, pair: l.pair, n: toCam(l.pos), rank }); continue; }
+        out.push({ id, text, pos: l.pos, pair: l.pair, n: toCam(l.pos), rank });
       }
     }
     for (const m of st.marks || []) if (!m.twin && m.subs.includes(sub)) out.push({ id: m.id, pos: m.pos, n: m.n, rank: 18 });
     if (s.extra) out.push(...s.extra(o, cam));
+    if (s.max && out.length > s.max) { out.sort((a, b) => b.rank - a.rank); out.length = s.max; }
+    if (s.margin) out.margin = true; // rótulos em colunas, fora do desenho
+    if (typeof s.margin === 'number') { // secções: reparte entre os dois lados, aproveitando que as peças são pares
+      const h = (l) => l.pos.clone().project(cam).y, n = [0, 0];
+      out.sort((a, b) => h(b) - h(a));
+      for (const l of out) {
+        const side = n[0] === n[1] ? (l.pos.x >= 0 ? 1 : 0) : n[0] < n[1] ? 0 : 1; // 0 = x negativo, 1 = x positivo
+        if (l.pair && (l.pos.x >= 0 ? 1 : 0) !== side) l.pos.x = -l.pos.x; // peça par: o ponto espelhado cai na gêmea
+        l.col = (l.pair ? side : l.pos.x >= 0 ? 1 : 0) ? s.margin : -s.margin;
+        n[l.col * s.margin > 0 ? 1 : 0]++;
+      }
+    }
     return out;
   }
 
@@ -73,11 +92,11 @@ export function buildScene() {
   }
 
   /** Onde a ficha mora: subvista e, se preciso, modo de cor, camada do corte e peças que viram contorno. */
-  function home(id) {
+  function home(id, mode) {
     const it = BY_ID[id], h = { sub: (it && it.sub) || 'lateral' };
     if (REVEAL[id]) h.reveal = REVEAL[id];
     const st = stages[stageOf(h.sub)];
-    if (st && st.homeOf) Object.assign(h, st.homeOf(id, h.sub, expand(id)) || {});
+    if (st && st.homeOf) Object.assign(h, st.homeOf(id, h.sub, expand(id), mode) || {});
     return h;
   }
   function frame(id, sub) {
@@ -100,9 +119,10 @@ export function buildScene() {
     const step = stepId && STEPS.find((x) => x.id === stepId);
     return step ? step.ids : [];
   }
+  const axesOf = (sub) => { const st = stages[stageOf(sub)], s = st && subOf(st, sub); return (s && s.axes) || (st && st.axes) || null; };
   const live = (sub) => { const st = stages[stageOf(sub)], s = st && subOf(st, sub); return !!(s && s.live); };
   function cut(sub, o) { const st = stages[stageOf(sub)], s = st && subOf(st, sub); if (s && s.cut) s.cut(o); }
   function setTheme(t) { theme = t; for (const s of Object.values(stages)) s.setTheme(t); }
 
-  return { stages, ensure, pending, stageOf, enter, labels, expand, home, frame, stepView, animate, live, cut, setTheme };
+  return { stages, ensure, pending, stageOf, enter, labels, expand, home, frame, stepView, animate, live, cut, setTheme, axesOf };
 }

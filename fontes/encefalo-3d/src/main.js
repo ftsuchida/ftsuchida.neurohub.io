@@ -142,8 +142,8 @@ function openSub(id, o = {}) {
   if (was !== id || !o.keep) { stp.list = stepsOf(id); stp.i = 0; stp.t = 0; stp.done = false; stp.playing = false; stp.auto = false; stp.touched = false; }
   markView();
   test.leave(s.mod !== 'teste');
-  if (three) three.enter(o);
   renderCtx();
+  if (three) three.enter(o);
   if (!state.selected) renderIntro();
   if (s.mod === 'teste') test.start();
 }
@@ -208,8 +208,8 @@ function goStep(i, auto) {
   if (state.selected) select(null);
   if (phone.matches) sheet.to('peek');
   stp.wait = reduce ? 0 : 900;
-  if (three) three.openStep(stp.list[stp.i]);
   renderCtx();
+  if (three) three.openStep(stp.list[stp.i]);
 }
 stPlay.addEventListener('click', () => {
   if (stp.playing) { stp.playing = false; stp.auto = false; renderCtx(); return; }
@@ -302,23 +302,27 @@ function start3D() {
     return { x: l, y: 8, w: Math.max(200, r - l), h: Math.max(200, b - 8) };
   }
   let first = true;
+  /** Mede a área livre entre os painéis e desloca o centro óptico para o meio dela. */
+  function updateVis() {
+    if (!W) return;
+    vis = freeArea();
+    camera.setViewOffset(W, H, -(vis.x + vis.w / 2 - W / 2), -(vis.y + vis.h / 2 - H / 2), W, H);
+    camera.updateProjectionMatrix();
+    placeGizmo();
+  }
   function resize() {
     const w = app.clientWidth, h = app.clientHeight; if (!w || !h) return;
-    W = w; H = h;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    vis = freeArea();
-    // desloca o centro óptico para o meio da área livre entre os painéis
-    camera.setViewOffset(w, h, -(vis.x + vis.w / 2 - w / 2), -(vis.y + vis.h / 2 - h / 2), w, h);
-    camera.updateProjectionMatrix();
-    $('leaders').setAttribute('viewBox', `0 0 ${w} ${h}`);
+    if (w !== W || h !== H) { W = w; H = h; renderer.setSize(w, h, false); camera.aspect = w / h; $('leaders').setAttribute('viewBox', `0 0 ${w} ${h}`); }
+    updateVis();
     if (first) { first = false; enter({ instant: true }); } else relabel(200);
-    placeGizmo();
     dirty();
   }
+  /** Largura da área livre que sobra para a cena quando a vista reserva colunas laterais para os rótulos. */
+  const MARGIN = 132, roomy = () => vis.w >= 600;
+  const sceneW = (v) => (v.margin && roomy() ? vis.w - 2 * MARGIN : vis.w);
   function viewDistance(v) {
-    if (v.box) return (Math.max((v.box.hh * H) / vis.h, (v.box.hw * H) / vis.w) / TAN) * 1.06;
-    return ((v.r * H) / (Math.min(vis.w, vis.h) * TAN)) * 1.1;
+    if (v.box) return (Math.max((v.box.hh * H) / vis.h, (v.box.hw * H) / sceneW(v)) / TAN) * 1.06;
+    return ((v.r * H) / (Math.min(sceneW(v), vis.h) * TAN)) * 1.1;
   }
   let fly = null, lastView = null;
   /** Um painel abriu ou fechou: recalcula a área livre e ajusta a distância da câmera na mesma proporção,
@@ -359,6 +363,7 @@ function start3D() {
   }
   /** Aplica a subvista atual: palco, camadas, corte, modo de cor, rótulos e câmera. */
   function enter(o = {}) {
+    updateVis();
     const name = built.stageOf(state.sub);
     let view = null;
     const after = () => {
@@ -369,6 +374,7 @@ function start3D() {
     setStage(name, null, o.instant, () => { after(); goTo(o.view || view, true); });
   }
   function openStep(s) {
+    updateVis();
     // o passo pode pedir outra subvista (por exemplo, o último passo da Origem mostra o encéfalo adulto)
     const name = built.stageOf(s.at || state.sub);
     const after = () => { const v = built.enter(s.at || state.sub, { mode: s.mode || state.mode, variant: state.variant, plane: state.plane, cut: state.cut, step: s.id }); relabel(); goTo(built.stepView(s.id) || v, name !== state.stage); };
@@ -376,11 +382,12 @@ function start3D() {
   }
   /** Leva à subvista em que a ficha mora e enquadra a estrutura. */
   function goCard(id) {
-    const h = built.home(id);
+    const h = built.home(id, state.mode);
     if (h.mode && h.mode !== state.mode) state.mode = h.mode;
     const same = h.sub === state.sub && !h.reveal && !lastReveal;
     lastReveal = h.reveal || null;
     if (!same) { state.sub = h.sub; state.mod = SUB[h.sub].mod; lastSub[state.mod] = h.sub; stp.list = stepsOf(h.sub); stp.i = 0; stp.t = 0; stp.done = false; stp.playing = false; stp.touched = false; markView(); renderCtx(); }
+    updateVis();
     const name = built.stageOf(h.sub);
     const after = () => {
       const v = built.enter(h.sub, { mode: state.mode, variant: h.variant || state.variant, plane: state.plane, cut: state.cut, reveal: h.reveal });
@@ -388,7 +395,8 @@ function start3D() {
       relabel(); renderOpts();
       // estrutura pequena: chega perto, sem perder o entorno; estrutura grande: fica a vista inteira
       const f = built.frame(id, h.sub), base = v.box ? Math.min(v.box.hw, v.box.hh) : v.r, r = f ? Math.max(f.r * 1.7, base * 0.55) : 0;
-      goTo(f && r < base * 0.92 ? { t: f.t, r, dir: h.dir || v.dir } : h.dir ? { ...v, dir: h.dir } : v, name !== state.stage);
+      // nas vistas com rótulos em colunas (os cortes), a secção inteira é o contexto: não aproxima
+      goTo(f && r < base * 0.92 && !v.margin ? { t: f.t, r, dir: h.dir || v.dir } : h.dir ? { ...v, dir: h.dir } : v, name !== state.stage);
     };
     if (name === state.stage) { after(); dirty(); } else setStage(name, null, false, after);
   }
@@ -400,7 +408,7 @@ function start3D() {
 
   /* ---------- rótulos: recalculados a cada subvista ---------- */
   const labelsEl = $('labels'), svg = $('leaders'), NS = 'http://www.w3.org/2000/svg';
-  let labels = [];
+  let labels = [], labelMode = 'free'; // 'margin': rótulos em duas colunas, fora do desenho, como nas figuras de atlas
   let labelsAt = 0, scanned = null; // labelsAt: quando refazer os rótulos (0 = não há pedido)
   const relabel = (wait = 0) => { labelsAt = performance.now() + wait; dirty(); };
   /** Câmera na pose final (a do fim do voo, se há um), enxergando só a área livre entre os painéis. */
@@ -417,7 +425,9 @@ function start3D() {
     const c = scanCamera();
     scanned = { p: c.position.clone(), t: (fly ? fly.toT : controls.target).clone(), sub: state.sub };
     for (const l of labels) { l.el.remove(); if (l.line) { l.line.remove(); l.dotEl.remove(); } }
-    labels = built.labels(renderer, scene, state.sub, c).map(makeLabel);
+    const defs = built.labels(renderer, scene, state.sub, c);
+    labelMode = defs.margin && roomy() ? 'margin' : 'free';
+    labels = defs.map(makeLabel);
     measure();
   }
   /** A pessoa girou, moveu ou aproximou: se a vista mudou de verdade, os rótulos são refeitos para o que está à mostra. */
@@ -457,6 +467,40 @@ function start3D() {
     for (const p of placed) if (bx < p[2] && bx + l.w > p[0] && by < p[3] && by + l.h > p[1]) return false;
     return true;
   }
+  /** Rótulos em duas colunas, à esquerda e à direita do desenho, cada um ligado ao seu ponto por um traço. */
+  function layoutMargin(cand) {
+    if (!cand.length || !lastView) return;
+    // bordas do desenho na tela: o centro do enquadramento, mais e menos a meia largura dele
+    const v = lastView, c = v.box ? v.box.c : v.t, hw = (v.box ? v.box.hw : v.r) * 0.98;
+    camera.updateMatrixWorld();
+    const right = tmp2.setFromMatrixColumn(camera.matrixWorld, 0);
+    const px = (k) => ((tmp.copy(c).addScaledVector(right, k * hw).project(camera).x + 1) / 2) * W;
+    const edge = [px(-1), px(1)], mid = (edge[0] + edge[1]) / 2, top = vis.y + 6, bottom = vis.y + vis.h - 6;
+    const xs = cand.filter((l) => !l.col).map((l) => l.x).sort((p, q) => p - q), med = xs.length ? (xs[(xs.length - 1) >> 1] + xs[xs.length >> 1]) / 2 + 0.01 : mid;
+    const navEl = document.getElementById('nav'), a = app.getBoundingClientRect(), nb = navEl && navEl.getClientRects().length ? navEl.getBoundingClientRect() : null;
+    const navBox = nb && { left: nb.left - a.left, right: nb.right - a.left, top: nb.top - a.top };
+    for (const side of [0, 1]) {
+      const list = cand.filter((l) => (l.col ? l.col > 0 : l.x >= med) === !!side).sort((a, b) => a.y - b.y);
+      let y = top;
+      for (const l of list) { l.by = Math.max(y, l.y - l.h / 2); y = l.by + l.h + 5; }
+      // o painel de controle da câmera pode estar em cima da coluna: os rótulos param antes dele
+      const x0 = side ? edge[1] + 14 : vis.x + 4, x1 = side ? vis.x + vis.w - 4 : edge[0] - 14;
+      let lim = bottom; // passou do fim da área: empurra de baixo para cima
+      if (navBox && navBox.left < x1 && navBox.right > x0 && navBox.top > vis.y + vis.h * 0.4) lim = Math.min(lim, navBox.top - 6);
+      for (let i = list.length - 1; i >= 0; i--) { const l = list[i]; if (l.by + l.h > lim) l.by = lim - l.h; lim = l.by - 5; }
+      for (const l of list) {
+        l.bx = side ? Math.min(vis.x + vis.w - 4 - l.w, edge[1] + 14) : Math.max(vis.x + 4, edge[0] - 14 - l.w);
+        l.show = l.by >= top - 2;
+        l.ex = side ? l.bx + 2 : l.bx + l.w - 2;
+      }
+      // traços que se cruzam: troca as duas posições (algumas passadas bastam)
+      const cross = (p, q) => { const d = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]), A = [p.ex, p.by + p.h / 2], B = [p.x, p.y], C = [q.ex, q.by + q.h / 2], D = [q.x, q.y]; return d(A, B, C) * d(A, B, D) < 0 && d(C, D, A) * d(C, D, B) < 0; };
+      for (let pass = 0; pass < 3; pass++) for (let i = 0; i < list.length - 1; i++) {
+        const p = list[i], q = list[i + 1];
+        if (p.show && q.show && cross(p, q)) { const t = p.by; p.by = q.by; q.by = t + (p.h - q.h); list[i] = q; list[i + 1] = p; }
+      }
+    }
+  }
   function layoutLabels() {
     const placed = [], cand = [], sel = selSet(), hideAll = !state.labels || test.on();
     for (const l of labels) {
@@ -478,7 +522,9 @@ function start3D() {
       cand.push(l);
     }
     cand.sort((a, b) => a.pr - b.pr);
-    for (const l of cand) {
+    { const navEl = document.getElementById('nav'); if (navEl && navEl.getClientRects().length) { const a = app.getBoundingClientRect(), r = navEl.getBoundingClientRect(); placed.push([r.left - a.left - 4, r.top - a.top - 4, r.right - a.left + 4, r.bottom - a.top + 4]); } }
+    if (labelMode === 'margin') layoutMargin(cand);
+    else for (const l of cand) {
       let ok = false, bx, by;
       if (l.kind !== 'label') { bx = l.x - l.w / 2; by = l.y - l.h / 2; ok = fits(bx, by, l, placed); }
       else for (let o = 0; o < 4 && !ok; o++) { bx = l.x + OFFS[o][0] - (OFFS[o][0] < 0 ? l.w : 0); by = l.y + OFFS[o][1]; ok = fits(bx, by, l, placed); }
@@ -540,7 +586,7 @@ function start3D() {
   const giz = $('gizmo'), GA = [['x', 0], ['y', 1], ['z', 2]];
   function placeGizmo() { giz.style.left = Math.round(vis.x + 10) + 'px'; giz.style.top = Math.round(vis.y + (phone.matches ? 6 : 10)) + 'px'; }
   function drawGizmo() {
-    const ax = stage().axes; giz.hidden = !ax || test.on();
+    const ax = built.axesOf(state.sub); giz.hidden = !ax || test.on();
     if (!ax) return;
     const m = camera.matrixWorldInverse.elements, R = 23;
     let html = '';
@@ -548,7 +594,7 @@ function start3D() {
     for (const [k, c] of GA) for (const s of [1, -1]) { const name = ax[k][s > 0 ? 0 : 1]; if (name) items.push({ x: m[c * 4] * s, y: -m[c * 4 + 1] * s, z: m[c * 4 + 2] * s, name, main: s > 0 }); }
     items.sort((a, b) => a.z - b.z);
     for (const it of items) {
-      if (Math.abs(it.z) > 0.93) continue; // eixo de frente para a câmera: o nome cairia em cima do centro
+      if (Math.abs(it.z) > 0.8) continue; // eixo quase de frente para a câmera: o nome cairia em cima do centro
       const x = 40 + it.x * R, y = 40 + it.y * R, o = (0.42 + 0.58 * (it.z * 0.5 + 0.5)).toFixed(2);
       html += `<line x1="40" y1="40" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" opacity="${o}"${it.main ? '' : ' class="neg"'}/><text x="${(40 + it.x * (R + 11)).toFixed(1)}" y="${(40 + it.y * (R + 9) + 3.5).toFixed(1)}" opacity="${o}">${it.name}</text>`;
     }
@@ -620,9 +666,10 @@ function start3D() {
     relabel,
     view: (v, instant) => goTo(v, instant),
   };
+  window.__nh = { pickAt, built, camera, controls, stage, labels: () => labels, vis: () => vis }; // GANCHO DE TESTE: remover antes de entregar
   applyTheme();
   const s0 = stages.enc; controls.minDistance = s0.dist[0]; controls.maxDistance = s0.dist[1];
-  if (window.ResizeObserver) new ResizeObserver(resize).observe(app);
+  if (window.ResizeObserver) { new ResizeObserver(resize).observe(app); let sh = 0; new ResizeObserver(() => { const h = stepper.offsetHeight; if (sh && Math.abs(h - sh) > 2) repane(); sh = h; }).observe(stepper); }
   window.addEventListener('resize', resize);
   phone.addEventListener('change', () => { if (phone.matches) sheet.to('peek'); else app.style.removeProperty('--sheet'); setTimeout(resize, 60); });
   resize();

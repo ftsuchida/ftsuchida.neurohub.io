@@ -1,1 +1,2 @@
-export function addPathways(st) { void st; }
+import { ensureNuclei } from './nucleos.js';
+export function addPathways(st) { ensureNuclei(st); }
