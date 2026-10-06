@@ -6,6 +6,7 @@ import { buildScene } from './scene.js';
 import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
 import { initPanes } from '../../comum/panes.js';
 import { initNav } from '../../comum/nav.js';
+import { initSpeed } from '../../comum/speed.js';
 
 applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
 
@@ -111,6 +112,7 @@ segEl.addEventListener('click', (e) => { const b = e.target.closest('button[data
 
 /* ============================== passo a passo ============================== */
 const stPlay = $('stPlay'), stBar = $('stBar');
+const speed = initSpeed(stPlay.parentElement, stPlay.parentElement.querySelector('.grow')); // multiplicador de tempo da animação
 $('stDots').innerHTML = STEPS.map((s, i) => `<button type="button" data-step="${i}" aria-label="${tr(`Passo ${i + 1}: ${s.title}`, `Step ${i + 1}: ${s.title}`)}"></button>`).join('');
 function renderStepper() {
   const s = STEPS[stp.i], last = stp.i === STEPS.length - 1;
@@ -492,7 +494,7 @@ function start3D() {
   let prev = performance.now(), clock = 0, autoAt = 0;
   function frame(now) {
     requestAnimationFrame(frame);
-    const dt = Math.min(0.1, (now - prev) / 1000); prev = now;
+    const dt = Math.min(0.1, (now - prev) / 1000), sdt = dt * speed.value; prev = now;
     if (fly) {
       const u = Math.min(1, (now - fly.t0) / fly.dur), e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
       controls.target.lerpVectors(fly.fromT, fly.toT, e); camera.position.lerpVectors(fly.fromP, fly.toP, e);
@@ -502,9 +504,9 @@ function start3D() {
     // passo a passo
     const s = STEPS[stp.i], here = s.stage === state.stage && !app.classList.contains('fade');
     if (stp.playing && here) {
-      if (stp.wait > 0) stp.wait -= dt * 1000;
+      if (stp.wait > 0) stp.wait -= sdt * 1000;
       else {
-        stp.t += dt * 1000; clock += dt;
+        stp.t += sdt * 1000; clock += sdt;
         if (stp.t >= s.dur) { stp.t = s.dur; stp.playing = false; stp.done = true; autoAt = stp.auto && stp.i < STEPS.length - 1 ? now + 1100 : 0; if (!autoAt) stp.auto = false; renderStepper(); }
       }
       needs = true;
@@ -512,8 +514,8 @@ function start3D() {
     if (autoAt && now >= autoAt) { autoAt = 0; if (stp.done && stp.auto) goStep(stp.i + 1, true); }
     if (free.on) {
       const target = free.drug ? 1 : 0;
-      if (free.d !== target) { free.d = Math.max(0, Math.min(1, free.d + Math.sign(target - free.d) * dt / 1.6)); clock += dt; needs = true; }
-      if (free.playing) { free.te += dt; clock += dt; if (free.te >= sim.E) { free.te = sim.E; free.playing = false; } needs = true; }
+      if (free.d !== target) { free.d = Math.max(0, Math.min(1, free.d + Math.sign(target - free.d) * sdt / 1.6)); clock += sdt; needs = true; }
+      if (free.playing) { free.te += sdt; clock += sdt; if (free.te >= sim.E) { free.te = sim.E; free.playing = false; } needs = true; }
     }
     const p = stp.done ? 1 : stp.t / s.dur;
     stBar.style.transform = `scaleX(${p.toFixed(4)})`;

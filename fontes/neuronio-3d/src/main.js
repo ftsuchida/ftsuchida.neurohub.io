@@ -6,6 +6,7 @@ import { buildScene } from './scene.js';
 import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
 import { initPanes } from '../../comum/panes.js';
 import { initNav } from '../../comum/nav.js';
+import { initSpeed } from '../../comum/speed.js';
 import { createModel, Graph } from './ap.js';
 
 applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
@@ -421,7 +422,7 @@ function start3D() {
   const num = (v, d = 0) => v.toFixed(d).replace('.', tr(',', '.')).replace('-', '−');
   const SVG_PLAY = '<svg class="ic fill" viewBox="0 0 16 16"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.3-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z"/></svg>';
   const SVG_PAUSE = '<svg class="ic fill" viewBox="0 0 16 16"><rect x="3.5" y="2.5" width="3.2" height="11" rx="1"/><rect x="9.3" y="2.5" width="3.2" height="11" rx="1"/></svg>';
-  let phaseKey = '', sig = null;
+  let phaseKey = '', sig = null, vnow = performance.now(); // vnow: relógio da animação, em ms, já multiplicado pela velocidade
   function setPhase(title, text) { const key = title + '|' + text; if (key === phaseKey) return; phaseKey = key; phaseEl.innerHTML = `<b>${title}.</b> ${text}`; }
   function showModule(mode) {
     mod.mode = mode;
@@ -441,6 +442,7 @@ function start3D() {
     }
   }
   function stimLabel() { $('apStimV').textContent = mod.k < 0.01 ? tr('sem estímulo', 'no stimulus') : tr(`${num(mod.k, 2)}× o limiar`, `${num(mod.k, 2)}× threshold`); }
+  const speed = initSpeed($('apClose').parentElement, $('apClose')); // multiplicador de tempo da animação
   $('apPlay').addEventListener('click', () => { if (mod.playing) mod.playing = false; else { if (mod.t >= model.T - 0.02) mod.t = 0; mod.playing = true; } mod.dirty = true; });
   $('apStim').addEventListener('input', (e) => { mod.k = +e.target.value; mod.tr = model.trace(mod.k); graph.setTrace(mod.tr); mod.t = 0.5; mod.playing = true; stimLabel(); });
   graph.onScrub = (t) => { if (mod.mode !== 'ap') return; mod.t = t; mod.playing = false; mod.dirty = true; };
@@ -464,7 +466,7 @@ function start3D() {
     if (phone.matches) sheet.to('peek');
     showModule('world'); graph.setTrace(model.trace(0.75)); graph.setTime(0); readEl.textContent = ''; setPhase(tr('Sinal', 'Signal'), tr('Acompanhe o ponto amarelo pelo neurônio.', 'Follow the yellow dot through the neuron.'));
     setStage('world', () => whole('world'));
-    sig = { i: 0, gi: -1, n: 0, t0: performance.now() + (reduce ? 0 : 900) }; $('apAgain').disabled = true;
+    sig = { i: 0, gi: -1, n: 0, t0: vnow + (reduce ? 0 : 900) }; $('apAgain').disabled = true;
   }
   function stopSignal() { if (!sig) return; sig = null; pulse.visible = false; flash.until = 0; $('apAgain').disabled = false; }
   playBtn.addEventListener('click', startSignal); $('apAgain').addEventListener('click', startSignal);
@@ -490,7 +492,7 @@ function start3D() {
     if (sig.kind === 'sub') graph.setTime(0.5 + u * 1.4);
     else if (sig.kind === 'sub2') graph.setTime(1.9 + u * 2.2);
     else if (sig.kind === 'ap') graph.setTime(0.6 + (e / total) * 5.6);
-    flash.ids = [s.id]; flash.until = now + 80;
+    flash.ids = [s.id]; flash.until = performance.now() + 80;
   }
 
   /* ---------- tema ---------- */
@@ -525,15 +527,16 @@ function start3D() {
   let prev = performance.now();
   function frame(now) {
     requestAnimationFrame(frame);
-    const dt = Math.min(0.1, (now - prev) / 1000); prev = now;
+    const dt = Math.min(0.1, (now - prev) / 1000), sdt = dt * speed.value; prev = now;
+    vnow += sdt * 1000;
     if (fly) {
       const u = Math.min(1, (now - fly.t0) / fly.dur), e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
       controls.target.lerpVectors(fly.fromT, fly.toT, e); camera.position.lerpVectors(fly.fromP, fly.toP, e);
       if (u >= 1) fly = null;
       needs = true;
     }
-    if (sig) { stepSignal(now); needs = true; }
-    if (state.stage === 'ap' && mod.mode === 'ap' && (mod.playing || mod.dirty || needs)) { stepModule(dt); mod.dirty = false; needs = true; }
+    if (sig) { stepSignal(vnow); needs = true; }
+    if (state.stage === 'ap' && mod.mode === 'ap' && (mod.playing || mod.dirty || needs)) { stepModule(sdt); mod.dirty = false; needs = true; }
     nav.step(dt);
     controls.update();
     if (updateFocus(dt, now)) needs = true;
