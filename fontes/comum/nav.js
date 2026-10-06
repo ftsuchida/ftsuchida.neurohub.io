@@ -3,11 +3,13 @@
 // aqui, mover leva a câmera junto com esse ponto, e aproximar no limite passa a andar para a frente.
 // Assim dá para chegar ao outro lado do modelo sem depender só de arrastar.
 //   setas: girar · Shift + setas ou A D Q E: mover · W S ou + −: frente e trás · 0: recentralizar
-// O painel liga e desliga por um botão na barra de vistas; a escolha fica guardada no navegador.
+// O painel liga e desliga por um botão na barra de vistas e começa no canto inferior direito da cena.
+// Dá para arrastá-lo pela borda; dois cliques nela o devolvem ao canto. Tudo fica guardado no navegador.
 import * as THREE from 'three';
 import { tr } from './lang.js';
 
-const KEY = 'neurohub.nav';
+const KEY = 'neurohub.nav', POS = 'neurohub.navPos';
+const BELOW = ['toolbar', 'stepper', 'apcard', 'play', 'panes']; // o que mora embaixo da cena: o canto padrão fica acima disso
 const ROT = 1.7, PAN = 0.9, ZOOM = 1.5; // por segundo: radianos; distâncias até o ponto de giro; fator (log) de aproximação
 const NEAR = 1.25; // abaixo de minDistance × NEAR, aproximar vira andar para a frente
 
@@ -38,7 +40,8 @@ export function initNav({ app, camera, controls, recenter, bounds }) {
   const pad = document.createElement('div');
   pad.id = 'nav'; pad.className = 'glass'; pad.setAttribute('role', 'group'); pad.setAttribute('aria-label', tr('Controle da câmera', 'Camera controls'));
   const nb = (k, cls = '') => `<button type="button" class="nb ${cls}" data-k="${k}">${ICON[k]}</button>`;
-  pad.innerHTML = `<div class="nav-mode">
+  pad.innerHTML = `<div class="nav-grip" aria-hidden="true" title="${tr('Arraste para mover o painel. Dois cliques o devolvem ao canto.', 'Drag to move the panel. Double-click to send it back to the corner.')}"><span></span></div>
+    <div class="nav-mode">
       <button type="button" data-mode="orbit" aria-pressed="true">${tr('Girar', 'Rotate')}</button>
       <button type="button" data-mode="pan" aria-pressed="false">${tr('Mover', 'Move')}</button></div>
     <div class="nav-pad">${nb('u', 'u')}${nb('l', 'l')}<button type="button" class="nb c" data-act="home" title="${tr('Recentralizar (0)', 'Recenter (0)')}" aria-label="${tr('Recentralizar', 'Recenter')}">${ICON.home}</button>${nb('r', 'r')}${nb('d', 'd')}</div>
@@ -69,7 +72,21 @@ export function initNav({ app, camera, controls, recenter, bounds }) {
   }
   setMode('orbit');
   const action = (k) => (k === 'in' ? 'fwd' : k === 'out' ? 'back' : PAD[mode][k]);
-  const showHelp = (on) => { help.hidden = !on; helpBtn.setAttribute('aria-expanded', String(on)); };
+  /** A ajuda abre do lado do painel que tem espaço; sem espaço dos lados (celular), abre acima ou abaixo. */
+  function showHelp(on) {
+    help.hidden = !on; helpBtn.setAttribute('aria-expanded', String(on));
+    if (!on) return;
+    const a = app.getBoundingClientRect(), p = pad.getBoundingClientRect(), w = help.offsetWidth + 8;
+    const low = p.top + p.height / 2 > a.top + a.height / 2, right = p.left + p.width / 2 > a.left + a.width / 2;
+    const s = help.style; s.left = s.right = s.top = s.bottom = '';
+    if (p.left - a.left >= w || a.right - p.right >= w) {
+      if (p.left - a.left >= w && (right || a.right - p.right < w)) s.right = 'calc(100% + 8px)'; else s.left = 'calc(100% + 8px)';
+      if (low) s.bottom = '0'; else s.top = '0';
+    } else {
+      if (right) s.right = '0'; else s.left = '0';
+      if (low) s.bottom = 'calc(100% + 8px)'; else s.top = 'calc(100% + 8px)';
+    }
+  }
 
   pad.addEventListener('pointerdown', (e) => {
     const b = e.target.closest('[data-k]'); if (!b || e.button > 0) return;
@@ -89,6 +106,65 @@ export function initNav({ app, camera, controls, recenter, bounds }) {
   });
   pad.addEventListener('contextmenu', (e) => e.preventDefault());
 
+  /* ---------- posição: canto inferior direito da cena, ou onde a pessoa arrastou ---------- */
+  const visible = (el) => el && el.getClientRects().length > 0;
+  let spot = null; // { fx, fy }: fração do espaço livre na tela, para valer em qualquer tamanho de janela
+  try { const s = JSON.parse(localStorage.getItem(POS) || 'null'); if (s && isFinite(s.fx) && isFinite(s.fy)) spot = s; } catch { /* começa no canto */ }
+  const gap = () => parseFloat(getComputedStyle(app).getPropertyValue('--pad')) || 16;
+  const room = () => ({ w: Math.max(0, app.clientWidth - pad.offsetWidth - 8), h: Math.max(0, app.clientHeight - pad.offsetHeight - 8) });
+  function put(x, y) {
+    const r = room();
+    x = Math.max(4, Math.min(4 + r.w, x)); y = Math.max(4, Math.min(4 + r.h, y));
+    pad.style.left = Math.round(x) + 'px'; pad.style.top = Math.round(y) + 'px';
+    return { fx: r.w ? (x - 4) / r.w : 1, fy: r.h ? (y - 4) / r.h : 1 };
+  }
+  /** Canto padrão: borda direita da área livre (antes da ficha), no pé da tela, subindo o que for preciso
+      para não cobrir a barra de vistas, o passo a passo, o gráfico ou a folha de baixo do celular. */
+  function corner() {
+    const a = app.getBoundingClientRect(), g = gap(), w = pad.offsetWidth, h = pad.offsetHeight;
+    let right = a.width - g;
+    if (!phone.matches) for (const id of ['inspector', 'gcard']) { const el = document.getElementById(id); if (visible(el)) right = Math.min(right, el.getBoundingClientRect().left - a.left - g); }
+    const x = right - w;
+    let y = a.height - g - h;
+    const boxes = BELOW.map((id) => document.getElementById(id)).filter(visible).map((el) => el.getBoundingClientRect())
+      .filter((b) => b.top + b.height / 2 > a.top + a.height / 2); // no celular a barra de vistas fica em cima e não conta
+    for (let pass = 0, moved = true; moved && pass < 5; pass++) {
+      moved = false;
+      for (const b of boxes) {
+        const l = b.left - a.left, t = b.top - a.top;
+        if (x < l + b.width && x + w > l && y < t + b.height && y + h > t) { y = t - 8 - h; moved = true; }
+      }
+    }
+    put(x, y);
+  }
+  function place() {
+    if (pad.hidden) return;
+    if (spot) { const r = room(); put(4 + spot.fx * r.w, 4 + spot.fy * r.h); } else corner();
+    if (!help.hidden) showHelp(true);
+  }
+  // arrastar por qualquer parte do painel que não seja botão
+  pad.addEventListener('pointerdown', (e) => {
+    if (e.button > 0 || e.target.closest('button, .nav-help')) return;
+    e.preventDefault();
+    const p = pad.getBoundingClientRect(), a = app.getBoundingClientRect(), dx = e.clientX - p.left, dy = e.clientY - p.top;
+    pad.classList.add('dragging');
+    try { pad.setPointerCapture(e.pointerId); } catch { /* sem captura, o arrasto para quando o ponteiro sai do painel */ }
+    const move = (ev) => { spot = put(ev.clientX - dx - a.left, ev.clientY - dy - a.top); if (!help.hidden) showHelp(true); };
+    const end = () => {
+      pad.classList.remove('dragging');
+      for (const [ev, f] of [['pointermove', move], ['pointerup', end], ['pointercancel', end]]) pad.removeEventListener(ev, f);
+      if (spot) try { localStorage.setItem(POS, JSON.stringify(spot)); } catch { /* a posição vale só para esta visita */ }
+    };
+    for (const [ev, f] of [['pointermove', move], ['pointerup', end], ['pointercancel', end]]) pad.addEventListener(ev, f);
+  });
+  pad.addEventListener('dblclick', (e) => {
+    if (e.target.closest('button, .nav-help')) return;
+    spot = null; try { localStorage.removeItem(POS); } catch { /* nada guardado */ }
+    place();
+  });
+  if (window.ResizeObserver) { const ro = new ResizeObserver(() => place()); ro.observe(app); for (const id of BELOW) { const el = document.getElementById(id); if (el) ro.observe(el); } }
+  window.addEventListener('resize', place);
+
   /* ---------- botão na barra de vistas ---------- */
   const tg = document.createElement('button');
   tg.type = 'button'; tg.className = 'tb icon'; tg.id = 'navTg'; tg.innerHTML = ICON.move;
@@ -99,7 +175,7 @@ export function initNav({ app, camera, controls, recenter, bounds }) {
   try { stored = localStorage.getItem(KEY); } catch { /* sem armazenamento: vale o padrão */ }
   const show = (on, save) => {
     pad.hidden = !on; tg.setAttribute('aria-pressed', String(on));
-    if (!on) showHelp(false);
+    if (on) place(); else showHelp(false);
     if (save) try { localStorage.setItem(KEY, on ? 'on' : 'off'); } catch { /* a escolha vale só para esta visita */ }
   };
   show(stored ? stored === 'on' : !phone.matches, false); // no celular, os dedos já movem a cena; o painel começa escondido

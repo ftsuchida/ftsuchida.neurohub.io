@@ -96,7 +96,7 @@ O que vale para todos os modelos fica em `fontes/comum/`:
 |---|---|
 | `lang.js` | Escolha do idioma e a função `tr()` |
 | `panes.js` | Os dois botões da barra de vistas que recolhem a lista (esquerda) e a ficha (direita). A escolha fica guardada no navegador |
-| `nav.js` | Controle da câmera pelo teclado (setas giram, Shift + setas e W A S D Q E movem, + e − aproximam, 0 recentraliza) e por um painel na cena, que liga e desliga por um botão na barra de vistas. Mover leva junto o ponto de giro, e aproximar no limite do zoom (pela roda também) anda para a frente em vez de travar |
+| `nav.js` | Controle da câmera pelo teclado (setas giram, Shift + setas e W A S D Q E movem, + e − aproximam, 0 recentraliza) e por um painel na cena, que liga e desliga por um botão na barra de vistas. O painel começa no canto inferior direito da cena e pode ser arrastado; dois cliques na borda dele o devolvem ao canto. Mover leva junto o ponto de giro, e aproximar no limite do zoom (pela roda também) anda para a frente em vez de travar |
 | `comum.css` | Estilo comum, juntado ao fim do `style.css` de cada modelo na montagem |
 
 ## Idiomas
