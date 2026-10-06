@@ -8,10 +8,11 @@ Um índice de materiais interativos para estudar neurociência: modelos 3D, mapa
 
 | Item | Tipo | O que mostra |
 |---|---|---|
+| [Antidepressivo na Sinapse](https://ftsuchida.github.io/neurohub/itens/antidepressivo-sinapse/) | Modelo 3D | Como um ISRS age em uma sinapse de serotonina: bloqueia a recaptação, e o transmissor fica mais tempo na fenda. Tem passo a passo e um gráfico que compara com e sem o fármaco. |
 | [Neurônio em 3D](https://ftsuchida.github.io/neurohub/itens/neuronio-3d/) | Modelo 3D | O neurônio e o tecido em volta: soma, axônio, sinapse e glia, com o gráfico do potencial de ação e os líquidos de dentro e de fora da célula. |
 | [Reflexo da Tachinha](https://ftsuchida.github.io/neurohub/itens/reflexo-tachinha/) | Modelo 3D | O sinal do contato na pele até a contração do músculo, em 8 passos animados: pele, nervo, medula, encéfalo e junção neuromuscular. |
 
-Os dois seguem *Neurociências: desvendando o sistema nervoso* (Bear, Connors e Paradiso, 4ª ed.), capítulos 1 a 6. O que vem de fora desses capítulos aparece marcado como "extra" dentro de cada modelo. São material de estudo, com formas e tamanhos exagerados para ficar legível.
+Todos seguem *Neurociências: desvendando o sistema nervoso* (Bear, Connors e Paradiso, 4ª ed.), capítulos 1 a 6. O que vem de fora desses capítulos aparece marcado como "extra" dentro de cada modelo. São material de estudo, com formas e tamanhos exagerados para ficar legível. Nenhum deles é orientação sobre tratamento.
 
 ## Como o repositório está organizado
 
@@ -55,7 +56,7 @@ Depois abra `http://localhost:4173/`.
 | `tipo` | Chave de `tipos` no mesmo arquivo. Os tipos viram os filtros do topo |
 | `assunto` | Aparece ao lado do tipo |
 | `base` | De onde vem o conteúdo (livro, curso, artigo) |
-| `data` | `AAAA-MM`. Ordena o índice, do mais novo para o mais antigo |
+| `data` | `AAAA-MM-DD`. Ordena o índice, do mais novo para o mais antigo |
 | `url` | Caminho da página, relativo à raiz |
 | `capa`, `capaEscura` | Imagens do cartão |
 | `codigo` | Pasta do código-fonte, se houver |

@@ -20,6 +20,25 @@ window.CATALOGO = {
 
   itens: [
     {
+      id: 'antidepressivo-sinapse',
+      titulo: { pt: 'Antidepressivo na Sinapse', en: 'Antidepressant at the Synapse' },
+      tipo: 'modelo-3d',
+      assunto: { pt: 'Neurociência', en: 'Neuroscience' },
+      resumo: {
+        pt: 'Como um ISRS age em uma sinapse de serotonina: ele bloqueia a recaptação, e o transmissor fica mais tempo na fenda. Com passo a passo e um gráfico que compara com e sem o fármaco.',
+        en: 'How an SSRI acts at a serotonin synapse: it blocks reuptake, and the transmitter stays in the cleft for longer. With a step-by-step and a graph comparing with and without the drug.',
+      },
+      base: {
+        pt: 'Bear, Connors e Paradiso, Neurociências, 4ª ed., caps. 5 e 6',
+        en: 'Bear, Connors & Paradiso, Neuroscience, 4th ed., chs. 5 and 6',
+      },
+      data: '2026-10-06',
+      url: 'itens/antidepressivo-sinapse/',
+      capa: 'assets/capas/antidepressivo-sinapse.jpg',
+      capaEscura: 'assets/capas/antidepressivo-sinapse-escura.jpg',
+      codigo: 'fontes/antidepressivo-sinapse',
+    },
+    {
       id: 'reflexo-tachinha',
       titulo: { pt: 'Reflexo da Tachinha', en: 'Thumbtack Reflex' },
       tipo: 'modelo-3d',
@@ -32,7 +51,7 @@ window.CATALOGO = {
         pt: 'Bear, Connors e Paradiso, Neurociências, 4ª ed., caps. 1 a 6',
         en: 'Bear, Connors & Paradiso, Neuroscience, 4th ed., chs. 1 to 6',
       },
-      data: '2026-10',
+      data: '2026-10-05',
       url: 'itens/reflexo-tachinha/',
       capa: 'assets/capas/reflexo-tachinha.jpg',
       capaEscura: 'assets/capas/reflexo-tachinha-escura.jpg',
@@ -51,7 +70,7 @@ window.CATALOGO = {
         pt: 'Bear, Connors e Paradiso, Neurociências, 4ª ed., caps. 1 a 6',
         en: 'Bear, Connors & Paradiso, Neuroscience, 4th ed., chs. 1 to 6',
       },
-      data: '2026-10',
+      data: '2026-10-05',
       url: 'itens/neuronio-3d/',
       capa: 'assets/capas/neuronio-3d.jpg',
       capaEscura: 'assets/capas/neuronio-3d-escura.jpg',
