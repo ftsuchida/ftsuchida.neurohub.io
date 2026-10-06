@@ -9,6 +9,7 @@
   "license": "MIT",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "check": "node scripts/check-i18n.mjs",
     "serve": "node scripts/serve.mjs"
   },
   "devDependencies": {

@@ -1,0 +1,332 @@
+// Reflexo da tachinha: o exemplo que Bear, Connors & Paradiso (Neurociências, 4ª ed.) usam nos caps. 3, 4 e 5.
+// Conteúdo conforme os capítulos 1 a 6. Em "more", um item { x: '...' } é um detalhe de fora desses capítulos
+// e aparece marcado como "extra".
+
+export const GROUPS = [
+  { id: 'est', name: 'Estímulo' },
+  { id: 'sens', name: 'Via sensorial' },
+  { id: 'med', name: 'Medula' },
+  { id: 'enc', name: 'Encéfalo' },
+  { id: 'mot', name: 'Via motora' },
+  { id: 'jnm', name: 'Junção neuromuscular' },
+];
+
+export const ITEMS = [
+  {
+    id: 'tachinha', g: 'est', name: 'Tachinha', color: '#AEB6C4',
+    morf: 'Ponta fina de metal.',
+    func: 'É o estímulo. Ao pisar, a ponta rompe a pele e estica a membrana das terminações sensoriais.',
+    more: ['O livro usa essa cena nos capítulos 3, 4 e 5 para seguir um sinal do começo ao fim.'],
+    where: 'No chão, embaixo do pé. Na vista Pele, entrando pela sola.',
+    rel: ['pele', 'terminacao'],
+  },
+  {
+    id: 'pele', g: 'est', name: 'Pele', color: '#EBC7AE',
+    morf: 'Tecido que reveste o corpo. Dentro dela ficam as terminações dos neurônios sensoriais.',
+    func: 'É onde o estímulo mecânico vira sinal elétrico.',
+    more: [{ x: 'O desenho mostra a pele como um bloco só, com a superfície em tom mais escuro. As camadas da pele não entram nos capítulos 1 a 6.' }],
+    where: 'Na vista Pele: o bloco cortado ao meio, com a sola do pé virada para baixo.',
+    rel: ['tachinha', 'terminacao'],
+  },
+
+  {
+    id: 'terminacao', g: 'sens', name: 'Terminação sensorial', color: '#4C8FEF',
+    morf: 'Ponta do axônio do neurônio sensorial, dentro da pele. A membrana tem canais de Na⁺ que abrem quando ela é esticada.',
+    func: 'Transforma o estiramento em sinal elétrico. O Na⁺ entra e despolariza a terminação: é o potencial gerador. Se ele atinge o limiar, nasce um potencial de ação.',
+    clueTitle: 'Por que importa',
+    clue: 'No neurônio sensorial, a zona de gatilho fica aqui, perto da terminação. No neurônio típico do encéfalo e da medula, ela fica no cone de implantação.',
+    more: [
+      'É tudo ou nada: abaixo do limiar, nada acontece; acima dele, sai o potencial de ação completo.',
+      'Um estímulo mais forte não gera um potencial de ação maior: gera mais disparos por segundo. É assim que a intensidade é codificada.',
+    ],
+    where: 'Na vista Pele: os ramos azuis e o botão que fica logo acima da ponta da tachinha.',
+    rel: ['canal-est', 'sodio', 'sensorial'],
+  },
+  {
+    id: 'canal-est', g: 'sens', name: 'Canal de Na⁺ sensível a estiramento', color: '#2FA36B',
+    morf: 'Proteína da membrana da terminação sensorial, com um poro que abre quando a membrana é esticada.',
+    func: 'Deixa o Na⁺ entrar. Como há muito mais Na⁺ fora e o interior é negativo, ele entra com força e despolariza a terminação.',
+    clueTitle: 'Três jeitos de abrir um canal',
+    clue: 'Este abre com estiramento. Os canais do potencial de ação abrem com voltagem. Os das sinapses abrem com neurotransmissor.',
+    where: 'Na vista Pele: os pares verdes na superfície do botão da terminação. Eles se afastam quando a tachinha estica a membrana.',
+    rel: ['terminacao', 'sodio'],
+  },
+  {
+    id: 'sodio', g: 'sens', name: 'Sódio (Na⁺)', color: '#F29A4A',
+    rows: [['Fora', '150 mM'], ['Dentro', '15 mM'], ['Equilíbrio', '+62 mV']],
+    morf: 'Cátion dez vezes mais concentrado fora do neurônio.',
+    func: 'Quando um canal de Na⁺ abre, ele entra: a difusão e o interior negativo empurram no mesmo sentido. A entrada de carga positiva despolariza a membrana.',
+    more: ['É o mesmo íon nos três pontos da história: entra na terminação da pele, entra a cada trecho do axônio no potencial de ação e entra na fibra muscular pelo receptor nicotínico.'],
+    where: 'Nas vistas Pele e Músculo: as esferas alaranjadas.',
+    rel: ['canal-est', 'receptor'],
+  },
+  {
+    id: 'sensorial', g: 'sens', name: 'Neurônio sensorial', aka: 'Neurônio sensorial primário', color: '#3D7DE0',
+    morf: 'Neurônio com a terminação na pele e o axônio dentro do nervo, até a medula.',
+    func: 'Leva a informação da pele até a medula, em potenciais de ação.',
+    clueTitle: 'Por que importa',
+    clue: 'O potencial de ação se regenera a cada trecho do axônio. Por isso chega à medula com o mesmo tamanho com que saiu do pé.',
+    more: [
+      'O nervo sensorial dispara em alta frequência.',
+      'A informação vai na frequência e no padrão dos disparos, como em um código Morse.',
+      'Na ordem de grandeza do capítulo 4, a 10 m/s e com 2 ms de duração, cada potencial de ação ocupa uns 2 cm de axônio.',
+      'Axônios finos, como os que levam a dor, são os mais sensíveis à anestesia local.',
+      { x: 'O corpo celular deste neurônio fica no gânglio da raiz dorsal, ao lado da medula.' },
+    ],
+    where: 'O fio azul: sai da sola do pé, sobe pela perna dentro do nervo e entra na medula pela raiz dorsal.',
+    rel: ['terminacao', 'nervo', 'raiz-dorsal', 'sinapse'],
+  },
+  {
+    id: 'nervo', g: 'sens', name: 'Nervo', color: '#E3D6AE',
+    morf: 'Feixe de axônios fora do sistema nervoso central.',
+    func: 'Liga a medula à perna. Mistura fibras sensoriais, que sobem, e fibras motoras, que descem.',
+    clueTitle: 'Por que importa',
+    clue: 'Cada fibra conduz num só sentido. O mesmo nervo leva a notícia da tachinha para cima e o comando de contração para baixo, em fibras diferentes.',
+    more: ['Os nervos formam o sistema nervoso periférico.', 'Neles, quem faz a bainha de mielina é a célula de Schwann.'],
+    where: 'O tubo claro que envolve o fio azul e o fio vermelho, da medula até a perna.',
+    rel: ['sensorial', 'motor', 'raiz-dorsal', 'raiz-ventral'],
+  },
+  {
+    id: 'raiz-dorsal', g: 'sens', name: 'Raiz dorsal', color: '#8DB4F2',
+    morf: 'Perto da medula, as fibras de cada nervo se dividem em duas raízes. A dorsal é a de trás.',
+    func: 'É por ela que a informação sensorial entra na medula.',
+    clueTitle: 'Na história',
+    clue: 'Por volta de 1810, Bell e Magendie cortaram raízes espinhais: cortar a ventral paralisa, e a dorsal leva informação sensorial. Foi assim que se soube que um nervo mistura os dois tipos de fibra.',
+    where: 'Na vista Medula: o ramo de trás, com uma dilatação no meio.',
+    rel: ['raiz-ventral', 'ganglio', 'sensorial'],
+  },
+  {
+    id: 'ganglio', g: 'sens', name: 'Gânglio da raiz dorsal', color: '#B9CFF3',
+    morf: 'Dilatação na raiz dorsal, ao lado da medula.',
+    func: 'Abriga os corpos celulares dos neurônios sensoriais.',
+    more: [{ x: 'Esta estrutura não está nos capítulos 1 a 6. Entrou no modelo porque o neurônio sensorial precisa de um corpo celular, e é ali que ele fica.' }],
+    where: 'Na vista Medula: o bulbo translúcido na raiz dorsal, com o corpo celular azul dentro.',
+    rel: ['raiz-dorsal', 'sensorial'],
+  },
+
+  {
+    id: 'medula', g: 'med', name: 'Medula espinhal', color: '#EADFC8',
+    morf: 'Parte do sistema nervoso central, junto com o encéfalo.',
+    func: 'É onde o sinal da tachinha passa do neurônio sensorial para outros neurônios e se divide: um caminho sobe ao encéfalo, o outro vai aos neurônios motores.',
+    clueTitle: 'Por que importa',
+    clue: 'O comando para levantar o pé sai daqui. Ele não espera o encéfalo.',
+    more: [
+      'A glicina é o transmissor inibitório da medula e do tronco. Sem essa inibição, os reflexos ficam exagerados: é o efeito da estricnina.',
+      { x: 'Em corte, a substância cinzenta fica no meio, em forma de borboleta, e a branca em volta.' },
+    ],
+    where: 'Na vista Corpo: o cordão claro que desce do encéfalo pelas costas. Na vista Medula: uma fatia em corte.',
+    rel: ['cinzenta', 'branca', 'encefalo', 'interneuronio'],
+  },
+  {
+    id: 'cinzenta', g: 'med', name: 'Substância cinzenta', color: '#CDB8C6',
+    morf: 'A parte mais escura do tecido nervoso.',
+    func: 'Recebe e envia informação pelas fibras da substância branca.',
+    more: [{ x: 'É onde ficam os corpos celulares dos neurônios e as sinapses. Na medula, tem forma de borboleta: a parte de trás recebe o axônio sensorial, e na da frente ficam os neurônios motores.' }],
+    where: 'Na vista Medula: a borboleta no meio da fatia.',
+    rel: ['branca', 'medula', 'sinapse'],
+  },
+  {
+    id: 'branca', g: 'med', name: 'Substância branca', color: '#F3ECDA',
+    morf: 'A parte mais clara do tecido nervoso. É contínua com os nervos.',
+    func: 'Contém as fibras que levam e trazem informação da substância cinzenta.',
+    more: ['No modelo, o axônio que sobe ao encéfalo corre por ela.', { x: 'A cor clara vem da mielina que envolve os axônios.' }],
+    where: 'Na vista Medula: a parte clara em volta da borboleta.',
+    rel: ['cinzenta', 'ascendente'],
+  },
+  {
+    id: 'sinapse', g: 'med', name: 'Sinapse na medula', color: '#C97BD8',
+    morf: 'Contato entre o terminal do axônio sensorial e o neurônio seguinte.',
+    func: 'O potencial de ação chega ao terminal, o Ca²⁺ entra e as vesículas liberam o transmissor, provavelmente glutamato. Do outro lado, os canais deixam entrar carga positiva: é um PEPS.',
+    clueTitle: 'Por que importa',
+    clue: 'Uma sinapse sozinha gera um PEPS de alguns décimos de mV, que não basta. Como o nervo sensorial dispara em alta frequência e muitas sinapses são ativadas juntas, os PEPS se somam e levam a zona de gatilho ao limiar.',
+    more: [
+      'Somação temporal: PEPS da mesma sinapse em sequência rápida. Somação espacial: PEPS de várias sinapses ao mesmo tempo.',
+      'O glutamato é o principal transmissor excitatório do sistema nervoso central.',
+    ],
+    where: 'Na vista Medula: os botões lilás onde um axônio encosta no neurônio seguinte.',
+    rel: ['sensorial', 'interneuronio', 'ascendente', 'motor'],
+  },
+  {
+    id: 'interneuronio', g: 'med', name: 'Interneurônio', color: '#2FB3A1',
+    morf: 'Neurônio que só se conecta com outros neurônios. A maioria dos neurônios é desse tipo.',
+    func: 'No modelo, recebe o sinal do neurônio sensorial e o passa ao neurônio motor.',
+    clueTitle: 'A conferir no livro',
+    clue: 'Os guias deste projeto registram só que o sinal se divide na medula entre o caminho do encéfalo e o dos neurônios motores. O interneurônio no meio do caminho foi desenhado a partir da figura do reflexo no capítulo 3, sem conferência com o PDF.',
+    more: [
+      'Nem todo interneurônio excita. Um interneurônio GABAérgico, por exemplo, inibe seus alvos.',
+      'O que acontece depois de cada sinapse depende de quem é a célula seguinte. Isso explica como um estímulo simples produz um comportamento complexo, como gritar e puxar o pé.',
+    ],
+    where: 'Na vista Medula: o neurônio verde-azulado, entre o axônio sensorial e o neurônio motor.',
+    rel: ['sinapse', 'motor', 'ascendente'],
+  },
+  {
+    id: 'ascendente', g: 'med', name: 'Via para o encéfalo', color: '#9B7BEA',
+    morf: 'Neurônio da medula cujo axônio sobe pela substância branca até o encéfalo.',
+    func: 'Leva a informação da tachinha ao encéfalo, onde a dor é registrada.',
+    clueTitle: 'Por que importa',
+    clue: 'Este caminho e o do neurônio motor partem ao mesmo tempo. Sentir a dor e levantar o pé são dois resultados do mesmo sinal.',
+    more: [{ x: 'Na anatomia, este axônio cruza para o outro lado da medula antes de subir, e há outras paradas dentro do encéfalo. Isso é assunto do sistema sensorial somático, fora dos capítulos 1 a 6.' }],
+    where: 'O fio roxo. Na vista Medula, ele cruza a fatia e sobe. Na vista Corpo, corre ao lado da medula até a cabeça.',
+    rel: ['sinapse', 'encefalo', 'branca'],
+  },
+
+  {
+    id: 'encefalo', g: 'enc', name: 'Encéfalo', color: '#E6B4BF',
+    morf: 'Cérebro, cerebelo e tronco encefálico. Com a medula, forma o sistema nervoso central.',
+    func: 'É onde a sensação de dor é registrada.',
+    clueTitle: 'O que ele não faz aqui',
+    clue: 'Não é ele que manda levantar o pé. Esse comando sai da medula, em paralelo com o sinal que sobe.',
+    more: ['Cérebro é só uma parte do encéfalo.'],
+    where: 'Na vista Corpo: dentro da cabeça.',
+    rel: ['ascendente', 'medula'],
+  },
+
+  {
+    id: 'motor', g: 'mot', name: 'Neurônio motor', color: '#EC6B56',
+    morf: 'Neurônio com o corpo celular na medula e o axônio dentro do nervo, até o músculo.',
+    func: 'Soma os PEPS que recebe. Se o total chega ao limiar na zona de gatilho, dispara e leva o comando de contração.',
+    clueTitle: 'Por que importa',
+    clue: 'É a saída do sistema nervoso. Tudo o que a medula e o encéfalo decidem só vira movimento passando por ele.',
+    more: [
+      'Todos os neurônios motores da medula e do tronco são colinérgicos: liberam acetilcolina.',
+      'A enzima ChAT, que fabrica a acetilcolina, é o marcador desses neurônios.',
+      'A zona de gatilho dele é o cone de implantação.',
+      { x: 'No desenho, o corpo celular fica na parte da frente (ventral) da substância cinzenta.' },
+    ],
+    where: 'O fio vermelho: sai da medula pela raiz ventral e desce pelo nervo até o músculo.',
+    rel: ['interneuronio', 'raiz-ventral', 'jnm', 'ach'],
+  },
+  {
+    id: 'raiz-ventral', g: 'mot', name: 'Raiz ventral', color: '#F2A493',
+    morf: 'A raiz da frente, das duas em que cada nervo se divide perto da medula.',
+    func: 'É por ela que saem os axônios dos neurônios motores.',
+    clueTitle: 'Na história',
+    clue: 'Bell cortou só as raízes ventrais e viu paralisia: elas são motoras.',
+    where: 'Na vista Medula: o ramo da frente, que se junta à raiz dorsal para formar o nervo.',
+    rel: ['raiz-dorsal', 'motor', 'nervo'],
+  },
+
+  {
+    id: 'jnm', g: 'jnm', name: 'Junção neuromuscular', color: '#EE8AA4',
+    morf: 'Sinapse entre o axônio do neurônio motor e uma fibra de músculo esquelético. É uma das maiores do corpo, e o terminal tem muitas zonas ativas.',
+    func: 'Passa o comando do nervo para o músculo. Um potencial de ação no axônio motor sempre gera um potencial de ação na fibra muscular.',
+    clueTitle: 'Por que nunca falha',
+    clue: 'Um potencial de ação libera cerca de 200 vesículas e gera um PEPS de 40 mV ou mais. Numa sinapse típica do sistema nervoso central, muitas vezes sai uma vesícula só.',
+    more: [
+      'A toxina botulínica destrói proteínas SNARE do terminal e bloqueia a liberação de acetilcolina.',
+      'Por ser acessível, foi nela que se descobriu boa parte do que se sabe sobre sinapses químicas.',
+    ],
+    where: 'Na vista Músculo: o terminal rosado, aberto em corte, apoiado na fibra muscular.',
+    rel: ['ach', 'placa', 'receptor', 'ache'],
+  },
+  {
+    id: 'ach', g: 'jnm', name: 'Acetilcolina', aka: 'ACh', color: '#F0C445',
+    morf: 'Neurotransmissor guardado nas vesículas do terminal motor.',
+    func: 'Liberada na fenda, liga-se aos receptores nicotínicos da placa motora.',
+    clueTitle: 'Por que importa',
+    clue: 'Quem decide o efeito é o receptor, não o transmissor: a mesma acetilcolina contrai o músculo esquelético e desacelera o coração.',
+    more: [
+      'É feita no citosol do terminal pela enzima ChAT, a partir de colina e acetil-CoA.',
+      'Dentro de uma vesícula, pode chegar a 1.000 mM.',
+      'Foi o primeiro neurotransmissor identificado: a Vagusstoff de Otto Loewi, em 1921.',
+    ],
+    where: 'Na vista Músculo: as esferas amarelas dentro do terminal são as vesículas; os grãos na fenda são a acetilcolina liberada.',
+    rel: ['jnm', 'receptor', 'ache', 'motor'],
+  },
+  {
+    id: 'placa', g: 'jnm', name: 'Placa motora', aka: 'Placa motora terminal', color: '#D98477',
+    morf: 'Trecho da membrana da fibra muscular embaixo do terminal. Tem dobras cheias de receptores, alinhadas com as zonas ativas.',
+    func: 'É o lado pós-sináptico da junção: recebe a acetilcolina e despolariza a fibra.',
+    where: 'Na vista Músculo: as dobras na superfície da fibra, logo abaixo do terminal.',
+    rel: ['receptor', 'jnm', 'musculo'],
+  },
+  {
+    id: 'receptor', g: 'jnm', name: 'Receptor nicotínico', aka: 'Receptor colinérgico nicotínico', color: '#6C8BF0',
+    morf: 'Canal iônico da placa motora: cinco subunidades em volta de um poro, como as tábuas de um barril.',
+    func: 'Abre quando duas moléculas de acetilcolina se ligam. Deixa passar Na⁺ e K⁺; como entra mais Na⁺ do que sai K⁺, a fibra muscular despolariza.',
+    clueTitle: 'Por que excita',
+    clue: 'Com Na⁺ e K⁺ passando por igual, o canal puxa o potencial para perto de 0 mV, acima do limiar.',
+    more: [
+      'No músculo, a composição é α2βγδ, com um sítio de ligação de acetilcolina em cada subunidade α.',
+      'A nicotina o ativa, e daí vem o nome. O curare e a α-bungarotoxina o bloqueiam e causam paralisia.',
+      'Se a acetilcolina fica alta por vários segundos, o canal se fecha mesmo com ela presente: é a dessensibilização.',
+    ],
+    where: 'Na vista Músculo: os canais azuis no alto das dobras da placa motora.',
+    rel: ['ach', 'placa', 'sodio', 'ache'],
+  },
+  {
+    id: 'ache', g: 'jnm', name: 'Acetilcolinesterase', aka: 'AChE', color: '#5DB67C',
+    morf: 'Enzima depositada na fenda da junção neuromuscular pelas células musculares.',
+    func: 'Quebra a acetilcolina em colina e ácido acético, e a transmissão termina. Boa parte da colina é recaptada pelo terminal e reutilizada.',
+    clueTitle: 'Por que importa',
+    clue: 'Sem ela, a acetilcolina se acumula, os receptores se dessensibilizam e a transmissão falha. É assim que agem os gases dos nervos e os inseticidas organofosforados.',
+    where: 'Na vista Músculo: os grãos verdes na fenda, entre o terminal e a placa motora.',
+    rel: ['ach', 'receptor'],
+  },
+  {
+    id: 'musculo', g: 'jnm', name: 'Fibra muscular', color: '#C9605C',
+    morf: 'Célula longa do músculo esquelético.',
+    func: 'Dispara um potencial de ação próprio e se contrai. Com muitas fibras contraindo juntas, o músculo dobra a perna e o pé se afasta da tachinha.',
+    more: [
+      'O RE liso da fibra muscular se chama retículo sarcoplasmático.',
+      'A actina participa da contração (cap. 13).',
+      { x: 'O modelo mostra um músculo atrás da coxa, que dobra o joelho. O livro não diz qual músculo levanta o pé.' },
+      { x: 'As faixas desenhadas na fibra são as estrias do músculo esquelético.' },
+    ],
+    where: 'Na vista Corpo: o músculo atrás da coxa. Na vista Músculo: a fibra estriada embaixo do terminal.',
+    rel: ['placa', 'jnm', 'motor'],
+  },
+];
+
+export const BY_ID = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
+
+export const VIEWS = [
+  { id: 'body', name: 'Corpo' },
+  { id: 'skin', name: 'Pele' },
+  { id: 'cord', name: 'Medula' },
+  { id: 'nmj', name: 'Músculo' },
+];
+
+// O passo a passo. "stage" é a vista em que o passo acontece; "dur" é a duração da animação em ms.
+export const STEPS = [
+  {
+    id: 'pisada', stage: 'body', dur: 2400, title: 'A pisada',
+    text: 'A ponta da tachinha rompe a pele da sola do pé. Até aqui não há sinal nervoso nenhum: é só um estímulo mecânico.',
+    ids: ['tachinha', 'pele'],
+  },
+  {
+    id: 'pele', stage: 'skin', dur: 7000, title: 'Na pele: o estiramento vira sinal elétrico',
+    text: 'A ponta estica a membrana da terminação sensorial. Canais de Na⁺ sensíveis a estiramento abrem, o Na⁺ entra e a terminação despolariza: é o potencial gerador. Ao atingir o limiar, nasce um potencial de ação.',
+    ids: ['terminacao', 'canal-est', 'sodio'],
+  },
+  {
+    id: 'nervo', stage: 'body', dur: 4200, title: 'Pelo nervo até a medula',
+    text: 'Os potenciais de ação sobem pelo axônio sensorial, dentro do nervo da perna, e se regeneram a cada trecho. A força do estímulo vai codificada na frequência dos disparos.',
+    ids: ['sensorial', 'nervo'],
+  },
+  {
+    id: 'medula', stage: 'cord', dur: 6200, title: 'Na medula: o sinal se divide',
+    text: 'O axônio entra pela raiz dorsal. Nos terminais, o Ca²⁺ entra e as vesículas liberam o transmissor, provavelmente glutamato. Os PEPS se somam em dois neurônios da medula, e dali o sinal segue por dois caminhos.',
+    ids: ['raiz-dorsal', 'sinapse', 'interneuronio', 'ascendente'],
+  },
+  {
+    id: 'encefalo', stage: 'body', dur: 4200, title: 'Caminho 1: sobe ao encéfalo',
+    text: 'Um axônio sobe pela medula até o encéfalo, onde a dor é registrada. Isso acontece ao mesmo tempo que o passo seguinte.',
+    ids: ['ascendente', 'encefalo'],
+  },
+  {
+    id: 'motor', stage: 'cord', dur: 5200, title: 'Caminho 2: o neurônio motor dispara',
+    text: 'O outro caminho não sai da medula: o interneurônio excita o neurônio motor, que soma os PEPS e dispara. O comando sai pela raiz ventral, sem passar pelo encéfalo.',
+    ids: ['interneuronio', 'motor', 'raiz-ventral'],
+  },
+  {
+    id: 'juncao', stage: 'nmj', dur: 8000, title: 'Na junção neuromuscular',
+    text: 'O potencial de ação desce pelo axônio motor até o músculo. O terminal libera acetilcolina, que abre os receptores nicotínicos da placa motora. O Na⁺ entra e a fibra muscular dispara. Essa sinapse nunca falha.',
+    ids: ['jnm', 'ach', 'receptor', 'ache'],
+  },
+  {
+    id: 'levanta', stage: 'body', dur: 4600, title: 'O pé levanta',
+    text: 'As fibras do músculo se contraem, a perna dobra e o pé se afasta da tachinha. Do contato ao movimento, o sinal passou por três neurônios do modelo (sensorial, interneurônio e motor) e não precisou do encéfalo.',
+    ids: ['motor', 'musculo'],
+  },
+];

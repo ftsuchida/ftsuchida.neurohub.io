@@ -3,6 +3,7 @@ import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.j
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { V, rng, curveOf, subCurve, tube, sleeve, organic, ball, place, rope, lathe, Builder } from './geo.js';
 import { BY_ID } from './data.js';
+import { tr } from '../../comum/lang.js';
 
 /* Tons secundários de cada estrutura. O tom "main" usa a cor da ficha. */
 const MUTE = '#B4B8C2';
@@ -392,33 +393,33 @@ export function buildScene() {
     addFluids(stages.world, WF, makeMotes(pts, 0.12));
   }
   const spineAt = spineHeads[Math.floor(spineHeads.length * 0.3)];
-  L('world', 'Soma', 'soma', V(-0.6, 2.95, -0.6), 0);
-  L('world', 'Citosol', 'citosol', V(2.05, -0.2, 0.9), 22);
-  L('world', 'Líquido extracelular', 'extracelular', V(-9, -15, 0), 0, 'label', { liq: true });
-  L('world', 'Núcleo', 'nucleo', Nc.clone().add(V(-0.45, 0.85, 0.55)), 22);
-  L('world', 'RE rugoso', 're-rugoso', Nc.clone().add(V(1.5, 0.7, 0.1)), 26);
-  L('world', 'Ribossomos livres', 'ribossomos', polyAt, 32);
-  L('world', 'RE liso', 're-liso', RLc, 28);
-  L('world', 'Aparelho de Golgi', 'golgi', Gc, 24);
-  L('world', 'Mitocôndria', 'mitocondria', mitoShow, 26);
+  L('world', tr('Soma', 'Soma'), 'soma', V(-0.6, 2.95, -0.6), 0);
+  L('world', tr('Citosol', 'Cytosol'), 'citosol', V(2.05, -0.2, 0.9), 22);
+  L('world', tr('Líquido extracelular', 'Extracellular fluid'), 'extracelular', V(-9, -15, 0), 0, 'label', { liq: true });
+  L('world', tr('Núcleo', 'Nucleus'), 'nucleo', Nc.clone().add(V(-0.45, 0.85, 0.55)), 22);
+  L('world', tr('RE rugoso', 'Rough ER'), 're-rugoso', Nc.clone().add(V(1.5, 0.7, 0.1)), 26);
+  L('world', tr('Ribossomos livres', 'Free ribosomes'), 'ribossomos', polyAt, 32);
+  L('world', tr('RE liso', 'Smooth ER'), 're-liso', RLc, 28);
+  L('world', tr('Aparelho de Golgi', 'Golgi apparatus'), 'golgi', Gc, 24);
+  L('world', tr('Mitocôndria', 'Mitochondrion'), 'mitocondria', mitoShow, 26);
   const trunks = dend.map((s, i) => (s.parent < 0 ? i : -1)).filter((i) => i >= 0);
-  L('world', 'Dendritos', 'dendritos', (dend.find((s) => s.root === trunks[1] && s.depth === 2) || dend[trunks[1]]).curve.getPointAt(0.6), 0);
-  L('world', 'Espinhos dendríticos', 'espinhos', spineAt, 12);
-  L('world', 'Cone de implantação', 'cone', hDir.clone().multiplyScalar(3.6).add(V(0.25, 0.7, 0.3)), 6.5);
-  L('world', 'Axônio', 'axonio', axCurve.getPointAt(0.955).add(V(0, 0.3, 0)), 0);
-  L('world', 'Bainha de mielina', 'mielina', axCurve.getPointAt(0.17).add(V(0.3, 0.7, 0.2)), 0);
-  L('world', 'Nódulo de Ranvier', 'nodulo', axCurve.getPointAt(NODES[0]).add(V(-0.15, -0.3, 0.1)), 5);
-  L('world', 'Colateral', 'colaterais', colPts[2], 5);
-  L('world', 'Terminal axonal', 'terminal', branches[1][3], 5);
-  L('world', 'Sinapse', 'sinapse', synMid, 5);
-  L('world', 'Astrócito', 'astrocito', Ac.clone().add(V(0.2, 0.9, 0.3)), 0);
-  L('world', 'Oligodendrócito', 'oligodendrocito', Oc.clone().add(V(0, 0.8, 0.2)), 0);
-  L('world', 'Micróglia', 'microglia', Mc.clone().add(V(0, 0.35, 0.2)), 4);
-  L('world', 'Neurônio seguinte', null, S2.clone().add(V(0.6, -3.2, 0)), 4, 'note');
-  L('world', 'Axônio vizinho', null, nb.getPointAt(0.97).add(V(0, 0.9, 0)), 7, 'note');
-  L('world', 'Por dentro', null, axCurve.getPointAt(0.6).add(V(-1.4, -0.3, 0.3)), 4, 'hot', { go: 'axon', title: 'Ver o axônio por dentro' });
-  L('world', 'Ampliar', null, synMid.clone().add(V(0.3, -1.2, 0.6)), 4, 'hot', { go: 'syn', title: 'Ampliar a sinapse' });
-  L('world', 'Canais', null, axCurve.getPointAt(NODES[0]).add(V(-4.4, -1.7, 0.3)), 4, 'hot', { go: 'ap', title: 'Ver os canais da membrana durante o potencial de ação' });
+  L('world', tr('Dendritos', 'Dendrites'), 'dendritos', (dend.find((s) => s.root === trunks[1] && s.depth === 2) || dend[trunks[1]]).curve.getPointAt(0.6), 0);
+  L('world', tr('Espinhos dendríticos', 'Dendritic spines'), 'espinhos', spineAt, 12);
+  L('world', tr('Cone de implantação', 'Axon hillock'), 'cone', hDir.clone().multiplyScalar(3.6).add(V(0.25, 0.7, 0.3)), 6.5);
+  L('world', tr('Axônio', 'Axon'), 'axonio', axCurve.getPointAt(0.955).add(V(0, 0.3, 0)), 0);
+  L('world', tr('Bainha de mielina', 'Myelin sheath'), 'mielina', axCurve.getPointAt(0.17).add(V(0.3, 0.7, 0.2)), 0);
+  L('world', tr('Nódulo de Ranvier', 'Node of Ranvier'), 'nodulo', axCurve.getPointAt(NODES[0]).add(V(-0.15, -0.3, 0.1)), 5);
+  L('world', tr('Colateral', 'Axon collateral'), 'colaterais', colPts[2], 5);
+  L('world', tr('Terminal axonal', 'Axon terminal'), 'terminal', branches[1][3], 5);
+  L('world', tr('Sinapse', 'Synapse'), 'sinapse', synMid, 5);
+  L('world', tr('Astrócito', 'Astrocyte'), 'astrocito', Ac.clone().add(V(0.2, 0.9, 0.3)), 0);
+  L('world', tr('Oligodendrócito', 'Oligodendrocyte'), 'oligodendrocito', Oc.clone().add(V(0, 0.8, 0.2)), 0);
+  L('world', tr('Micróglia', 'Microglia'), 'microglia', Mc.clone().add(V(0, 0.35, 0.2)), 4);
+  L('world', tr('Neurônio seguinte', 'Next neuron'), null, S2.clone().add(V(0.6, -3.2, 0)), 4, 'note');
+  L('world', tr('Axônio vizinho', 'Neighboring axon'), null, nb.getPointAt(0.97).add(V(0, 0.9, 0)), 7, 'note');
+  L('world', tr('Por dentro', 'Inside'), null, axCurve.getPointAt(0.6).add(V(-1.4, -0.3, 0.3)), 4, 'hot', { go: 'axon', title: tr('Ver o axônio por dentro', 'See inside the axon') });
+  L('world', tr('Ampliar', 'Zoom in'), null, synMid.clone().add(V(0.3, -1.2, 0.6)), 4, 'hot', { go: 'syn', title: tr('Ampliar a sinapse', 'Zoom in on the synapse') });
+  L('world', tr('Canais', 'Channels'), null, axCurve.getPointAt(NODES[0]).add(V(-4.4, -1.7, 0.3)), 4, 'hot', { go: 'ap', title: tr('Ver os canais da membrana durante o potencial de ação', 'See the membrane channels during the action potential') });
 
   const viewDir = V(0.2, 0.14, 1);
   Object.assign(home, {
@@ -447,20 +448,20 @@ export function buildScene() {
     for (let s = tip; s; s = s.parent >= 0 ? dend[s.parent] : null) chain.push(s);
     chain.forEach((c) => { for (let i = 10; i >= 1; i--) pts.push(c.curve.getPointAt(i / 10)); });
     pts.push(dend[0].curve.getPointAt(0));
-    const SALT = 'Condução saltatória: o impulso salta de nódulo em nódulo e é regenerado em cada um';
+    const SALT = tr('Condução saltatória: o impulso salta de nódulo em nódulo e é regenerado em cada um', 'Saltatory conduction: the impulse jumps from node to node and is regenerated at each one');
     const st = [
-      { c: curveOf(pts), dur: 1500, cap: 'Dendrito: o sinal entra', id: 'dendritos' },
-      { c: curveOf([pts[pts.length - 1].clone(), V(0, 0, 0.3), hillPts[0]]), dur: 800, cap: 'Soma: o sinal é integrado no corpo celular', id: 'soma' },
-      { c: hillCurve, dur: 1100, hold: 350, cap: 'Cone de implantação: nasce o potencial de ação', id: 'cone' },
+      { c: curveOf(pts), dur: 1500, cap: tr('Dendrito: o sinal entra', 'Dendrite: the signal comes in'), id: 'dendritos' },
+      { c: curveOf([pts[pts.length - 1].clone(), V(0, 0, 0.3), hillPts[0]]), dur: 800, cap: tr('Soma: o sinal é integrado no corpo celular', 'Soma: the signal is integrated in the cell body'), id: 'soma' },
+      { c: hillCurve, dur: 1100, hold: 350, cap: tr('Cone de implantação: nasce o potencial de ação', 'Axon hillock: the action potential is born'), id: 'cone' },
     ];
     const cuts = [0, ...NODES, 1];
     for (let k = 0; k < cuts.length - 1; k++) {
-      st.push({ c: subCurve(axCurve, cuts[k], cuts[k + 1], 12), dur: k === 0 ? 900 : 450, cap: k === 0 ? 'Axônio: o impulso segue para longe do soma' : SALT, id: k === 0 ? 'axonio' : 'mielina' });
+      st.push({ c: subCurve(axCurve, cuts[k], cuts[k + 1], 12), dur: k === 0 ? 900 : 450, cap: k === 0 ? tr('Axônio: o impulso segue para longe do soma', 'Axon: the impulse travels away from the soma') : SALT, id: k === 0 ? 'axonio' : 'mielina' });
       if (k < cuts.length - 2) st.push({ at: axCurve.getPointAt(cuts[k + 1]), dur: 650, cap: SALT, id: 'nodulo' });
     }
-    st.push({ c: curveOf(branches[0]), dur: 800, hold: 300, cap: 'Terminal axonal: o sinal elétrico vira químico', id: 'terminal' });
-    st.push({ c: curveOf([B0.clone(), K.clone().add(V(0.05, 0.3, 0))]), dur: 700, cap: 'Fenda sináptica: o neurotransmissor atravessa', id: 'sinapse' });
-    st.push({ c: curveOf([...n2Path.slice(0, 4).reverse(), S2.clone()]), dur: 1500, cap: 'Dendrito do neurônio seguinte: o sinal volta a ser elétrico', id: 'dendritos' });
+    st.push({ c: curveOf(branches[0]), dur: 800, hold: 300, cap: tr('Terminal axonal: o sinal elétrico vira químico', 'Axon terminal: the electrical signal becomes chemical'), id: 'terminal' });
+    st.push({ c: curveOf([B0.clone(), K.clone().add(V(0.05, 0.3, 0))]), dur: 700, cap: tr('Fenda sináptica: o neurotransmissor atravessa', 'Synaptic cleft: the neurotransmitter crosses'), id: 'sinapse' });
+    st.push({ c: curveOf([...n2Path.slice(0, 4).reverse(), S2.clone()]), dur: 1500, cap: tr('Dendrito do neurônio seguinte: o sinal volta a ser elétrico', 'Dendrite of the next neuron: the signal becomes electrical again'), id: 'dendritos' });
     return st;
   })();
 
@@ -510,14 +511,14 @@ export function buildScene() {
     addFluids(stages.axon, AF, makeMotes(pts, 0.1));
   }
   const la = (x, y, z) => Oa.clone().add(V(x, y, z));
-  L('axon', 'Citosol', 'citosol', la(-3.6, -0.7, 0.8), 0, 'label', { liq: true });
-  L('axon', 'Líquido extracelular', 'extracelular', la(-5.6, 3.1, 0), 0, 'label', { liq: true });
-  L('axon', 'Microtúbulo', 'microtubulo', la(-7.5, 0.35, 0.3), 0);
-  L('axon', 'Neurofilamento', 'neurofilamento', la(-6.2, -0.2, -1.05), 0);
-  L('axon', 'Microfilamento', 'microfilamento', la(-2.2, 1.1, -0.55), 12);
-  L('axon', 'Membrana neuronal', 'membrana', la(-2.6, -Ra, 0.1), 0);
-  L('axon', 'Proteína de membrana', 'membrana', la(-1.2, -1.2, 0.95), 16);
-  L('axon', 'Bainha de mielina', 'mielina', la(3.8, 2.15, 1.2), 0);
+  L('axon', tr('Citosol', 'Cytosol'), 'citosol', la(-3.6, -0.7, 0.8), 0, 'label', { liq: true });
+  L('axon', tr('Líquido extracelular', 'Extracellular fluid'), 'extracelular', la(-5.6, 3.1, 0), 0, 'label', { liq: true });
+  L('axon', tr('Microtúbulo', 'Microtubule'), 'microtubulo', la(-7.5, 0.35, 0.3), 0);
+  L('axon', tr('Neurofilamento', 'Neurofilament'), 'neurofilamento', la(-6.2, -0.2, -1.05), 0);
+  L('axon', tr('Microfilamento', 'Microfilament'), 'microfilamento', la(-2.2, 1.1, -0.55), 12);
+  L('axon', tr('Membrana neuronal', 'Neuronal membrane'), 'membrana', la(-2.6, -Ra, 0.1), 0);
+  L('axon', tr('Proteína de membrana', 'Membrane protein'), 'membrana', la(-1.2, -1.2, 0.95), 16);
+  L('axon', tr('Bainha de mielina', 'Myelin sheath'), 'mielina', la(3.8, 2.15, 1.2), 0);
   Object.assign(home, {
     membrana: { stage: 'axon', t: la(-1.8, 0, 0), r: 3.4, dir: V(-0.45, 0.3, 1) },
     microtubulo: { stage: 'axon', t: la(-5.6, 0, 0), r: 2.6, dir: V(-0.9, 0.25, 1) },
@@ -589,21 +590,21 @@ export function buildScene() {
     addFluids(stages.syn, SF, makeMotes(pts, 0.085));
   }
   const ls = (x, y, z) => Os.clone().add(V(x, y, z));
-  L('syn', 'Citosol', 'citosol', ls(-1.8, 0.35, 0.3), 12);
-  L('syn', 'Líquido extracelular', 'extracelular', ls(4.7, -2.7, 0), 0, 'label', { liq: true });
-  L('syn', 'Axônio', 'axonio', ls(-0.3, 4.4, 0.45), 0);
-  L('syn', 'Terminal axonal', 'terminal', ls(2.3, 1.2, -0.3), 0);
-  L('syn', 'Vesículas sinápticas', 'vesiculas', ls(vesAt[2].x, vesAt[2].y, vesAt[2].z + 0.2), 0);
-  L('syn', 'Mitocôndria', 'mitocondria', ls(0.95, 2.2, -0.2), 14);
-  L('syn', 'Neurotransmissor no lúmen', 'neurotransmissor', ls(cutVes[0].x, cutVes[0].y, cutVes[0].z + 0.15), 0);
-  L('syn', 'Grânulo secretor', 'granulos', ls(granAt[0].x, granAt[0].y + 0.2, granAt[0].z + 0.2), 14);
-  L('syn', 'Zona ativa', 'zona-ativa', ls(-0.8, -0.24, 0.5), 14);
-  L('syn', 'Canal de Ca²⁺', 'canal-ca', ls(1.22, -0.4, 0.5), 14);
-  L('syn', 'Fenda sináptica', 'fenda', ls(1.55, -0.72, 0.3), 0);
-  L('syn', 'Receptores', 'receptores', ls(-0.82, -1.0, 0.22), 14);
-  L('syn', 'Espinho dendrítico', 'espinhos', ls(-1.5, -1.9, 0.5), 0);
-  L('syn', 'Dendrito', 'dendritos', ls(3.2, -4.7, 0.7), 0);
-  L('syn', 'Astrócito', 'astrocito', ls(-4.3, 0.9, 0.5), 0);
+  L('syn', tr('Citosol', 'Cytosol'), 'citosol', ls(-1.8, 0.35, 0.3), 12);
+  L('syn', tr('Líquido extracelular', 'Extracellular fluid'), 'extracelular', ls(4.7, -2.7, 0), 0, 'label', { liq: true });
+  L('syn', tr('Axônio', 'Axon'), 'axonio', ls(-0.3, 4.4, 0.45), 0);
+  L('syn', tr('Terminal axonal', 'Axon terminal'), 'terminal', ls(2.3, 1.2, -0.3), 0);
+  L('syn', tr('Vesículas sinápticas', 'Synaptic vesicles'), 'vesiculas', ls(vesAt[2].x, vesAt[2].y, vesAt[2].z + 0.2), 0);
+  L('syn', tr('Mitocôndria', 'Mitochondrion'), 'mitocondria', ls(0.95, 2.2, -0.2), 14);
+  L('syn', tr('Neurotransmissor no lúmen', 'Neurotransmitter in the lumen'), 'neurotransmissor', ls(cutVes[0].x, cutVes[0].y, cutVes[0].z + 0.15), 0);
+  L('syn', tr('Grânulo secretor', 'Secretory granule'), 'granulos', ls(granAt[0].x, granAt[0].y + 0.2, granAt[0].z + 0.2), 14);
+  L('syn', tr('Zona ativa', 'Active zone'), 'zona-ativa', ls(-0.8, -0.24, 0.5), 14);
+  L('syn', tr('Canal de Ca²⁺', 'Ca²⁺ channel'), 'canal-ca', ls(1.22, -0.4, 0.5), 14);
+  L('syn', tr('Fenda sináptica', 'Synaptic cleft'), 'fenda', ls(1.55, -0.72, 0.3), 0);
+  L('syn', tr('Receptores', 'Receptors'), 'receptores', ls(-0.82, -1.0, 0.22), 14);
+  L('syn', tr('Espinho dendrítico', 'Dendritic spine'), 'espinhos', ls(-1.5, -1.9, 0.5), 0);
+  L('syn', tr('Dendrito', 'Dendrite'), 'dendritos', ls(3.2, -4.7, 0.7), 0);
+  L('syn', tr('Astrócito', 'Astrocyte'), 'astrocito', ls(-4.3, 0.9, 0.5), 0);
   Object.assign(home, {
     sinapse: { stage: 'syn' },
     vesiculas: { stage: 'syn', t: ls(0, 0.7, 0.3), r: 2.6, dir: V(0.15, 0.12, 1) },
@@ -680,18 +681,18 @@ export function buildScene() {
   stages.glia = { group: gGlia, meshes: G.build(gGlia, materialFor), box: { c: Og.clone().add(V(-0.2, 0.9, 0)), hw: 16.4, hh: 9.8 }, dir: V(0.06, 0.06, 1), dist: [3, 120], shadow: 17 };
   addFluids(stages.glia, null, makeMotes(scatter(330, () => V(RM(-16.5, 16.5), RM(-9, 11), RM(-4, 4)), 1 / 31), 0.12));
   const lg = (x, y, z) => Og.clone().add(V(x, y, z));
-  L('glia', 'Líquido extracelular', 'extracelular', lg(-13.8, -1.3, 0), 0, 'label', { liq: true });
-  L('glia', 'Astrócito', 'astrocito', lg(gA.x - 0.2, gA.y + 0.95, 0.3), 0);
-  L('glia', 'Oligodendrócito', 'oligodendrocito', lg(gO.x, gO.y + 0.9, 0), 0);
-  L('glia', 'Micróglia', 'microglia', lg(gM.x, gM.y + 0.45, 0.2), 0);
-  L('glia', 'Célula de Schwann', 'schwann', lg(-10.6, -4.75, 0.3), 0);
-  L('glia', 'Células ependimárias', 'ependimaria', lg(8.05, -4.5, 0.75), 0);
-  L('glia', 'Bainha de mielina', 'mielina', lg(-2.6, -5.0, 0.4), 9);
-  L('glia', 'Nódulo de Ranvier', 'nodulo', lg(-7.0, -5.75, 0.2), 9);
-  L('glia', 'Envolve a sinapse', null, lg(gSyn2.x + 0.6, gSyn2.y - 2.0, 0), 6, 'note');
-  L('glia', 'Uma célula, vários axônios', null, lg(0.3, 2.6, 0), 6, 'note');
-  L('glia', 'Uma célula, um só axônio', null, lg(-7.0, -7.0, 0), 6, 'note');
-  L('glia', 'Revestem os ventrículos', null, lg(8.05, -7.0, 0), 6, 'note');
+  L('glia', tr('Líquido extracelular', 'Extracellular fluid'), 'extracelular', lg(-13.8, -1.3, 0), 0, 'label', { liq: true });
+  L('glia', tr('Astrócito', 'Astrocyte'), 'astrocito', lg(gA.x - 0.2, gA.y + 0.95, 0.3), 0);
+  L('glia', tr('Oligodendrócito', 'Oligodendrocyte'), 'oligodendrocito', lg(gO.x, gO.y + 0.9, 0), 0);
+  L('glia', tr('Micróglia', 'Microglia'), 'microglia', lg(gM.x, gM.y + 0.45, 0.2), 0);
+  L('glia', tr('Célula de Schwann', 'Schwann cell'), 'schwann', lg(-10.6, -4.75, 0.3), 0);
+  L('glia', tr('Células ependimárias', 'Ependymal cells'), 'ependimaria', lg(8.05, -4.5, 0.75), 0);
+  L('glia', tr('Bainha de mielina', 'Myelin sheath'), 'mielina', lg(-2.6, -5.0, 0.4), 9);
+  L('glia', tr('Nódulo de Ranvier', 'Node of Ranvier'), 'nodulo', lg(-7.0, -5.75, 0.2), 9);
+  L('glia', tr('Envolve a sinapse', 'Wraps around the synapse'), null, lg(gSyn2.x + 0.6, gSyn2.y - 2.0, 0), 6, 'note');
+  L('glia', tr('Uma célula, vários axônios', 'One cell, several axons'), null, lg(0.3, 2.6, 0), 6, 'note');
+  L('glia', tr('Uma célula, um só axônio', 'One cell, a single axon'), null, lg(-7.0, -7.0, 0), 6, 'note');
+  L('glia', tr('Revestem os ventrículos', 'They line the ventricles'), null, lg(8.05, -7.0, 0), 6, 'note');
   Object.assign(home, {
     astrocito: { stage: 'glia', t: lg(-10.6, 4.9, 0), r: 4.9 },
     oligodendrocito: { stage: 'glia', t: lg(0.3, 5.6, 0), r: 5.2 },
@@ -831,17 +832,17 @@ export function buildScene() {
     addFluids(stages.ap, PF, null);
   }
   const lp = (x, y, z) => Op.clone().add(V(x, y, z));
-  L('ap', 'Canal de Na⁺', 'canal-na', lp(-6.4, 1.9, 0.9), 0);
-  L('ap', 'Canal de K⁺', 'canal-k', lp(2.3, 1.9, -0.2), 0);
-  L('ap', 'Canal de K⁺ de repouso', 'canal-vaz', lp(-3.5, 1.75, -1.3), 0);
-  L('ap', 'Bomba de Na⁺ e K⁺', 'bomba', lp(5.0, 2.05, 1.4), 0);
+  L('ap', tr('Canal de Na⁺', 'Na⁺ channel'), 'canal-na', lp(-6.4, 1.9, 0.9), 0);
+  L('ap', tr('Canal de K⁺', 'K⁺ channel'), 'canal-k', lp(2.3, 1.9, -0.2), 0);
+  L('ap', tr('Canal de K⁺ de repouso', 'Resting K⁺ channel'), 'canal-vaz', lp(-3.5, 1.75, -1.3), 0);
+  L('ap', tr('Bomba de Na⁺ e K⁺', 'Na⁺-K⁺ pump'), 'bomba', lp(5.0, 2.05, 1.4), 0);
   L('ap', 'Na⁺', 'ion-na', lp(-8.4, 4.4, 2.5), 0);
   L('ap', 'K⁺', 'ion-k', lp(-8.4, -4.4, 2.5), 0);
-  L('ap', 'Bicamada de fosfolipídios', 'membrana', lp(8.6, 0.8, 3.7), 0);
-  L('ap', 'Parte que tampa o poro', 'canal-na', lp(-5.05, -2.8, 1.0), 16);
-  L('ap', 'Líquido extracelular', 'extracelular', lp(7.6, 5.0, 1.5), 0);
-  L('ap', 'Membrana do axônio, como em um nódulo de Ranvier', null, lp(-4.2, 6.3, 0), 0, 'note');
-  L('ap', 'Citosol', 'citosol', lp(7.6, -5.0, 1.5), 0);
+  L('ap', tr('Bicamada de fosfolipídios', 'Phospholipid bilayer'), 'membrana', lp(8.6, 0.8, 3.7), 0);
+  L('ap', tr('Parte que tampa o poro', 'Part that plugs the pore'), 'canal-na', lp(-5.05, -2.8, 1.0), 16);
+  L('ap', tr('Líquido extracelular', 'Extracellular fluid'), 'extracelular', lp(7.6, 5.0, 1.5), 0);
+  L('ap', tr('Membrana do axônio, como em um nódulo de Ranvier', 'Axon membrane, as at a node of Ranvier'), null, lp(-4.2, 6.3, 0), 0, 'note');
+  L('ap', tr('Citosol', 'Cytosol'), 'citosol', lp(7.6, -5.0, 1.5), 0);
   Object.assign(home, {
     'canal-na': { stage: 'ap', t: lp(-6.1, -0.5, 0.6), r: 3.6, dir: V(0.2, 0.12, 1) },
     'canal-k': { stage: 'ap', t: lp(2.3, 0, -0.5), r: 3.3, dir: V(0.1, 0.15, 1) },
@@ -957,23 +958,23 @@ export function buildScene() {
     addFluids(stages.tissue, TF, makeMotes(pts, 0.2));
   }
   const lt = (v, dx = 0, dy = 0, dz = 0) => Ot.clone().add(v).add(V(dx, dy, dz));
-  L('tissue', 'Líquido extracelular', 'extracelular', lt(V(-29.5, 9.5, 0)), 0, 'label', { liq: true });
-  L('tissue', 'Líquido dos ventrículos', 'liquor', lt(V(-45.5, -9, 3.8)), 0, 'label', { liq: true });
-  L('tissue', 'Sangue', 'sangue', lt(cap.getPointAt(0.66), 0.2, 0, 1.1), 0, 'label', { liq: true });
+  L('tissue', tr('Líquido extracelular', 'Extracellular fluid'), 'extracelular', lt(V(-29.5, 9.5, 0)), 0, 'label', { liq: true });
+  L('tissue', tr('Líquido dos ventrículos', 'Ventricular fluid'), 'liquor', lt(V(-45.5, -9, 3.8)), 0, 'label', { liq: true });
+  L('tissue', tr('Sangue', 'Blood'), 'sangue', lt(cap.getPointAt(0.66), 0.2, 0, 1.1), 0, 'label', { liq: true });
   const n0 = NEU[0];
-  L('tissue', 'Abrir neurônio', null, lt(n0.c, 0.4, -0.2, 2.7), 0, 'hot', { go: 'world', title: 'Abrir este neurônio' });
-  L('tissue', 'Dendritos', 'dendritos', lt(n0.dend[1].curve.getPointAt(0.8)), 5);
-  L('tissue', 'Axônio', 'axonio', lt(NEU[3].ax.getPointAt(0.06), 0, -0.2, 0.2), 5);
-  L('tissue', 'Bainha de mielina', 'mielina', lt(n0.myelin[1], 0.4, 0.5, 0.3), 5);
-  L('tissue', 'Terminal axonal', 'terminal', lt(n0.boutons[0]), 7);
-  L('tissue', 'Astrócito', 'astrocito', lt(astroAt[0], 0, 0.9, 0.3), 0);
-  L('tissue', 'Oligodendrócito', 'oligodendrocito', lt(V(1.5, -13.5, -2.5), 0, 0.8, 0), 0);
-  L('tissue', 'Micróglia', 'microglia', lt(V(14, 11.5, 3), 0, 0.4, 0), 0);
-  L('tissue', 'Capilar', 'capilar', lt(cap.getPointAt(0.3), 1.2, 0, 0.4), 0);
-  L('tissue', 'Células ependimárias', 'ependimaria', lt(V(wallX(8), 8, 3.4), 0.9, 0, 0), 0);
-  L('tissue', 'Ventrículo', null, lt(V(-43.5, 0, 0)), 0, 'note');
-  L('tissue', 'Outro neurônio', null, lt(NEU[5].c, 0.4, -3.3, 0), 3.5, 'note');
-  L('tissue', 'Outro neurônio', null, lt(NEU[1].c, 0, -3.3, 0), 3.5, 'note');
+  L('tissue', tr('Abrir neurônio', 'Open neuron'), null, lt(n0.c, 0.4, -0.2, 2.7), 0, 'hot', { go: 'world', title: tr('Abrir este neurônio', 'Open this neuron') });
+  L('tissue', tr('Dendritos', 'Dendrites'), 'dendritos', lt(n0.dend[1].curve.getPointAt(0.8)), 5);
+  L('tissue', tr('Axônio', 'Axon'), 'axonio', lt(NEU[3].ax.getPointAt(0.06), 0, -0.2, 0.2), 5);
+  L('tissue', tr('Bainha de mielina', 'Myelin sheath'), 'mielina', lt(n0.myelin[1], 0.4, 0.5, 0.3), 5);
+  L('tissue', tr('Terminal axonal', 'Axon terminal'), 'terminal', lt(n0.boutons[0]), 7);
+  L('tissue', tr('Astrócito', 'Astrocyte'), 'astrocito', lt(astroAt[0], 0, 0.9, 0.3), 0);
+  L('tissue', tr('Oligodendrócito', 'Oligodendrocyte'), 'oligodendrocito', lt(V(1.5, -13.5, -2.5), 0, 0.8, 0), 0);
+  L('tissue', tr('Micróglia', 'Microglia'), 'microglia', lt(V(14, 11.5, 3), 0, 0.4, 0), 0);
+  L('tissue', tr('Capilar', 'Capillary'), 'capilar', lt(cap.getPointAt(0.3), 1.2, 0, 0.4), 0);
+  L('tissue', tr('Células ependimárias', 'Ependymal cells'), 'ependimaria', lt(V(wallX(8), 8, 3.4), 0.9, 0, 0), 0);
+  L('tissue', tr('Ventrículo', 'Ventricle'), null, lt(V(-43.5, 0, 0)), 0, 'note');
+  L('tissue', tr('Outro neurônio', 'Another neuron'), null, lt(NEU[5].c, 0.4, -3.3, 0), 3.5, 'note');
+  L('tissue', tr('Outro neurônio', 'Another neuron'), null, lt(NEU[1].c, 0, -3.3, 0), 3.5, 'note');
   Object.assign(home, {
     capilar: { stage: 'tissue', t: lt(cap.getPointAt(0.45), -2, 0, 0), r: 10 },
     sangue: { stage: 'tissue', t: lt(cap.getPointAt(0.6), -1, 0, 0), r: 8 },

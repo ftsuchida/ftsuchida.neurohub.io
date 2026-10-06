@@ -244,16 +244,22 @@ svg.ic.fill { fill: currentColor; stroke: none; }
   .ap-stim output { min-width: 0; }
   .lab { font-size: 12px; }
 }
+/* linha da busca com a chave de idioma */
+.srow { display: flex; align-items: center; gap: 8px; margin: 12px 12px 6px; flex: none; }
+.srow .search { margin: 0; flex: 1 1 auto; min-width: 0; }
+.home + .srow { margin-top: 7px; }
+.lang { display: flex; flex: none; padding: 2px; border-radius: 9px; background: var(--fill); }
+.lang button { height: 30px; min-width: 32px; padding: 0 7px; border-radius: 7px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--label2); text-align: center; }
+.lang button[aria-pressed="true"] { background: var(--thumb); color: var(--label); box-shadow: 0 3px 8px rgba(0, 0, 0, .12), 0 1px 1px rgba(0, 0, 0, .06); }
 /* voltar ao hub: no computador, no alto da lista; em tela estreita, no começo da barra de vistas */
 .home { display: flex; align-items: center; gap: 3px; align-self: flex-start; flex: none; margin: 11px 12px 0; padding: 2px 6px 2px 2px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; }
 .home:hover { background: var(--accent-soft); }
 .home svg { font-size: 13px; stroke-width: 2; }
-.home + .search { margin-top: 7px; }
 a.tb { color: var(--label); text-decoration: none; }
 .home-tb { display: none; }
 @media (max-width: 900px) {
   #sidebar .home { display: none; }
-  .home + .search { margin-top: 2px; }
+  .srow, .home + .srow { margin-top: 2px; }
   .home-tb { display: inline-flex; }
 }
 

@@ -1,36 +1,39 @@
 <div id="app">
-  <canvas id="gl" tabindex="0" aria-label="Modelo 3D do reflexo da tachinha. Use a lista de estruturas e o passo a passo para navegar pelo teclado."></canvas>
+  <canvas id="gl" tabindex="0" aria-label="Modelo 3D do reflexo da tachinha. Use a lista de estruturas e o passo a passo para navegar pelo teclado." data-en-aria-label="3D model of the thumbtack reflex. Use the list of structures and the step-by-step to navigate with the keyboard."></canvas>
   <svg id="leaders" aria-hidden="true"></svg>
   <div id="labels"></div>
-  <div id="nogl" hidden>Este navegador não conseguiu abrir a cena 3D. A lista, as fichas e o texto dos passos continuam funcionando.</div>
+  <div id="nogl" hidden data-en="This browser could not open the 3D scene. The list, the cards and the step text still work.">Este navegador não conseguiu abrir a cena 3D. A lista, as fichas e o texto dos passos continuam funcionando.</div>
 
   <div id="toolbar" class="glass">
-    <a class="tb icon home-tb" href="../../index.html" aria-label="Voltar ao {{hub}}" title="Voltar ao {{hub}}"><svg class="ic" viewBox="0 0 16 16"><path d="M2.4 7.6 8 2.9l5.6 4.7M3.9 6.5v6.6h2.9V9.7h2.400v3.400h2.9V6.5"/></svg></a>
-    <div class="seg" id="seg" role="group" aria-label="Vistas"></div>
-    <button type="button" class="tb icon" id="tags" aria-pressed="true" aria-label="Mostrar rótulos" title="Rótulos"><svg class="ic" viewBox="0 0 16 16"><path d="M2.5 3.6v3.7c0 .3.1.6.3.8l5.6 5.6c.4.4 1.1.4 1.6 0l3.7-3.7c.4-.5.4-1.200 0-1.6L8.100 2.800a1.100 1.100 0 0 0-.8-.3H3.600c-.6 0-1.100.5-1.100 1.100z"/><circle cx="5.4" cy="5.4" r=".9"/></svg></button>
+    <a class="tb icon home-tb" data-hub href="../../index.html" aria-label="Voltar ao {{hub}}" title="Voltar ao {{hub}}" data-en-aria-label="Back to {{hub}}" data-en-title="Back to {{hub}}"><svg class="ic" viewBox="0 0 16 16"><path d="M2.4 7.6 8 2.9l5.6 4.7M3.9 6.5v6.6h2.9V9.7h2.400v3.400h2.9V6.5"/></svg></a>
+    <div class="seg" id="seg" role="group" aria-label="Vistas" data-en-aria-label="Views"></div>
+    <button type="button" class="tb icon" id="tags" aria-pressed="true" aria-label="Mostrar rótulos" title="Rótulos" data-en-aria-label="Show labels" data-en-title="Labels"><svg class="ic" viewBox="0 0 16 16"><path d="M2.5 3.6v3.7c0 .3.1.6.3.8l5.6 5.6c.4.4 1.1.4 1.6 0l3.7-3.7c.4-.5.4-1.200 0-1.6L8.100 2.800a1.100 1.100 0 0 0-.8-.3H3.600c-.6 0-1.100.5-1.100 1.100z"/><circle cx="5.4" cy="5.4" r=".9"/></svg></button>
   </div>
 
-  <section id="stepper" class="glass" aria-label="Passo a passo">
+  <section id="stepper" class="glass" aria-label="Passo a passo" data-en-aria-label="Step by step">
     <p class="st-count" id="stCount"></p>
     <h2 id="stTitle"></h2>
     <p class="st-text" id="stText" role="status"></p>
     <div class="st-ctl">
-      <button type="button" class="tb icon" id="stPrev" aria-label="Passo anterior"><svg class="ic" viewBox="0 0 16 16"><path d="M10 3.500 5.500 8 10 12.500"/></svg></button>
+      <button type="button" class="tb icon" id="stPrev" aria-label="Passo anterior" data-en-aria-label="Previous step"><svg class="ic" viewBox="0 0 16 16"><path d="M10 3.500 5.500 8 10 12.500"/></svg></button>
       <button type="button" class="tb primary" id="stPlay"></button>
-      <button type="button" class="tb icon" id="stNext" aria-label="Próximo passo"><svg class="ic" viewBox="0 0 16 16"><path d="m6 3.500 4.500 4.500L6 12.500"/></svg></button>
+      <button type="button" class="tb icon" id="stNext" aria-label="Próximo passo" data-en-aria-label="Next step"><svg class="ic" viewBox="0 0 16 16"><path d="m6 3.500 4.500 4.500L6 12.500"/></svg></button>
       <span class="grow"></span>
-      <div class="st-dots" id="stDots" role="group" aria-label="Ir para um passo"></div>
+      <div class="st-dots" id="stDots" role="group" aria-label="Ir para um passo" data-en-aria-label="Go to a step"></div>
     </div>
     <div class="st-bar" id="stBar"></div>
   </section>
   <div id="tip" class="glass" hidden></div>
-  <div id="busy" class="glass" role="status" hidden>Montando a vista…</div>
+  <div id="busy" class="glass" role="status" hidden data-en="Building the view…">Montando a vista…</div>
 
   <div id="panes" data-pane="list">
     <div id="grab" aria-hidden="true"></div>
-    <aside id="sidebar" class="glass" aria-label="Estruturas">
-      <a class="home" href="../../index.html" title="Voltar ao {{hub}}"><svg class="ic" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8 10 12.5"/></svg>{{hub}}</a>
-      <label class="search"><svg class="ic" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.3"/><path d="m10.300 10.300 3.200 3.200"/></svg><input id="q" type="search" placeholder="Buscar estrutura" autocomplete="off" spellcheck="false" aria-label="Buscar estrutura"></label>
+    <aside id="sidebar" class="glass" aria-label="Estruturas" data-en-aria-label="Structures">
+      <a class="home" data-hub href="../../index.html" title="Voltar ao {{hub}}" data-en-title="Back to {{hub}}"><svg class="ic" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8 10 12.5"/></svg>{{hub}}</a>
+      <div class="srow">
+        <label class="search"><svg class="ic" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.3"/><path d="m10.300 10.300 3.200 3.200"/></svg><input id="q" type="search" placeholder="Buscar estrutura" autocomplete="off" spellcheck="false" aria-label="Buscar estrutura" data-en-placeholder="Search" data-en-aria-label="Search structures"></label>
+        <div class="lang" role="group" aria-label="Idioma" data-en-aria-label="Language"><button type="button" data-lang="pt" lang="pt" title="Português">PT</button><button type="button" data-lang="en" lang="en" title="English">EN</button></div>
+      </div>
       <nav id="list"></nav>
     </aside>
     <aside id="inspector" class="glass" aria-live="polite"></aside>

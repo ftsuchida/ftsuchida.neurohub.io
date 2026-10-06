@@ -1,6 +1,34 @@
 // Potencial de ação: modelo de Hodgkin–Huxley com os valores do livro (repouso −65 mV, EK −80 mV, ENa +62 mV)
 // e o gráfico Vm × tempo que acompanha a cena 3D.
 
+import { tr } from '../../comum/lang.js';
+
+// Textos das fases e do gráfico. Ficam aqui em cima porque, dentro de phase() e de draw(), "tr" é o traço
+// (a curva calculada) e esconde a função de idioma.
+const TXT = {
+  rest: tr('Repouso', 'Rest'),
+  restText: tr('Só os canais de K⁺ de repouso estão abertos. O Vm fica em cerca de −65 mV.', 'Only the resting K⁺ channels are open. Vm stays at about −65 mV.'),
+  noStimText: tr('Sem estímulo, nada muda.', 'With no stimulus, nothing changes.'),
+  sub: tr('Abaixo do limiar', 'Below threshold'),
+  subText: tr('O estímulo despolarizou a membrana, mas não o bastante. Nenhum potencial de ação: é tudo ou nada.', 'The stimulus depolarized the membrane, but not enough. No action potential: it is all or none.'),
+  backText: tr('O Vm voltou a −65 mV sem disparar.', 'Vm returned to −65 mV without firing.'),
+  stim: tr('Estímulo', 'Stimulus'),
+  stimText: tr('A membrana despolariza em direção ao limiar.', 'The membrane depolarizes toward threshold.'),
+  over: tr('Fase ascendente: ultrapassagem', 'Rising phase: overshoot'),
+  rise: tr('Fase ascendente (despolarização)', 'Rising phase (depolarization)'),
+  overText: tr('O interior ficou positivo. O Vm corre em direção ao ENa (+62 mV) e chega perto de +40 mV.', 'The interior has become positive. Vm races toward ENa (+62 mV) and gets close to +40 mV.'),
+  riseText: tr('Canais de Na⁺ abrem. O Na⁺ entra, despolariza mais e abre mais canais.', 'Na⁺ channels open. Na⁺ enters, depolarizes further and opens more channels.'),
+  fall: tr('Fase descendente (repolarização)', 'Falling phase (repolarization)'),
+  fallText: tr('Os canais de Na⁺ se inativam. Os canais de K⁺, que abrem com atraso, deixam o K⁺ sair.', 'The Na⁺ channels inactivate. The K⁺ channels, which open with a delay, let K⁺ leave.'),
+  under: tr('Hiperpolarização pós-potencial', 'Undershoot (after-hyperpolarization)'),
+  underText: tr('Canais de K⁺ ainda abertos: o Vm passa do repouso e se aproxima do EK (−80 mV).', 'K⁺ channels still open: Vm goes past rest and approaches EK (−80 mV).'),
+  closedText: tr('Os canais de K⁺ fecharam. O Vm voltou a −65 mV.', 'The K⁺ channels have closed. Vm is back at −65 mV.'),
+  refrAbs: tr('refratário absoluto', 'absolute refractory'),
+  refrRel: tr('relativo', 'relative'),
+  depol: tr('despolarização', 'depolarization'),
+  repol: tr('repolarização', 'repolarization'),
+};
+
 const P = { gNa: 110, gK: 36, gL: 1.0, ENa: 62, EK: -80, phi: 3.2, rest: -65 };
 const T_END = 7, T_STIM = 1, STIM_DUR = 0.25, DT = 0.002, EVERY = 10; // amostra a cada 0,02 ms
 
@@ -64,17 +92,17 @@ export function createModel() {
   }
   function phase(tr, t) {
     const s = sample(tr, t);
-    if (t < T_STIM) return ['Repouso', 'Só os canais de K⁺ de repouso estão abertos. O Vm fica em cerca de −65 mV.'];
+    if (t < T_STIM) return [TXT.rest, TXT.restText];
     if (!tr.fired) {
-      if (tr.k <= 0.01) return ['Repouso', 'Sem estímulo, nada muda.'];
-      if (t < tr.tBack) return ['Abaixo do limiar', 'O estímulo despolarizou a membrana, mas não o bastante. Nenhum potencial de ação: é tudo ou nada.'];
-      return ['Repouso', 'O Vm voltou a −65 mV sem disparar.'];
+      if (tr.k <= 0.01) return [TXT.rest, TXT.noStimText];
+      if (t < tr.tBack) return [TXT.sub, TXT.subText];
+      return [TXT.rest, TXT.backText];
     }
-    if (t < tr.tOnset) return ['Estímulo', 'A membrana despolariza em direção ao limiar.'];
-    if (t < tr.tPeak) return [s.V > 0 ? 'Fase ascendente: ultrapassagem' : 'Fase ascendente (despolarização)', s.V > 0 ? 'O interior ficou positivo. O Vm corre em direção ao ENa (+62 mV) e chega perto de +40 mV.' : 'Canais de Na⁺ abrem. O Na⁺ entra, despolariza mais e abre mais canais.'];
-    if (t < tr.tCross) return ['Fase descendente (repolarização)', 'Os canais de Na⁺ se inativam. Os canais de K⁺, que abrem com atraso, deixam o K⁺ sair.'];
-    if (t < tr.tBack) return ['Hiperpolarização pós-potencial', 'Canais de K⁺ ainda abertos: o Vm passa do repouso e se aproxima do EK (−80 mV).'];
-    return ['Repouso', 'Os canais de K⁺ fecharam. O Vm voltou a −65 mV.'];
+    if (t < tr.tOnset) return [TXT.stim, TXT.stimText];
+    if (t < tr.tPeak) return [s.V > 0 ? TXT.over : TXT.rise, s.V > 0 ? TXT.overText : TXT.riseText];
+    if (t < tr.tCross) return [TXT.fall, TXT.fallText];
+    if (t < tr.tBack) return [TXT.under, TXT.underText];
+    return [TXT.rest, TXT.closedText];
   }
 
   // períodos refratários, medidos com um segundo estímulo sobre o disparo padrão
@@ -120,9 +148,9 @@ export class Graph {
       el('line', { x1: this.x0, x2: this.x1, y1: this.y(v), y2: this.y(v), class: 'g-ref' }, g);
       if (label) el('text', { x: this.x1 + 6, y: this.y(v) + dy, class: 'g-lab' }, g).textContent = label;
     };
-    ref(M.P.ENa, 'E Na'); ref(0, ''); ref(M.rest, 'repouso'); ref(M.P.EK, 'E K', 7);
+    ref(M.P.ENa, 'E Na'); ref(0, ''); ref(M.rest, tr('repouso', 'rest')); ref(M.P.EK, 'E K', 7);
     el('line', { x1: this.x0, x2: this.x1, y1: this.y(M.vth), y2: this.y(M.vth), class: 'g-ref thr' }, g);
-    el('text', { x: this.x0 + 5, y: this.y(M.vth) - 4, class: 'g-lab' }, g).textContent = `limiar ≈ ${fmt(Math.round(M.vth / 5) * 5)} mV`;
+    el('text', { x: this.x0 + 5, y: this.y(M.vth) - 4, class: 'g-lab' }, g).textContent = tr(`limiar ≈ ${fmt(Math.round(M.vth / 5) * 5)} mV`, `threshold ≈ ${fmt(Math.round(M.vth / 5) * 5)} mV`);
     for (const v of [M.P.ENa, 0, M.rest, M.P.EK]) el('text', { x: this.x0 - 6, y: this.y(v) + (v === M.P.EK ? 7 : 3.5), class: 'g-tick', 'text-anchor': 'end' }, g).textContent = fmt(v);
     el('text', { x: this.x0 - 6, y: 8, class: 'g-unit', 'text-anchor': 'end' }, g).textContent = 'mV';
     // eixo do tempo
@@ -135,10 +163,10 @@ export class Graph {
     // estímulo
     const sx = this.x(M.tStim), sy = this.y(M.rest) + 5;
     el('path', { d: `M${sx} ${sy} l-3.5 6 h7 z`, class: 'g-stim' }, g);
-    el('text', { x: sx + 7, y: sy + 9, class: 'g-lab' }, g).textContent = 'estímulo';
+    el('text', { x: sx + 7, y: sy + 9, class: 'g-lab' }, g).textContent = tr('estímulo', 'stimulus');
     // faixa dos canais abertos
-    el('text', { x: this.x1 + 6, y: this.s0 + 9, class: 'g-lab na' }, g).textContent = 'Na⁺ abertos';
-    el('text', { x: this.x1 + 6, y: this.s1 + 1, class: 'g-lab k' }, g).textContent = 'K⁺ abertos';
+    el('text', { x: this.x1 + 6, y: this.s0 + 9, class: 'g-lab na' }, g).textContent = tr('Na⁺ abertos', 'Na⁺ open');
+    el('text', { x: this.x1 + 6, y: this.s1 + 1, class: 'g-lab k' }, g).textContent = tr('K⁺ abertos', 'K⁺ open');
     this.draw();
   }
 
@@ -163,9 +191,9 @@ export class Graph {
         el('rect', { x: this.x(a), y: this.r0, width: Math.max(0, this.x(b) - this.x(a)), height: 5, rx: 2.5, class: 'g-refr ' + cls }, g);
         if (!this.compact || cls === 'abs') el('text', { x: (this.x(a) + this.x(b)) / 2, y: this.r0 - 4, class: 'g-lab small', 'text-anchor': 'middle' }, g).textContent = label;
       };
-      bar(R.abs[0], R.abs[1], 'abs', 'refratário absoluto'); bar(R.rel[0], R.rel[1], 'rel', 'relativo');
+      bar(R.abs[0], R.abs[1], 'abs', TXT.refrAbs); bar(R.rel[0], R.rel[1], 'rel', TXT.refrRel);
       const lab = (t, v, text, anchor, dx) => el('text', { x: this.x(t) + dx, y: this.y(v), class: 'g-lab halo', 'text-anchor': anchor }, g).textContent = text;
-      if (!this.compact) { lab((tr.tOnset + tr.tPeak) / 2, -14, 'despolarização', 'end', -9); lab((tr.tPeak + tr.tCross) / 2, -14, 'repolarização', 'start', 10); }
+      if (!this.compact) { lab((tr.tOnset + tr.tPeak) / 2, -14, TXT.depol, 'end', -9); lab((tr.tPeak + tr.tCross) / 2, -14, TXT.repol, 'start', 10); }
     }
     for (let i = 0; i < this.ghosts; i++) el('path', { d: this.path('V', (v) => this.y(v)), class: 'g-ghost' }, g);
     el('path', { d: this.path('V', (v) => this.y(v)), class: 'g-full' }, g);

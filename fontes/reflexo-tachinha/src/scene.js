@@ -3,6 +3,7 @@ import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.j
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { V, rng, curveOf, subCurve, tube, sleeve, organic, ball, place, lathe, Builder } from './geo.js';
 import { BY_ID } from './data.js';
+import { tr } from '../../comum/lang.js';
 
 /* Tons secundários de cada estrutura. O tom "main" usa a cor da ficha. */
 const MUTE = '#B4B8C2';
@@ -240,18 +241,18 @@ export function buildScene() {
     };
 
     const track = (node, local) => ({ track: node, local });
-    L('body', 'Encéfalo', 'encefalo', V(0.55, 16.62, 0.4), 0);
-    L('body', 'Medula espinhal', 'medula', V(-0.82, 11.6, 0.14), 0);
-    L('body', 'Via para o encéfalo', 'ascendente', V(-0.72, 13.6, 0.26), 0);
-    L('body', 'Nervo', 'nervo', V(-0.45, 9.6, 0.62), 0);
-    L('body', 'Neurônio motor', 'motor', V(), 0, 'label', track(leg.hip, thighM[1]));
-    L('body', 'Músculo', 'musculo', V(), 0, 'label', track(leg.hip, V(-0.86, -2.6, 0.2)));
-    L('body', 'Neurônio sensorial', 'sensorial', V(), 0, 'label', track(leg.knee, shankS[2]));
-    L('body', 'Terminação sensorial', 'terminacao', V(), 26, 'label', track(leg.ankle, footS[2]));
-    L('body', 'Tachinha', 'tachinha', V(T.x + 0.2, 0.05, T.z + 0.2), 0);
-    L('body', 'Pele', null, V(), 0, 'hot', { go: 'skin', title: 'Ver a pele por dentro', ...track(leg.ankle, V(2.9, 0.15, 0.3)) });
-    L('body', 'Medula', null, V(-0.9, 10.55, 0.6), 0, 'hot', { go: 'cord', title: 'Abrir a medula em corte' });
-    L('body', 'Junção', null, V(), 0, 'hot', { go: 'nmj', title: 'Ver a junção neuromuscular', ...track(leg.hip, V(-1.15, -1.6, 0.4)) });
+    L('body', tr('Encéfalo', 'Brain'), 'encefalo', V(0.55, 16.62, 0.4), 0);
+    L('body', tr('Medula espinhal', 'Spinal cord'), 'medula', V(-0.82, 11.6, 0.14), 0);
+    L('body', tr('Via para o encéfalo', 'Pathway to the brain'), 'ascendente', V(-0.72, 13.6, 0.26), 0);
+    L('body', tr('Nervo', 'Nerve'), 'nervo', V(-0.45, 9.6, 0.62), 0);
+    L('body', tr('Neurônio motor', 'Motor neuron'), 'motor', V(), 0, 'label', track(leg.hip, thighM[1]));
+    L('body', tr('Músculo', 'Muscle'), 'musculo', V(), 0, 'label', track(leg.hip, V(-0.86, -2.6, 0.2)));
+    L('body', tr('Neurônio sensorial', 'Sensory neuron'), 'sensorial', V(), 0, 'label', track(leg.knee, shankS[2]));
+    L('body', tr('Terminação sensorial', 'Sensory nerve ending'), 'terminacao', V(), 26, 'label', track(leg.ankle, footS[2]));
+    L('body', tr('Tachinha', 'Thumbtack'), 'tachinha', V(T.x + 0.2, 0.05, T.z + 0.2), 0);
+    L('body', tr('Pele', 'Skin'), null, V(), 0, 'hot', { go: 'skin', title: tr('Ver a pele por dentro', 'See inside the skin'), ...track(leg.ankle, V(2.9, 0.15, 0.3)) });
+    L('body', tr('Medula', 'Spinal cord'), null, V(-0.9, 10.55, 0.6), 0, 'hot', { go: 'cord', title: tr('Abrir a medula em corte', 'Open the spinal cord in cross section') });
+    L('body', tr('Junção', 'Junction'), null, V(), 0, 'hot', { go: 'nmj', title: tr('Ver a junção neuromuscular', 'See the neuromuscular junction'), ...track(leg.hip, V(-1.15, -1.6, 0.4)) });
 
     const dir = st.dir;
     Object.assign(home, {
@@ -341,14 +342,14 @@ export function buildScene() {
     };
 
     const lp = (x, y, z) => st.origin.clone().add(V(x, y, z));
-    L('skin', 'Pele', 'pele', lp(-4.3, 4.1, 0), 0);
-    L('skin', 'Tachinha', 'tachinha', lp(0.9, -1.3, ZF + 0.3), 0);
-    L('skin', 'Terminação sensorial', 'terminacao', lp(-1.6, 2.45, 0.65), 0);
-    L('skin', 'Canal de Na⁺ sensível a estiramento', 'canal-est', lp(Bc.x + 0.4, Bc.y + 0.32, Bc.z + 0.4), 0);
+    L('skin', tr('Pele', 'Skin'), 'pele', lp(-4.3, 4.1, 0), 0);
+    L('skin', tr('Tachinha', 'Thumbtack'), 'tachinha', lp(0.9, -1.3, ZF + 0.3), 0);
+    L('skin', tr('Terminação sensorial', 'Sensory nerve ending'), 'terminacao', lp(-1.6, 2.45, 0.65), 0);
+    L('skin', tr('Canal de Na⁺ sensível a estiramento', 'Stretch-sensitive Na⁺ channel'), 'canal-est', lp(Bc.x + 0.4, Bc.y + 0.32, Bc.z + 0.4), 0);
     L('skin', 'Na⁺', 'sodio', lp(bg[3].p.x, bg[3].p.y, bg[3].p.z), 0);
-    L('skin', 'Neurônio sensorial', 'sensorial', lp(0.84, 4.3, ZF + 0.2), 0);
-    L('skin', 'Superfície da sola do pé', null, lp(3.4, -0.35, 0), 0, 'note');
-    L('skin', 'Para a medula', null, lp(0.95, 5.3, ZF), 0, 'note');
+    L('skin', tr('Neurônio sensorial', 'Sensory neuron'), 'sensorial', lp(0.84, 4.3, ZF + 0.2), 0);
+    L('skin', tr('Superfície da sola do pé', 'Surface of the sole of the foot'), null, lp(3.4, -0.35, 0), 0, 'note');
+    L('skin', tr('Para a medula', 'To the spinal cord'), null, lp(0.95, 5.3, ZF), 0, 'note');
     Object.assign(home, {
       pele: { stage: 'skin' },
       terminacao: { stage: 'skin', t: lp(0.1, 2.5, ZF), r: 1.9 },
@@ -438,21 +439,21 @@ export function buildScene() {
     };
 
     const lp = (x, y, z) => st.origin.clone().add(V(x, y, z));
-    L('cord', 'Substância branca', 'branca', lp(-2.7, 0.02, -1.9), 0);
-    L('cord', 'Substância cinzenta', 'cinzenta', lp(-1.75, 0.06, 1.75), 0);
-    L('cord', 'Raiz dorsal', 'raiz-dorsal', lp(3.6, 0.6, -2.85), 0);
-    L('cord', 'Gânglio da raiz dorsal', 'ganglio', lp(5.6, 0.95, -2.3), 0);
-    L('cord', 'Raiz ventral', 'raiz-ventral', lp(5.2, 0.52, 2.1), 0);
-    L('cord', 'Nervo', 'nervo', lp(9.5, 0.62, 0), 0);
-    L('cord', 'Neurônio sensorial', 'sensorial', lp(7.0, 0.3, -1.2), 0);
-    L('cord', 'Sinapse', 'sinapse', lp(b1.x, b1.y + 0.1, b1.z), 9);
-    L('cord', 'Interneurônio', 'interneuronio', lp(A.x + 0.2, A.y + 0.2, A.z), 0);
-    L('cord', 'Via para o encéfalo', 'ascendente', lp(-2.2, Y + 0.05, 1.3), 0);
-    L('cord', 'Neurônio motor', 'motor', lp(M.x + 0.2, M.y + 0.3, M.z), 0);
-    L('cord', 'Dorsal (costas)', null, lp(-0.4, 0.1, -4.2), 0, 'note');
-    L('cord', 'Ventral (frente)', null, lp(-0.4, 0.1, 4.3), 0, 'note');
-    L('cord', 'Ao encéfalo', null, lp(-3.32, 4.4, 1.45), 0, 'note');
-    L('cord', 'Para a perna', null, lp(11.2, 0.5, 0), 0, 'note');
+    L('cord', tr('Substância branca', 'White matter'), 'branca', lp(-2.7, 0.02, -1.9), 0);
+    L('cord', tr('Substância cinzenta', 'Gray matter'), 'cinzenta', lp(-1.75, 0.06, 1.75), 0);
+    L('cord', tr('Raiz dorsal', 'Dorsal root'), 'raiz-dorsal', lp(3.6, 0.6, -2.85), 0);
+    L('cord', tr('Gânglio da raiz dorsal', 'Dorsal root ganglion'), 'ganglio', lp(5.6, 0.95, -2.3), 0);
+    L('cord', tr('Raiz ventral', 'Ventral root'), 'raiz-ventral', lp(5.2, 0.52, 2.1), 0);
+    L('cord', tr('Nervo', 'Nerve'), 'nervo', lp(9.5, 0.62, 0), 0);
+    L('cord', tr('Neurônio sensorial', 'Sensory neuron'), 'sensorial', lp(7.0, 0.3, -1.2), 0);
+    L('cord', tr('Sinapse', 'Synapse'), 'sinapse', lp(b1.x, b1.y + 0.1, b1.z), 9);
+    L('cord', tr('Interneurônio', 'Interneuron'), 'interneuronio', lp(A.x + 0.2, A.y + 0.2, A.z), 0);
+    L('cord', tr('Via para o encéfalo', 'Pathway to the brain'), 'ascendente', lp(-2.2, Y + 0.05, 1.3), 0);
+    L('cord', tr('Neurônio motor', 'Motor neuron'), 'motor', lp(M.x + 0.2, M.y + 0.3, M.z), 0);
+    L('cord', tr('Dorsal (costas)', 'Dorsal (back)'), null, lp(-0.4, 0.1, -4.2), 0, 'note');
+    L('cord', tr('Ventral (frente)', 'Ventral (front)'), null, lp(-0.4, 0.1, 4.3), 0, 'note');
+    L('cord', tr('Ao encéfalo', 'To the brain'), null, lp(-3.32, 4.4, 1.45), 0, 'note');
+    L('cord', tr('Para a perna', 'To the leg'), null, lp(11.2, 0.5, 0), 0, 'note');
     Object.assign(home, {
       sinapse: { stage: 'cord', t: lp(1.4, Y, -1.4), r: 1.5, dir: V(0, 1, 0.6) },
       interneuronio: { stage: 'cord', t: lp(1.9, Y, 0), r: 2.4, dir: V(0, 1, 0.6) },
@@ -542,16 +543,16 @@ export function buildScene() {
     };
 
     const lp = (x, y, z) => st.origin.clone().add(V(x, y, z));
-    L('nmj', 'Neurônio motor', 'motor', lp(-1.55, 3.5, 0.45), 0);
-    L('nmj', 'Junção neuromuscular', 'jnm', lp(2.05, 0.75, -0.2), 0);
-    L('nmj', 'Vesículas com acetilcolina', 'ach', lp(ves[1].x, ves[1].y, ves[1].z + 0.18), 0);
-    L('nmj', 'Zona ativa', 'jnm', lp(-1.04, 0.16, 0.3), 16);
-    L('nmj', 'Acetilcolinesterase', 'ache', lp(ache[0].x, ache[0].y, ache[0].z), 12);
-    L('nmj', 'Receptor nicotínico', 'receptor', lp(1.56, -0.36, 0.42), 0);
-    L('nmj', 'Placa motora', 'placa', lp(-1.95, -0.62, 0.9), 0);
-    L('nmj', 'Fibra muscular', 'musculo', lp(4.7, -1.25, 1.2), 0);
+    L('nmj', tr('Neurônio motor', 'Motor neuron'), 'motor', lp(-1.55, 3.5, 0.45), 0);
+    L('nmj', tr('Junção neuromuscular', 'Neuromuscular junction'), 'jnm', lp(2.05, 0.75, -0.2), 0);
+    L('nmj', tr('Vesículas com acetilcolina', 'Vesicles with acetylcholine'), 'ach', lp(ves[1].x, ves[1].y, ves[1].z + 0.18), 0);
+    L('nmj', tr('Zona ativa', 'Active zone'), 'jnm', lp(-1.04, 0.16, 0.3), 16);
+    L('nmj', tr('Acetilcolinesterase', 'Acetylcholinesterase'), 'ache', lp(ache[0].x, ache[0].y, ache[0].z), 12);
+    L('nmj', tr('Receptor nicotínico', 'Nicotinic ACh receptor'), 'receptor', lp(1.56, -0.36, 0.42), 0);
+    L('nmj', tr('Placa motora', 'Motor end-plate'), 'placa', lp(-1.95, -0.62, 0.9), 0);
+    L('nmj', tr('Fibra muscular', 'Muscle fiber'), 'musculo', lp(4.7, -1.25, 1.2), 0);
     L('nmj', 'Na⁺', 'sodio', lp(bg[1].p.x, bg[1].p.y, bg[1].p.z), 10);
-    L('nmj', 'Fenda', null, lp(2.5, -0.2, 0.3), 12, 'note');
+    L('nmj', tr('Fenda', 'Cleft'), null, lp(2.5, -0.2, 0.3), 12, 'note');
     Object.assign(home, {
       jnm: { stage: 'nmj' },
       ach: { stage: 'nmj', t: lp(0, 0.8, 0), r: 2.2 },

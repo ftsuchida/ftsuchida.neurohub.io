@@ -21,7 +21,9 @@ catalogo.js           a lista de itens que o hub mostra
 assets/               estilo e script do hub, e as capas dos itens
 itens/<id>/           a página publicada de cada item (arquivo único, já montado)
 fontes/<id>/src/      o código-fonte dos itens que têm etapa de montagem
+fontes/comum/         o que os itens compartilham (hoje, o idioma)
 scripts/build.mjs     monta fontes/<id> em itens/<id>/index.html
+scripts/check-i18n.mjs  confere se o inglês cobre tudo o que o português tem
 scripts/serve.mjs     servidor local para testar
 ```
 
@@ -49,7 +51,7 @@ Depois abra `http://localhost:4173/`.
 | Campo | Para que serve |
 |---|---|
 | `id` | Nome da pasta em `itens/` (e em `fontes/`, se houver) |
-| `titulo`, `resumo` | Texto do cartão. O título também vira o `<title>` da página montada |
+| `titulo`, `resumo` | Texto do cartão. O título também vira o `<title>` da página montada. Como todo texto do catálogo, pode ser uma string ou `{ pt: '...', en: '...' }` |
 | `tipo` | Chave de `tipos` no mesmo arquivo. Os tipos viram os filtros do topo |
 | `assunto` | Aparece ao lado do tipo |
 | `base` | De onde vem o conteúdo (livro, curso, artigo) |
@@ -75,7 +77,9 @@ Em cada `fontes/<id>/src/`:
 
 | Arquivo | Conteúdo |
 |---|---|
-| `data.js` | Os textos: fichas, vistas e passos. É onde se corrige conteúdo |
+| `data.pt.js` | Os textos em português: fichas, vistas e passos. É onde se corrige conteúdo, e é a fonte de tudo o que não é texto (ids, cores, relações) |
+| `data.en.js` | Os mesmos textos em inglês, por id |
+| `data.js` | Junta os dois conforme o idioma da página |
 | `scene.js` | A geometria e as animações de cada vista |
 | `geo.js` | Funções de apoio para tubos, esferas e formas de revolução |
 | `main.js` | Interface: lista, ficha, câmera, rótulos e cliques |
@@ -83,6 +87,25 @@ Em cada `fontes/<id>/src/`:
 | `style.css`, `body.html` | Estilo e marcação da página. No `body.html`, `{{hub}}` vira o título do hub na montagem (é o texto do link de voltar) |
 
 Depois de montar, faça commit também de `itens/<id>/index.html`: é esse arquivo que o Pages serve.
+
+## Idiomas
+
+O site tem português e inglês, com uma chave PT/EN no hub e em cada modelo. Na primeira visita vale o idioma do navegador (português, se estiver na lista dele; senão, inglês). Depois vale a última escolha, que fica guardada no navegador e também vai no endereço (`?lang=en`), então um link já abre no idioma certo.
+
+| Onde | Como entra o inglês |
+|---|---|
+| Catálogo (`catalogo.js`) | Cada texto vira `{ pt: '...', en: '...' }`. Sem `en`, aparece o português |
+| Fichas, vistas e passos de um modelo | `data.en.js`, com os mesmos ids de `data.pt.js` |
+| Textos escritos no código de um modelo | `tr('Abrir', 'Open')`, de `fontes/comum/lang.js` |
+| Textos escritos no `body.html` de um modelo | Atributos `data-en`, `data-en-placeholder`, `data-en-aria-label` e `data-en-title` |
+
+Nos modelos, trocar o idioma recarrega a página. No hub, a troca é na hora.
+
+Depois de mexer em uma ficha, `npm run check` mostra o que ficou sem tradução:
+
+```
+npm run check
+```
 
 ## Publicar no GitHub Pages
 

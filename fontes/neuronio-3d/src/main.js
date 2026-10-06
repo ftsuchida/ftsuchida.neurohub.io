@@ -3,7 +3,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { GROUPS, ITEMS, BY_ID, PATH, VIEWS } from './data.js';
 import { buildScene } from './scene.js';
+import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
 import { createModel, Graph } from './ap.js';
+
+applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
 
 const $ = (id) => document.getElementById(id);
 const app = $('app'), canvas = $('gl'), listEl = $('list'), insEl = $('inspector'), panes = $('panes'), segEl = $('seg');
@@ -17,6 +20,11 @@ const ICON = {
 const dot = (c) => `<span class="dot" style="background:${c}"></span>`;
 const groupName = (g) => GROUPS.find((x) => x.id === g).name;
 const fold = (s) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+// "sizeLabel" e "short" são textos do data.pt.js que não entram no data.en.js; o inglês deles fica aqui (sem inglês, vale o português)
+const SIZE_EN = { Espessura: 'Thickness', Comprimento: 'Length', Espaçamento: 'Spacing', Fenda: 'Cleft', Largura: 'Width', Concentração: 'Concentration' };
+const sizeLabel = (it) => (it.sizeLabel ? tr(it.sizeLabel, SIZE_EN[it.sizeLabel]) : tr('Tamanho', 'Size'));
+const SHORT_EN = { citosol: 'Cytosol', extracelular: 'Extracellular', liquor: 'Ventricles', sangue: 'Blood' };
+const shortName = (it) => tr(it.short, SHORT_EN[it.id]);
 
 const state = { selected: null, hover: null, view: 'world', stage: 'world', labels: true, liquids: false };
 let three = null; // preenchido quando a cena 3D sobe
@@ -31,7 +39,7 @@ function renderList(query = '') {
     n += items.length;
     html += `<h2>${g.name}</h2><ul>` + items.map((i) => `<li><button type="button" data-id="${i.id}"${i.id === state.selected ? ' aria-current="true"' : ''}>${dot(i.color)}<span>${i.name}</span></button></li>`).join('') + '</ul>';
   }
-  listEl.innerHTML = n ? html : `<p class="none">Nenhuma estrutura com “${query.trim().replace(/[<>&]/g, '')}”.</p>`;
+  listEl.innerHTML = n ? html : `<p class="none">${tr(`Nenhuma estrutura com “${query.trim().replace(/[<>&]/g, '')}”.`, `No structure matches “${query.trim().replace(/[<>&]/g, '')}”.`)}</p>`;
 }
 listEl.addEventListener('click', (e) => { const b = e.target.closest('button[data-id]'); if (b) select(b.dataset.id, true); });
 $('q').addEventListener('input', (e) => renderList(e.target.value));
@@ -39,26 +47,26 @@ $('q').addEventListener('input', (e) => renderList(e.target.value));
 /* ============================== ficha ============================== */
 function renderIntro() {
   insEl.innerHTML = `<div class="ins">
-    <h1>Neurônio em 3D</h1>
-    <p class="lead">Clique em qualquer estrutura para ver a morfologia e a função dela. A lista leva a câmera até cada uma.</p>
-    <h2>Caminho do sinal</h2>
+    <h1>${tr('Neurônio em 3D', 'Neuron in 3D')}</h1>
+    <p class="lead">${tr('Clique em qualquer estrutura para ver a morfologia e a função dela. A lista leva a câmera até cada uma.', 'Click any structure to see its morphology and function. The list takes the camera to each one.')}</p>
+    <h2>${tr('Caminho do sinal', 'Signal path')}</h2>
     <ol class="rows links">${PATH.map((p, i) => `<li><button type="button" data-id="${p[0]}"><span class="num">${i + 1}</span><span class="name">${BY_ID[p[0]].name}<span class="sub">${p[1]}</span></span>${ICON.chev}</button></li>`).join('')}</ol>
-    <p class="foot">Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Formas e tamanhos estão exagerados para caber na cena; as medidas reais aparecem em cada ficha. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 2 a 6; o que não está no livro aparece marcado como extra.</p>
+    <p class="foot">${tr('Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Formas e tamanhos estão exagerados para caber na cena; as medidas reais aparecem em cada ficha. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 2 a 6; o que não está no livro aparece marcado como extra.', 'Drag to rotate, scroll or pinch to zoom, use two fingers or the right button to pan. Shapes and sizes are exaggerated to fit in the scene; the real measurements appear on each card. Content follows Bear, Connors and Paradiso, Neuroscience: Exploring the Brain, 4th ed., chapters 2 to 6; anything that is not in the book is marked as extra.')}</p>
   </div>`;
 }
 function renderItem(id) {
   const it = BY_ID[id];
   insEl.innerHTML = `<div class="ins">
     <div class="ins-top"><div><h1>${it.name}</h1>${it.aka ? `<p class="aka">${it.aka}</p>` : ''}</div>
-      <button type="button" class="close" data-act="close" aria-label="Fechar ficha">${ICON.close}</button></div>
-    <dl class="rows"><div><dt>Grupo</dt><dd>${groupName(it.g)}</dd></div>${it.size ? `<div><dt>${it.sizeLabel || 'Tamanho'}</dt><dd>${it.size}</dd></div>` : ''}${(it.rows || []).map((r) => `<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('')}</dl>
-    <h2>Morfologia</h2><p>${it.morf}</p>
-    <h2>Função</h2><p>${it.func}</p>
-    ${it.clue ? `<h2>${it.clueTitle || 'A forma entrega a função'}</h2><p>${it.clue}</p>` : ''}
-    ${it.more ? `<h2>Mais detalhes</h2><ul class="more">${it.more.map((m) => (typeof m === 'string' ? `<li>${m}</li>` : `<li>${m.x} <span class="tag">extra</span></li>`)).join('')}</ul>` : ''}
-    <h2>Na cena</h2><p>${it.where}</p>
-    <div class="actions"><button type="button" class="btn" data-act="go">${ICON.zoom}Ver de perto</button></div>
-    ${it.rel && it.rel.length ? `<h2>Relacionados</h2><ul class="rows links">${it.rel.map((r) => `<li><button type="button" data-id="${r}">${dot(BY_ID[r].color)}<span class="name">${BY_ID[r].name}</span>${ICON.chev}</button></li>`).join('')}</ul>` : ''}
+      <button type="button" class="close" data-act="close" aria-label="${tr('Fechar ficha', 'Close card')}">${ICON.close}</button></div>
+    <dl class="rows"><div><dt>${tr('Grupo', 'Group')}</dt><dd>${groupName(it.g)}</dd></div>${it.size ? `<div><dt>${sizeLabel(it)}</dt><dd>${it.size}</dd></div>` : ''}${(it.rows || []).map((r) => `<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('')}</dl>
+    <h2>${tr('Morfologia', 'Morphology')}</h2><p>${it.morf}</p>
+    <h2>${tr('Função', 'Function')}</h2><p>${it.func}</p>
+    ${it.clue ? `<h2>${it.clueTitle || tr('A forma entrega a função', 'Form reveals function')}</h2><p>${it.clue}</p>` : ''}
+    ${it.more ? `<h2>${tr('Mais detalhes', 'More details')}</h2><ul class="more">${it.more.map((m) => (typeof m === 'string' ? `<li>${m}</li>` : `<li>${m.x} <span class="tag">${tr('extra', 'extra')}</span></li>`)).join('')}</ul>` : ''}
+    <h2>${tr('Na cena', 'In the scene')}</h2><p>${it.where}</p>
+    <div class="actions"><button type="button" class="btn" data-act="go">${ICON.zoom}${tr('Ver de perto', 'See up close')}</button></div>
+    ${it.rel && it.rel.length ? `<h2>${tr('Relacionados', 'Related')}</h2><ul class="rows links">${it.rel.map((r) => `<li><button type="button" data-id="${r}">${dot(BY_ID[r].color)}<span class="name">${BY_ID[r].name}</span>${ICON.chev}</button></li>`).join('')}</ul>` : ''}
   </div>`;
 }
 insEl.addEventListener('click', (e) => {
@@ -393,7 +401,7 @@ function start3D() {
   const pulse = new THREE.Mesh(new THREE.SphereGeometry(0.4, 20, 14), new THREE.MeshBasicMaterial({ color: 0xfff6c4, toneMapped: false, fog: false }));
   const halo = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffd65c, transparent: true, opacity: 0.32, depthTest: false, depthWrite: false, fog: false }));
   pulse.add(halo); pulse.visible = false; pulse.renderOrder = 9; halo.renderOrder = 9; stages.world.group.add(pulse);
-  const num = (v, d = 0) => v.toFixed(d).replace('.', ',').replace('-', '−');
+  const num = (v, d = 0) => v.toFixed(d).replace('.', tr(',', '.')).replace('-', '−');
   const SVG_PLAY = '<svg class="ic fill" viewBox="0 0 16 16"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.3-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z"/></svg>';
   const SVG_PAUSE = '<svg class="ic fill" viewBox="0 0 16 16"><rect x="3.5" y="2.5" width="3.2" height="11" rx="1"/><rect x="9.3" y="2.5" width="3.2" height="11" rx="1"/></svg>';
   let phaseKey = '', sig = null;
@@ -415,7 +423,7 @@ function start3D() {
       showModule(state.stage === 'world' && mod.mode === 'world' ? 'world' : null);
     }
   }
-  function stimLabel() { $('apStimV').textContent = mod.k < 0.01 ? 'sem estímulo' : `${num(mod.k, 2)}× o limiar`; }
+  function stimLabel() { $('apStimV').textContent = mod.k < 0.01 ? tr('sem estímulo', 'no stimulus') : tr(`${num(mod.k, 2)}× o limiar`, `${num(mod.k, 2)}× threshold`); }
   $('apPlay').addEventListener('click', () => { if (mod.playing) mod.playing = false; else { if (mod.t >= model.T - 0.02) mod.t = 0; mod.playing = true; } mod.dirty = true; });
   $('apStim').addEventListener('input', (e) => { mod.k = +e.target.value; mod.tr = model.trace(mod.k); graph.setTrace(mod.tr); mod.t = 0.5; mod.playing = true; stimLabel(); });
   graph.onScrub = (t) => { if (mod.mode !== 'ap') return; mod.t = t; mod.playing = false; mod.dirty = true; };
@@ -429,7 +437,7 @@ function start3D() {
     readEl.textContent = `Vm ${num(s.V)} mV · ${num(mod.t, 2)} ms`;
     const ph = model.phase(mod.tr, mod.t); setPhase(ph[0], ph[1]);
     const icon = mod.playing ? 'pause' : 'play', btn = $('apPlay');
-    if (btn.dataset.icon !== icon) { btn.dataset.icon = icon; btn.innerHTML = mod.playing ? SVG_PAUSE : SVG_PLAY; btn.setAttribute('aria-label', mod.playing ? 'Pausar' : 'Reproduzir'); }
+    if (btn.dataset.icon !== icon) { btn.dataset.icon = icon; btn.innerHTML = mod.playing ? SVG_PAUSE : SVG_PLAY; btn.setAttribute('aria-label', mod.playing ? tr('Pausar', 'Pause') : tr('Reproduzir', 'Play')); }
   }
 
   /* sinal percorrendo o neurônio: no cone e em cada nódulo, o gráfico desenha o mesmo potencial de ação */
@@ -437,7 +445,7 @@ function start3D() {
     if (sig) return;
     markView('world');
     if (phone.matches) sheet.to('peek');
-    showModule('world'); graph.setTrace(model.trace(0.75)); graph.setTime(0); readEl.textContent = ''; setPhase('Sinal', 'Acompanhe o ponto amarelo pelo neurônio.');
+    showModule('world'); graph.setTrace(model.trace(0.75)); graph.setTime(0); readEl.textContent = ''; setPhase(tr('Sinal', 'Signal'), tr('Acompanhe o ponto amarelo pelo neurônio.', 'Follow the yellow dot through the neuron.'));
     setStage('world', () => whole('world'));
     sig = { i: 0, gi: -1, n: 0, t0: performance.now() + (reduce ? 0 : 900) }; $('apAgain').disabled = true;
   }
@@ -457,8 +465,8 @@ function start3D() {
     if (sig.gi !== sig.i) {
       sig.gi = sig.i;
       sig.kind = sig.i === 0 ? 'sub' : sig.i === 1 ? 'sub2' : s.id === 'cone' || s.id === 'nodulo' ? 'ap' : null;
-      if (sig.kind === 'ap') { sig.n++; graph.setTrace(std); readEl.textContent = sig.n === 1 ? 'Potencial de ação nº 1' : `Potencial de ação nº ${sig.n}: mesmo tamanho`; }
-      else if (sig.kind === 'sub') readEl.textContent = 'Despolarização pequena, abaixo do limiar';
+      if (sig.kind === 'ap') { sig.n++; graph.setTrace(std); readEl.textContent = sig.n === 1 ? tr('Potencial de ação nº 1', 'Action potential no. 1') : tr(`Potencial de ação nº ${sig.n}: mesmo tamanho`, `Action potential no. ${sig.n}: same size`); }
+      else if (sig.kind === 'sub') readEl.textContent = tr('Despolarização pequena, abaixo do limiar', 'Small depolarization, below threshold');
       else if (!sig.kind) readEl.textContent = '';
       const cut = s.cap.indexOf(':'), rest = s.cap.slice(cut + 2); setPhase(s.cap.slice(0, cut), rest[0].toUpperCase() + rest.slice(1));
     }
@@ -482,7 +490,7 @@ function start3D() {
 
   /* ---------- laço ---------- */
   const legend = $('legend'), liqBtn = $('liq');
-  legend.innerHTML = ITEMS.filter((i) => i.g === 'liq').map((i) => `<button type="button" data-id="${i.id}">${dot(i.color)}${i.short}</button>`).join('');
+  legend.innerHTML = ITEMS.filter((i) => i.g === 'liq').map((i) => `<button type="button" data-id="${i.id}">${dot(i.color)}${shortName(i)}</button>`).join('');
   legend.addEventListener('click', (e) => { const b = e.target.closest('button[data-id]'); if (b) select(b.dataset.id, false); });
   function showFluids(s) { for (const m of s.fluids) m.visible = state.liquids; if (s.motes) s.motes.visible = state.liquids; }
   function setLiquids(on) {

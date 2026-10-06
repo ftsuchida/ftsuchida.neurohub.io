@@ -3,6 +3,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { GROUPS, ITEMS, BY_ID, VIEWS, STEPS } from './data.js';
 import { buildScene } from './scene.js';
+import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
+
+applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
 
 const $ = (id) => document.getElementById(id);
 const app = $('app'), canvas = $('gl'), listEl = $('list'), insEl = $('inspector'), panes = $('panes'), segEl = $('seg');
@@ -34,7 +37,7 @@ function renderList(query = '') {
     n += items.length;
     html += `<h2>${g.name}</h2><ul>` + items.map((i) => `<li><button type="button" data-id="${i.id}"${i.id === state.selected ? ' aria-current="true"' : ''}>${dot(i.color)}<span>${i.name}</span></button></li>`).join('') + '</ul>';
   }
-  listEl.innerHTML = n ? html : `<p class="none">Nenhuma estrutura com “${query.trim().replace(/[<>&]/g, '')}”.</p>`;
+  listEl.innerHTML = n ? html : `<p class="none">${tr(`Nenhuma estrutura com “${query.trim().replace(/[<>&]/g, '')}”.`, `No structure matching “${query.trim().replace(/[<>&]/g, '')}”.`)}</p>`;
 }
 listEl.addEventListener('click', (e) => { const b = e.target.closest('button[data-id]'); if (b) select(b.dataset.id, true); });
 $('q').addEventListener('input', (e) => renderList(e.target.value));
@@ -42,13 +45,13 @@ $('q').addEventListener('input', (e) => renderList(e.target.value));
 /* ============================== ficha ============================== */
 function renderIntro() {
   insEl.innerHTML = `<div class="ins">
-    <h1>Reflexo da tachinha</h1>
-    <p class="lead">Você pisa numa tachinha e levanta o pé. O modelo segue o sinal do contato na pele até a contração do músculo.</p>
-    <h2>O que o livro mostra</h2>
-    <p>Na medula, o sinal se divide. Um caminho sobe ao encéfalo, onde a dor é registrada. O outro vai direto ao neurônio motor e levanta o pé, sem esperar o encéfalo.</p>
-    <h2>Passo a passo</h2>
+    <h1>${tr('Reflexo da tachinha', 'Thumbtack reflex')}</h1>
+    <p class="lead">${tr('Você pisa numa tachinha e levanta o pé. O modelo segue o sinal do contato na pele até a contração do músculo.', 'You step on a thumbtack and lift your foot. The model follows the signal from the contact on the skin to the contraction of the muscle.')}</p>
+    <h2>${tr('O que o livro mostra', 'What the book shows')}</h2>
+    <p>${tr('Na medula, o sinal se divide. Um caminho sobe ao encéfalo, onde a dor é registrada. O outro vai direto ao neurônio motor e levanta o pé, sem esperar o encéfalo.', 'In the spinal cord, the signal splits. One path goes up to the brain, where the pain is registered. The other goes straight to the motor neuron and lifts the foot, without waiting for the brain.')}</p>
+    <h2>${tr('Passo a passo', 'Step by step')}</h2>
     <ol class="rows links">${STEPS.map((s, i) => `<li><button type="button" data-step="${i}"><span class="num">${i + 1}</span><span class="name">${s.title}</span>${ICON.chev}</button></li>`).join('')}</ol>
-    <p class="foot">Clique em qualquer estrutura para abrir a ficha. Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Formas e tamanhos estão exagerados. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 1 a 6; o que vem de fora desses capítulos aparece marcado como extra.</p>
+    <p class="foot">${tr('Clique em qualquer estrutura para abrir a ficha. Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Formas e tamanhos estão exagerados. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 1 a 6; o que vem de fora desses capítulos aparece marcado como extra.', 'Click any structure to open its card. Drag to rotate, scroll or pinch to zoom, use two fingers or the right button to pan. Shapes and sizes are exaggerated. Content follows Bear, Connors and Paradiso, Neuroscience: Exploring the Brain, 4th ed., chapters 1 to 6; anything from outside those chapters is marked as extra.')}</p>
   </div>`;
 }
 function renderItem(id) {
@@ -56,16 +59,16 @@ function renderItem(id) {
   const inSteps = STEPS.map((s, i) => (s.ids.includes(id) ? i : -1)).filter((i) => i >= 0);
   insEl.innerHTML = `<div class="ins">
     <div class="ins-top"><div><h1>${it.name}</h1>${it.aka ? `<p class="aka">${it.aka}</p>` : ''}</div>
-      <button type="button" class="close" data-act="close" aria-label="Fechar ficha">${ICON.close}</button></div>
-    <dl class="rows"><div><dt>Grupo</dt><dd>${groupName(it.g)}</dd></div>${(it.rows || []).map((r) => `<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('')}</dl>
-    <h2>Morfologia</h2><p>${it.morf}</p>
-    <h2>Função</h2><p>${it.func}</p>
+      <button type="button" class="close" data-act="close" aria-label="${tr('Fechar ficha', 'Close card')}">${ICON.close}</button></div>
+    <dl class="rows"><div><dt>${tr('Grupo', 'Group')}</dt><dd>${groupName(it.g)}</dd></div>${(it.rows || []).map((r) => `<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('')}</dl>
+    <h2>${tr('Morfologia', 'Morphology')}</h2><p>${it.morf}</p>
+    <h2>${tr('Função', 'Function')}</h2><p>${it.func}</p>
     ${it.clue ? `<h2>${it.clueTitle}</h2><p>${it.clue}</p>` : ''}
-    ${it.more ? `<h2>Mais detalhes</h2><ul class="more">${it.more.map((m) => (typeof m === 'string' ? `<li>${m}</li>` : `<li>${m.x} <span class="tag">extra</span></li>`)).join('')}</ul>` : ''}
-    <h2>Na cena</h2><p>${it.where}</p>
-    <div class="actions"><button type="button" class="btn" data-act="go">${ICON.zoom}Ver de perto</button></div>
-    ${inSteps.length ? `<h2>Aparece nos passos</h2><ol class="rows links">${inSteps.map((i) => `<li><button type="button" data-step="${i}"><span class="num">${i + 1}</span><span class="name">${STEPS[i].title}</span>${ICON.chev}</button></li>`).join('')}</ol>` : ''}
-    ${it.rel && it.rel.length ? `<h2>Relacionados</h2><ul class="rows links">${it.rel.map((r) => `<li><button type="button" data-id="${r}">${dot(BY_ID[r].color)}<span class="name">${BY_ID[r].name}</span>${ICON.chev}</button></li>`).join('')}</ul>` : ''}
+    ${it.more ? `<h2>${tr('Mais detalhes', 'More details')}</h2><ul class="more">${it.more.map((m) => (typeof m === 'string' ? `<li>${m}</li>` : `<li>${m.x} <span class="tag">${tr('extra', 'extra')}</span></li>`)).join('')}</ul>` : ''}
+    <h2>${tr('Na cena', 'In the scene')}</h2><p>${it.where}</p>
+    <div class="actions"><button type="button" class="btn" data-act="go">${ICON.zoom}${tr('Ver de perto', 'See up close')}</button></div>
+    ${inSteps.length ? `<h2>${tr('Aparece nos passos', 'Appears in steps')}</h2><ol class="rows links">${inSteps.map((i) => `<li><button type="button" data-step="${i}"><span class="num">${i + 1}</span><span class="name">${STEPS[i].title}</span>${ICON.chev}</button></li>`).join('')}</ol>` : ''}
+    ${it.rel && it.rel.length ? `<h2>${tr('Relacionados', 'Related')}</h2><ul class="rows links">${it.rel.map((r) => `<li><button type="button" data-id="${r}">${dot(BY_ID[r].color)}<span class="name">${BY_ID[r].name}</span>${ICON.chev}</button></li>`).join('')}</ul>` : ''}
   </div>`;
 }
 insEl.addEventListener('click', (e) => {
@@ -99,15 +102,15 @@ segEl.addEventListener('click', (e) => { const b = e.target.closest('button[data
 
 /* ============================== passo a passo ============================== */
 const stPlay = $('stPlay'), stBar = $('stBar');
-$('stDots').innerHTML = STEPS.map((s, i) => `<button type="button" data-step="${i}" aria-label="Passo ${i + 1}: ${s.title}"></button>`).join('');
+$('stDots').innerHTML = STEPS.map((s, i) => `<button type="button" data-step="${i}" aria-label="${tr(`Passo ${i + 1}: ${s.title}`, `Step ${i + 1}: ${s.title}`)}"></button>`).join('');
 function renderStepper() {
   const s = STEPS[stp.i], last = stp.i === STEPS.length - 1;
-  $('stCount').textContent = `Passo ${stp.i + 1} de ${STEPS.length}`;
+  $('stCount').textContent = tr(`Passo ${stp.i + 1} de ${STEPS.length}`, `Step ${stp.i + 1} of ${STEPS.length}`);
   $('stTitle').textContent = s.title;
   if ($('stText').textContent !== s.text) $('stText').textContent = s.text;
   $('stPrev').disabled = stp.i === 0; $('stNext').disabled = last;
   $('stDots').querySelectorAll('button').forEach((b, i) => (i === stp.i ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current')));
-  const label = stp.playing ? 'Pausar' : !stp.touched ? 'Começar' : stp.done ? (last ? 'Repetir do início' : 'Continuar') : stp.t > 0 ? 'Continuar' : 'Reproduzir';
+  const label = stp.playing ? tr('Pausar', 'Pause') : !stp.touched ? tr('Começar', 'Start') : stp.done ? (last ? tr('Repetir do início', 'Replay from the start') : tr('Continuar', 'Continue')) : stp.t > 0 ? tr('Continuar', 'Continue') : tr('Reproduzir', 'Play');
   const html = (stp.playing ? ICON.pause : ICON.play) + label;
   if (stPlay.dataset.k !== html) { stPlay.dataset.k = html; stPlay.innerHTML = html; }
 }
