@@ -5,6 +5,7 @@
   <div id="nogl" hidden>Este navegador não conseguiu abrir a cena 3D. A lista e as fichas continuam funcionando.</div>
 
   <div id="toolbar" class="glass">
+    <a class="tb icon home-tb" href="../../index.html" aria-label="Voltar ao {{hub}}" title="Voltar ao {{hub}}"><svg class="ic" viewBox="0 0 16 16"><path d="M2.4 7.6 8 2.9l5.6 4.7M3.9 6.5v6.6h2.9V9.7h2.400v3.400h2.9V6.5"/></svg></a>
     <div class="seg" id="seg" role="group" aria-label="Vistas"></div>
     <button type="button" class="tb" id="liq" aria-pressed="false" title="Mostrar os líquidos dentro e fora das células"><svg class="ic" viewBox="0 0 16 16"><path d="M8 1.800c2.400 2.900 4.200 5.200 4.200 7.600a4.200 4.200 0 0 1-8.400 0c0-2.400 1.800-4.700 4.200-7.600z"/></svg><span>Líquidos</span></button>
     <button type="button" class="tb icon" id="tags" aria-pressed="true" aria-label="Mostrar rótulos" title="Rótulos"><svg class="ic" viewBox="0 0 16 16"><path d="M2.5 3.6v3.7c0 .3.1.6.3.8l5.6 5.6c.4.4 1.1.4 1.6 0l3.7-3.7c.4-.5.4-1.200 0-1.6L8.100 2.800a1.100 1.100 0 0 0-.8-.3H3.600c-.6 0-1.100.5-1.100 1.100z"/><circle cx="5.4" cy="5.4" r=".9"/></svg></button>
@@ -34,6 +35,7 @@
   <div id="panes" data-pane="list">
     <div id="grab" aria-hidden="true"></div>
     <aside id="sidebar" class="glass" aria-label="Estruturas">
+      <a class="home" href="../../index.html" title="Voltar ao {{hub}}"><svg class="ic" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8 10 12.5"/></svg>{{hub}}</a>
       <label class="search"><svg class="ic" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.3"/><path d="m10.300 10.300 3.200 3.200"/></svg><input id="q" type="search" placeholder="Buscar estrutura" autocomplete="off" spellcheck="false" aria-label="Buscar estrutura"></label>
       <nav id="list"></nav>
     </aside>

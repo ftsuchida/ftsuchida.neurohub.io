@@ -200,30 +200,6 @@ svg.ic.fill { fill: currentColor; stroke: none; }
   .search { margin-top: 2px; }
   .ins { padding: 4px 16px 20px; }
   .ins h1 { font-size: 24px; }
-  #busy { position: absolute; top: 46%; left: calc(var(--side) + 2 * var(--pad) + (100% - var(--side) - var(--insp) - 4 * var(--pad)) / 2); transform: translate(-50%, -50%); padding: 9px 16px; border-radius: 12px; font-size: 14px; font-weight: 500; color: var(--label2); }
-#nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--label2); }
-
-/* celular e tablet: folha inferior */
-@media (max-width: 900px) {
-  :root { --pad: 10px; }
-  #toolbar { top: calc(var(--pad) + env(safe-area-inset-top, 0px)); bottom: auto; left: var(--pad); right: var(--pad); transform: none; max-width: none; gap: 6px; }
-  .seg { flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
-  .seg::-webkit-scrollbar { display: none; }
-  .seg button { flex: 1 0 auto; padding: 0 6px; text-align: center; font-size: 12.5px; }
-  #panes {
-    display: flex; flex-direction: column; position: absolute; left: 0; right: 0; bottom: 0; height: var(--sheet, 46%); max-height: calc(100% - 64px - env(safe-area-inset-top, 0px));
-    border-radius: 16px 16px 0 0; border-bottom: 0; padding-bottom: env(safe-area-inset-bottom, 0px); transition: height .32s cubic-bezier(.2, .85, .25, 1);
-    background: var(--glass); border: 1px solid var(--glass-edge); box-shadow: var(--shadow);
-    -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
-  }
-  #panes.drag { transition: none; }
-  #grab { display: block; flex: none; width: 100%; height: 22px; touch-action: none; cursor: grab; }
-  #grab::before { content: ""; display: block; width: 36px; height: 5px; border-radius: 3px; background: var(--label3); margin: 7px auto 0; }
-  #sidebar, #inspector { position: static; width: auto; max-height: none; flex: 1 1 auto; min-height: 0; border-radius: 0; background: none; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-  #panes[data-pane="list"] #inspector, #panes[data-pane="detail"] #sidebar { display: none; }
-  .search { margin-top: 2px; }
-  .ins { padding: 4px 16px 20px; }
-  .ins h1 { font-size: 24px; }
   #busy { left: 50%; top: 30%; }
   #stepper { left: var(--pad); right: var(--pad); bottom: calc(var(--sheet, 46%) + 8px); transform: none; width: auto; padding: 11px 13px 10px; }
   #stepper h2 { font-size: 17px; }
@@ -231,4 +207,17 @@ svg.ic.fill { fill: currentColor; stroke: none; }
   /* com a folha levantada, o cartão sai da frente da cena */
   #app[data-sheet="half"] #stepper, #app[data-sheet="full"] #stepper { display: none; }
 }
+/* voltar ao hub: no computador, no alto da lista; em tela estreita, no começo da barra de vistas */
+.home { display: flex; align-items: center; gap: 3px; align-self: flex-start; flex: none; margin: 11px 12px 0; padding: 2px 6px 2px 2px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; }
+.home:hover { background: var(--accent-soft); }
+.home svg { font-size: 13px; stroke-width: 2; }
+.home + .search { margin-top: 7px; }
+a.tb { color: var(--label); text-decoration: none; }
+.home-tb { display: none; }
+@media (max-width: 900px) {
+  #sidebar .home { display: none; }
+  .home + .search { margin-top: 2px; }
+  .home-tb { display: inline-flex; }
+}
+
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

@@ -44,6 +44,7 @@ Depois abra `http://localhost:4173/`.
 1. Ponha a página em `itens/<id>/index.html`. Um arquivo único, com estilo e script embutidos, é o que funciona melhor: abre offline e não depende de caminho.
 2. Ponha uma capa de 1280 × 800 em `assets/capas/`. A versão para o tema escuro é opcional.
 3. Copie um bloco de `itens` em `catalogo.js` e ajuste os campos.
+4. Ponha na página um link de volta para o hub, apontando para `../../index.html`. O hub não envolve os itens em moldura nenhuma, então sem esse link só resta o voltar do navegador.
 
 | Campo | Para que serve |
 |---|---|
@@ -79,7 +80,7 @@ Em cada `fontes/<id>/src/`:
 | `geo.js` | Funções de apoio para tubos, esferas e formas de revolução |
 | `main.js` | Interface: lista, ficha, câmera, rótulos e cliques |
 | `ap.js` | Só no neurônio: o modelo de Hodgkin e Huxley e o gráfico do potencial de ação |
-| `style.css`, `body.html` | Estilo e marcação da página |
+| `style.css`, `body.html` | Estilo e marcação da página. No `body.html`, `{{hub}}` vira o título do hub na montagem (é o texto do link de voltar) |
 
 Depois de montar, faça commit também de `itens/<id>/index.html`: é esse arquivo que o Pages serve.
 

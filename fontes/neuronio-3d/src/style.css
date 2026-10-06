@@ -244,4 +244,17 @@ svg.ic.fill { fill: currentColor; stroke: none; }
   .ap-stim output { min-width: 0; }
   .lab { font-size: 12px; }
 }
+/* voltar ao hub: no computador, no alto da lista; em tela estreita, no começo da barra de vistas */
+.home { display: flex; align-items: center; gap: 3px; align-self: flex-start; flex: none; margin: 11px 12px 0; padding: 2px 6px 2px 2px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; }
+.home:hover { background: var(--accent-soft); }
+.home svg { font-size: 13px; stroke-width: 2; }
+.home + .search { margin-top: 7px; }
+a.tb { color: var(--label); text-decoration: none; }
+.home-tb { display: none; }
+@media (max-width: 900px) {
+  #sidebar .home { display: none; }
+  .home + .search { margin-top: 2px; }
+  .home-tb { display: inline-flex; }
+}
+
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

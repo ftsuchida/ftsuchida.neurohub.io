@@ -48,7 +48,9 @@
       ? `<picture class="cover">${i.capaEscura ? `<source srcset="${esc(i.capaEscura)}" media="(prefers-color-scheme: dark)">` : ''}<img src="${esc(i.capa)}" alt="" loading="lazy" decoding="async" width="1280" height="800"></picture>`
       : `<span class="cover none" aria-hidden="true">${esc(String(i.titulo || '?').charAt(0))}</span>`;
     const kind = `<span>${esc(tipoNome(i.tipo))}</span>${i.assunto ? `<span class="dot">·</span><span class="sub">${esc(i.assunto)}</span>` : ''}`;
-    return `<a class="card" href="${esc(i.url)}">${capa}<div class="body">
+    // aberto como arquivo (sem servidor), o navegador não procura o index.html da pasta sozinho
+    const href = location.protocol === 'file:' && /\/$/.test(i.url) ? i.url + 'index.html' : i.url;
+    return `<a class="card" href="${esc(href)}">${capa}<div class="body">
       <div class="kind">${kind}</div>
       <h2>${esc(i.titulo)}</h2>
       ${i.resumo ? `<p>${esc(i.resumo)}</p>` : ''}
