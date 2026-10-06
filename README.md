@@ -124,6 +124,17 @@ No repositório, em **Settings → Pages**, escolha **Deploy from a branch**, ra
 
 O link "Código no GitHub" do hub vem do campo `repo` em `catalogo.js`.
 
+## Contagem de visitas
+
+As visitas são contadas pelo [GoatCounter](https://www.goatcounter.com/), que não usa cookies nem guarda dado pessoal. O painel fica em https://neurohub.goatcounter.com e pede login.
+
+O endereço de contagem está no campo `contador` de `catalogo.js`. O hub lê esse campo direto. Nos itens, ele entra na montagem, então quem muda o campo precisa rodar `npm run build` e fazer commit dos `itens/<id>/index.html`. Vazio desliga a contagem.
+
+- Só conta no site publicado (`https://`). Abrir com dois cliques ou no `npm run serve` não vira visita.
+- A página vai sem o `?lang=`, para cada página aparecer numa linha só no painel, nos dois idiomas.
+- Sem internet, o script do contador não carrega e a página funciona igual.
+- Bloqueadores de anúncio costumam barrar o contador, então o número real de visitas tende a ser maior que o do painel.
+
 ## Licença
 
 [MIT](LICENSE). As bibliotecas embutidas nas páginas montadas estão em [LICENCAS-DE-TERCEIROS.md](LICENCAS-DE-TERCEIROS.md).

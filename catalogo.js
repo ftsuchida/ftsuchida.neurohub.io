@@ -11,6 +11,9 @@ window.CATALOGO = {
   autor: 'Felipe Tsuchida',
   // Endereço do repositório no GitHub, por exemplo 'https://github.com/usuario/repo'. Vazio esconde o link.
   repo: 'https://github.com/ftsuchida/neurohub',
+  // Endereço de contagem do GoatCounter (painel em https://neurohub.goatcounter.com). Vale para o hub e,
+  // depois de npm run build, para os itens. Só conta no site publicado. Vazio desliga a contagem.
+  contador: 'https://neurohub.goatcounter.com/count',
 
   // Os tipos viram os filtros do topo. Um tipo sem nenhum item não aparece.
   tipos: {

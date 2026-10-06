@@ -23,6 +23,11 @@ const hub = txt(ctx.window.CATALOGO.titulo, 'pt') || 'Hub'; // nome que aparece 
 // mesmo ícone do hub, embutido para a página não depender de mais nenhum arquivo
 const ICON = `<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23007AFF'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='7' width='8' height='8' rx='2'/%3E%3Crect x='17' y='7' width='8' height='8' rx='2' opacity='.6'/%3E%3Crect x='7' y='17' width='8' height='8' rx='2' opacity='.6'/%3E%3Crect x='17' y='17' width='8' height='8' rx='2' opacity='.35'/%3E%3C/g%3E%3C/svg%3E">`;
 
+// contagem de visitas (GoatCounter), com o endereço do campo "contador" do catálogo; vazio, a página sai sem.
+// Mesma regra do hub (assets/hub.js): só no site publicado, e a página vai sem o ?lang=.
+const contador = ctx.window.CATALOGO.contador;
+const COUNT = contador ? `<script>\nif (location.protocol === 'https:') { window.goatcounter = { path: () => location.pathname }; const s = document.createElement('script'); s.async = true; s.src = 'https://gc.zgo.at/count.js'; s.dataset.goatcounter = ${JSON.stringify(contador)}; document.head.appendChild(s); }\n</script>\n` : '';
+
 const common = fs.readFileSync(path.join(root, 'fontes', 'comum', 'comum.css'), 'utf8');
 const ids = fs.readdirSync(path.join(root, 'fontes')).filter((id) => fs.existsSync(path.join(root, 'fontes', id, 'src', 'main.js')));
 for (const id of ids) {
@@ -35,6 +40,6 @@ for (const id of ids) {
   const title = attr(txt(items[id]?.titulo, 'pt') || id), titleEn = attr(txt(items[id]?.titulo, 'en') || title);
   const out = path.join(root, 'itens', id, 'index.html');
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  fs.writeFileSync(out, `<!doctype html>\n<html lang="pt-BR" data-title-en="${titleEn}">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<meta name="color-scheme" content="light dark">\n<title>${title}</title>\n${ICON}\n<style>\n${css}</style>\n</head>\n<body>\n${body}\n<script>\n${js}</script>\n</body>\n</html>\n`);
+  fs.writeFileSync(out, `<!doctype html>\n<html lang="pt-BR" data-title-en="${titleEn}">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<meta name="color-scheme" content="light dark">\n<title>${title}</title>\n${ICON}\n${COUNT}<style>\n${css}</style>\n</head>\n<body>\n${body}\n<script>\n${js}</script>\n</body>\n</html>\n`);
   console.log(path.relative(root, out), (fs.statSync(out).size / 1024).toFixed(0) + ' KB');
 }

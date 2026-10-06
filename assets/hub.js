@@ -126,4 +126,16 @@
     render();
   }
   paint();
+
+  /* ---------- contagem de visitas ----------
+     GoatCounter, com o endereço do campo "contador" do catálogo. Mesma regra dos itens (scripts/build.mjs):
+     só no site publicado (https), então abrir com dois cliques ou no npm run serve não conta. A página vai
+     sem o ?lang=, para a mesma página não virar duas linhas no painel. Sem internet, o script não carrega e
+     nada muda. */
+  if (C.contador && location.protocol === 'https:') {
+    window.goatcounter = { path: () => location.pathname };
+    const s = document.createElement('script');
+    s.async = true; s.src = 'https://gc.zgo.at/count.js'; s.dataset.goatcounter = C.contador;
+    document.head.appendChild(s);
+  }
 })();
