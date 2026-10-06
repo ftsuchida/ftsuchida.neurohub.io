@@ -7,6 +7,7 @@ import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
 import { initPanes } from '../../comum/panes.js';
 import { initNav } from '../../comum/nav.js';
 import { initSpeed } from '../../comum/speed.js';
+import { initMinimize } from '../../comum/minimize.js';
 import { createModel, Graph } from './ap.js';
 
 applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
@@ -443,6 +444,7 @@ function start3D() {
   }
   function stimLabel() { $('apStimV').textContent = mod.k < 0.01 ? tr('sem estímulo', 'no stimulus') : tr(`${num(mod.k, 2)}× o limiar`, `${num(mod.k, 2)}× threshold`); }
   const speed = initSpeed($('apClose').parentElement, $('apClose')); // multiplicador de tempo da animação
+  initMinimize(card, { host: $('apClose').parentElement, before: $('apClose'), onChange: () => { if (W) resize(); } }); // recolhe o gráfico para ver a cena
   $('apPlay').addEventListener('click', () => { if (mod.playing) mod.playing = false; else { if (mod.t >= model.T - 0.02) mod.t = 0; mod.playing = true; } mod.dirty = true; });
   $('apStim').addEventListener('input', (e) => { mod.k = +e.target.value; mod.tr = model.trace(mod.k); graph.setTrace(mod.tr); mod.t = 0.5; mod.playing = true; stimLabel(); });
   graph.onScrub = (t) => { if (mod.mode !== 'ap') return; mod.t = t; mod.playing = false; mod.dirty = true; };

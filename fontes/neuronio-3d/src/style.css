@@ -264,3 +264,10 @@ a.tb { color: var(--label); text-decoration: none; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* gráfico minimizado: só o cabeçalho e os controles, para ver a cena */
+#apcard.min .ap-svg, #apcard.min .ap-phase { display: none; }
+/* cartão estreito: o cabeçalho encolhe o título e o rótulo da velocidade, para os botões caberem */
+#apcard { container-type: inline-size; }
+.ap-head h2 { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@container (max-width: 440px) { .ap-head .spd > span { display: none; } .ap-head .spd input { width: 56px; } }
