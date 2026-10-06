@@ -23,13 +23,14 @@ const hub = txt(ctx.window.CATALOGO.titulo, 'pt') || 'Hub'; // nome que aparece 
 // mesmo ícone do hub, embutido para a página não depender de mais nenhum arquivo
 const ICON = `<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23007AFF'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='7' width='8' height='8' rx='2'/%3E%3Crect x='17' y='7' width='8' height='8' rx='2' opacity='.6'/%3E%3Crect x='7' y='17' width='8' height='8' rx='2' opacity='.6'/%3E%3Crect x='17' y='17' width='8' height='8' rx='2' opacity='.35'/%3E%3C/g%3E%3C/svg%3E">`;
 
+const common = fs.readFileSync(path.join(root, 'fontes', 'comum', 'comum.css'), 'utf8');
 const ids = fs.readdirSync(path.join(root, 'fontes')).filter((id) => fs.existsSync(path.join(root, 'fontes', id, 'src', 'main.js')));
 for (const id of ids) {
   if (only.length && !only.includes(id)) continue;
   const src = path.join(root, 'fontes', id, 'src');
   const r = await build({ entryPoints: [path.join(src, 'main.js')], bundle: true, minify: !dev, format: 'iife', target: 'es2020', write: false, legalComments: 'eof', logLevel: 'warning' });
   const js = r.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
-  const css = fs.readFileSync(path.join(src, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(src, 'style.css'), 'utf8') + common; // o estilo comum entra por último
   const body = fs.readFileSync(path.join(src, 'body.html'), 'utf8').replaceAll('{{hub}}', hub);
   const title = attr(txt(items[id]?.titulo, 'pt') || id), titleEn = attr(txt(items[id]?.titulo, 'en') || title);
   const out = path.join(root, 'itens', id, 'index.html');

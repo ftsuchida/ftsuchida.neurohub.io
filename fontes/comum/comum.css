@@ -1,0 +1,12 @@
+
+/* ===== comum a todos os itens (fontes/comum/comum.css) ===== */
+/* painéis laterais recolhíveis. Recolhido, o painel some e a largura dele sai da conta que centraliza
+   a barra de vistas e o cartão de passos; por isso --side e --insp viram "menos uma margem". */
+@media (min-width: 901px) {
+  #app[data-left="off"] #sidebar { display: none; }
+  #app[data-left="off"] { --side: calc(-1 * var(--pad)); }
+  #app[data-left="off"] .home-tb { display: inline-flex; } /* o link de voltar ao hub mora na lista */
+  #app[data-right="off"] #inspector { display: none; }
+  #app[data-right="off"]:not(.keep-right) { --insp: calc(-1 * var(--pad)); }
+}
+@media (max-width: 900px) { .pane-tg { display: none; } }

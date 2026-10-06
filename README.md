@@ -22,7 +22,7 @@ catalogo.js           a lista de itens que o hub mostra
 assets/               estilo e script do hub, e as capas dos itens
 itens/<id>/           a página publicada de cada item (arquivo único, já montado)
 fontes/<id>/src/      o código-fonte dos itens que têm etapa de montagem
-fontes/comum/         o que os itens compartilham (hoje, o idioma)
+fontes/comum/         o que os itens compartilham: idioma, painéis recolhíveis e o estilo comum
 scripts/build.mjs     monta fontes/<id> em itens/<id>/index.html
 scripts/check-i18n.mjs  confere se o inglês cobre tudo o que o português tem
 scripts/serve.mjs     servidor local para testar
@@ -89,6 +89,14 @@ Em cada `fontes/<id>/src/`:
 | `style.css`, `body.html` | Estilo e marcação da página. No `body.html`, `{{hub}}` vira o título do hub na montagem (é o texto do link de voltar) |
 
 Depois de montar, faça commit também de `itens/<id>/index.html`: é esse arquivo que o Pages serve.
+
+O que vale para todos os modelos fica em `fontes/comum/`:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `lang.js` | Escolha do idioma e a função `tr()` |
+| `panes.js` | Os dois botões da barra de vistas que recolhem a lista (esquerda) e a ficha (direita). A escolha fica guardada no navegador |
+| `comum.css` | Estilo comum, juntado ao fim do `style.css` de cada modelo na montagem |
 
 ## Idiomas
 

@@ -4,6 +4,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { GROUPS, ITEMS, BY_ID, VIEWS, STEPS } from './data.js';
 import { buildScene } from './scene.js';
 import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
+import { initPanes } from '../../comum/panes.js';
 
 applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
 
@@ -26,6 +27,7 @@ const state = { selected: null, hover: null, view: 'body', stage: 'body', labels
 // passo a passo: i = passo atual; t = ms já tocados; wait = espera antes de começar (troca de vista)
 const stp = { i: 0, t: 0, wait: 0, playing: false, done: false, auto: false, touched: false };
 let three = null; // preenchido quando a cena 3D sobe
+const panesUI = initPanes(app, () => three && three.repane()); // lista e ficha recolhíveis
 
 /* ============================== lista ============================== */
 function renderList(query = '') {
@@ -88,6 +90,7 @@ function select(id, fly) {
   insEl.scrollTop = 0;
   panes.dataset.pane = state.selected ? 'detail' : 'list';
   if (phone.matches && state.selected) sheet.to(fly ? 'half' : sheet.at === 'full' ? 'half' : sheet.at);
+  if (state.selected && fly) panesUI.set('right', true); // escolher na lista é pedir a ficha
   if (state.selected && fly && three) { stp.playing = false; renderStepper(); three.goHome(state.selected); }
   if (three) three.dirty();
 }
@@ -211,7 +214,7 @@ function start3D() {
       const top = tb.bottom - a.top + 6, bottom = Math.max(Math.min(a.height - Math.min(sh.height, a.height * 0.5), overTop), top + 120);
       return { x: 0, y: top, w: a.width, h: bottom - top };
     }
-    const l = $('sidebar').getBoundingClientRect().right - a.left + 8, r = insEl.getBoundingClientRect().left - a.left - 8;
+    const l = $('sidebar').getBoundingClientRect().right - a.left + 8, r = (insEl.getClientRects().length ? insEl.getBoundingClientRect().left : a.right) - a.left - 8; // ficha recolhida: a cena vai até a borda
     const b = Math.min($('toolbar').getBoundingClientRect().top - a.top - 8, overTop);
     return { x: l, y: 8, w: Math.max(200, r - l), h: Math.max(200, b - 8) };
   }
@@ -235,8 +238,20 @@ function start3D() {
     if (v.box) return (Math.max((v.box.hh * H) / vis.h, (v.box.hw * H) / vis.w) / TAN) * 1.06;
     return ((v.r * H) / (Math.min(vis.w, vis.h) * TAN)) * 1.1;
   }
-  let fly = null;
+  let fly = null, lastView = null;
+  /** Um painel abriu ou fechou: recalcula a área livre e ajusta a distância da câmera na mesma proporção,
+      para a cena aproveitar o espaço sem perder o giro e o zoom que a pessoa já fez. */
+  function repane() {
+    const before = lastView ? viewDistance(lastView) : 0;
+    resize();
+    if (!before) return;
+    const k = viewDistance(lastView) / before;
+    camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
+    if (fly) fly.toP.sub(fly.toT).multiplyScalar(k).add(fly.toT);
+    controls.update(); dirty();
+  }
   function goTo(v, instant) {
+    lastView = v;
     const t = (v.box ? v.box.c : v.t).clone(), dir = (v.dir || new THREE.Vector3(0.1, 0.08, 1)).clone().normalize();
     const p = t.clone().addScaledVector(dir, viewDistance(v));
     if (instant || reduce) { controls.target.copy(t); camera.position.copy(p); controls.update(); fly = null; dirty(); return; }
@@ -465,7 +480,7 @@ function start3D() {
     layoutLabels();
   }
 
-  three = { dirty, resize, goHome, openView, openStep };
+  three = { dirty, resize, repane, goHome, openView, openStep };
   applyTheme();
   // prepara a primeira cena (luz e limites) e enquadra
   state.stage = null; setStage('body', () => whole('body'), true);
