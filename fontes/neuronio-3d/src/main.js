@@ -5,6 +5,7 @@ import { GROUPS, ITEMS, BY_ID, PATH, VIEWS } from './data.js';
 import { buildScene } from './scene.js';
 import { LANG, EN, tr, applyLang } from '../../comum/lang.js';
 import { initPanes } from '../../comum/panes.js';
+import { initNav } from '../../comum/nav.js';
 import { createModel, Graph } from './ap.js';
 
 applyLang(); // inglês nos textos do HTML, chave PT/EN e links de volta ao hub
@@ -53,7 +54,7 @@ function renderIntro() {
     <p class="lead">${tr('Clique em qualquer estrutura para ver a morfologia e a função dela. A lista leva a câmera até cada uma.', 'Click any structure to see its morphology and function. The list takes the camera to each one.')}</p>
     <h2>${tr('Caminho do sinal', 'Signal path')}</h2>
     <ol class="rows links">${PATH.map((p, i) => `<li><button type="button" data-id="${p[0]}"><span class="num">${i + 1}</span><span class="name">${BY_ID[p[0]].name}<span class="sub">${p[1]}</span></span>${ICON.chev}</button></li>`).join('')}</ol>
-    <p class="foot">${tr('Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Formas e tamanhos estão exagerados para caber na cena; as medidas reais aparecem em cada ficha. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 2 a 6; o que não está no livro aparece marcado como extra.', 'Drag to rotate, scroll or pinch to zoom, use two fingers or the right button to pan. Shapes and sizes are exaggerated to fit in the scene; the real measurements appear on each card. Content follows Bear, Connors and Paradiso, Neuroscience: Exploring the Brain, 4th ed., chapters 2 to 6; anything that is not in the book is marked as extra.')}</p>
+    <p class="foot">${tr('Arraste para girar, role ou pince para aproximar, use dois dedos ou o botão direito para mover. Pelo teclado, as setas giram, W A S D movem e 0 recentraliza. Formas e tamanhos estão exagerados para caber na cena; as medidas reais aparecem em cada ficha. Conteúdo conforme Bear, Connors e Paradiso, Neurociências, 4ª ed., capítulos 2 a 6; o que não está no livro aparece marcado como extra.', 'Drag to rotate, scroll or pinch to zoom, use two fingers or the right button to pan. On the keyboard, the arrows rotate, W A S D move and 0 recenters. Shapes and sizes are exaggerated to fit in the scene; the real measurements appear on each card. Content follows Bear, Connors and Paradiso, Neuroscience: Exploring the Brain, 4th ed., chapters 2 to 6; anything that is not in the book is marked as extra.')}</p>
   </div>`;
 }
 function renderItem(id) {
@@ -268,6 +269,7 @@ function start3D() {
   }
   controls.addEventListener('start', () => { fly = null; });
   controls.addEventListener('change', dirty);
+  const nav = initNav({ app, camera, controls, recenter: () => goTo(lastView || whole(state.stage)), bounds: () => { const b = stages[state.stage].box; return { c: b.c, r: 2 * Math.max(b.hw, b.hh) }; } });
 
   /* ---------- rótulos ---------- */
   const labelsEl = $('labels'), svg = $('leaders'), NS = 'http://www.w3.org/2000/svg';
@@ -532,6 +534,7 @@ function start3D() {
     }
     if (sig) { stepSignal(now); needs = true; }
     if (state.stage === 'ap' && mod.mode === 'ap' && (mod.playing || mod.dirty || needs)) { stepModule(dt); mod.dirty = false; needs = true; }
+    nav.step(dt);
     controls.update();
     if (updateFocus(dt, now)) needs = true;
     if (!needs) return;
