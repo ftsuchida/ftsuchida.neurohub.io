@@ -36,20 +36,20 @@ export default [
     rel: ['teto', 'substancia-nigra', 'nucleo-rubro', 'cinzenta-periaquedutal', 'formacao-reticular', 'mesencefalo'],
   },
   {
-    id: 'coliculo-superior', g: 'mes', name: 'Colículo superior', aka: 'teto óptico', color: '#B79AE0', sub: 'tronco',
+    id: 'coliculo-superior', g: 'mes', name: 'Colículo superior', aka: 'teto óptico', color: '#F2D548', sub: 'tronco',
     rows: [['No modelo', M], ['Volta em', 'caps. 10 e 14']],
     morf: 'O par de montículos de cima do teto do mesencéfalo. Colliculus vem do latim para "montículo".',
     func: 'Recebe aferência direta do olho; por isso também é chamado de teto óptico. Uma função dele é controlar os movimentos dos olhos, por conexões com os neurônios motores da musculatura ocular.',
-    where: 'Atlas, vista Tronco: o par de montículos lilás logo abaixo da pineal. Corte 4: o topo da secção.',
+    where: 'Atlas, vista Tronco: o par de montículos amarelos logo abaixo da pineal. Corte 4: o topo da secção.',
     rel: ['teto', 'coliculo-inferior', 'nc-oculomotor', 'nc-troclear', 'pineal'],
   },
   {
-    id: 'coliculo-inferior', g: 'mes', name: 'Colículo inferior', color: '#8E7CC3', sub: 'tronco',
+    id: 'coliculo-inferior', g: 'mes', name: 'Colículo inferior', color: '#C9B037', sub: 'tronco',
     rows: [['No modelo', M], ['Volta em', 'cap. 11']],
     morf: 'O par de montículos de baixo do teto do mesencéfalo, logo atrás dos colículos superiores.',
     func: 'Recebe informação do ouvido. É um núcleo retransmissor importante da informação auditiva a caminho do tálamo.',
     more: ['Os núcleos cocleares do bulbo projetam para ele.'],
-    where: 'Atlas, vista Tronco: o par de montículos roxo-escuros abaixo dos colículos superiores. Corte 5: o topo da secção.',
+    where: 'Atlas, vista Tronco: o par de montículos dourados, mais escuros, abaixo dos colículos superiores. Corte 5: o topo da secção.',
     rel: ['teto', 'coliculo-superior', 'nucleos-cocleares', 'nucleo-geniculado-medial'],
   },
   {
@@ -61,13 +61,13 @@ export default [
     rel: ['aqueduto', 'tegmento', 'nucleo-da-rafe'],
   },
   {
-    id: 'substancia-nigra', g: 'mes', name: 'Substância nigra', color: '#3BA58B', sub: 'c4',
+    id: 'substancia-nigra', g: 'mes', name: 'Substância nigra', color: '#4E5D78', sub: 'c4',
     rows: [['No modelo', E], ['Volta em', 'cap. 14']],
     morf: 'Grupo de células na base do mesencéfalo, em faixa, dos dois lados. É o exemplo que o livro dá de "substância": um grupo de neurônios com limites menos precisos que os de um núcleo.',
     func: 'Está envolvida no controle do movimento voluntário.',
     clueTitle: 'Por que importa',
     clue: 'A doença de Parkinson resulta da degeneração dessa estrutura.',
-    where: 'Cortes 4 e 5: a faixa verde na parte de baixo da secção. No Corte 2 aparece a ponta dela, na base.',
+    where: 'Cortes 4 e 5: a faixa cinza-azulada escura na parte de baixo da secção. No Corte 2 aparece a ponta dela, na base.',
     rel: ['tegmento', 'nucleo-rubro', 'nucleos-da-base', 'subtalamo', 'voc-substancia'],
   },
   {
@@ -82,14 +82,14 @@ export default [
 
   /* ===================== ponte e cerebelo ===================== */
   {
-    id: 'ponte', g: 'rom', name: 'Ponte', color: '#E9A3C3', sub: 'medial',
+    id: 'ponte', g: 'rom', name: 'Ponte', color: '#3FB3A0', sub: 'medial',
     rows: [['No modelo', M], ['Origem', 'rombencéfalo rostral'], ['Referência', 'quarto ventrículo']],
     morf: 'A protuberância na superfície ventral do tronco encefálico, entre o mesencéfalo e o bulbo. Forma-se da parede ventral do rombencéfalo rostral, que se dilata.',
     func: 'Funciona como um grande painel de distribuição que conecta o córtex cerebral ao cerebelo. Daí o nome.',
     clueTitle: 'O número',
     clue: 'De todos os axônios que descem pelo mesencéfalo, mais de 90%, cerca de 20 milhões no ser humano, fazem sinapse nos neurônios da ponte. Estes mandam toda essa informação ao cerebelo do lado oposto.',
     more: ['Os axônios que não terminam na ponte seguem para baixo e formam as pirâmides bulbares.', 'A protuberância existe para alojar toda essa circuitaria.'],
-    where: 'Atlas, vistas Ventral e Medial: o volume saliente abaixo do mesencéfalo, à frente do cerebelo. Fica rosa quando escolhida. Corte 6.',
+    where: 'Atlas, vistas Ventral e Medial: o volume saliente abaixo do mesencéfalo, à frente do cerebelo. Fica verde-azulada quando escolhida. Corte 6.',
     rel: ['nucleos-pontinos', 'cerebelo', 'bulbo', 'quarto-ventriculo', 'formacao-reticular', 'mesencefalo'],
   },
   {
@@ -216,12 +216,12 @@ export default [
     rel: ['nc-vestibulococlear', 'coliculo-inferior', 'oliva-superior', 'nucleos-vestibulares'],
   },
   {
-    id: 'nucleo-da-rafe', g: 'rom', name: 'Núcleo da rafe', color: '#64B5F6', sub: 'c7',
+    id: 'nucleo-da-rafe', g: 'rom', name: 'Núcleo da rafe', color: '#FFCA28', sub: 'c7',
     rows: [['No modelo', E], ['Volta em', 'caps. 12, 19 e 22']],
     morf: 'Grupo de neurônios em faixa estreita, na linha média do bulbo.',
     func: 'Participa da modulação da dor, do humor e da vigília.',
     more: [{ x: 'Os núcleos da rafe são a fonte da serotonina do encéfalo. É o assunto do item Antidepressivo na Sinapse deste hub.' }],
-    where: 'Cortes 7 e 8: a faixa azul-clara na linha média.',
+    where: 'Cortes 7 e 8: a faixa amarela na linha média.',
     rel: ['bulbo', 'cinzenta-periaquedutal', 'formacao-reticular'],
   },
   {

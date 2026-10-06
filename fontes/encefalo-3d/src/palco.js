@@ -31,30 +31,15 @@ function withAO(m) {
   return m;
 }
 
-/* Face de corte. A malha é desenhada só com as faces de trás, em cor chapada, e cada fragmento grava a
-   profundidade do ponto em que o raio do olho cruza o plano de corte, e não a própria. Em um sólido fechado,
-   todo raio que entra pela secção encontra uma face de trás; então a área pintada é exatamente a secção, e fica
-   no plano. O viés (uBias) resolve quem aparece quando um sólido está dentro do outro. */
-function asCap(m, bias) {
-  m.userData.uBias = { value: bias };
-  m.onBeforeCompile = (sh) => {
-    sh.uniforms.uBias = m.userData.uBias;
-    sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nuniform mat4 projectionMatrix;\nuniform float uBias;')
-      .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>
-  vec4 cPl = clippingPlanes[0];
-  if (cPl.w >= 0.0) discard; // a câmera está do lado que ficou: não há face de corte para ver
-  vec3 cV = -vClipPosition;
-  float cT = -cPl.w / dot(cPl.xyz, cV);
-  if (cT <= 0.0 || cT > 1.0) discard;
-  vec3 cP = cV * cT;
-  cP *= 1.0 - uBias / length(cP);
-  vec4 cC = projectionMatrix * vec4(cP, 1.0);
-  gl_FragDepth = cC.z / cC.w * 0.5 + 0.5;`);
-  };
-  m.customProgramCacheKey = () => 'cap';
-  return m;
-}
+/* Face de corte. Para cada sólido fechado, dois desenhos:
+   1. a "marca": a malha inteira (o que sobrou do corte), frente e verso, sem cor e sem profundidade, só invertendo
+      um bit do estêncil. Um raio que entra no sólido pela secção atravessa um número ímpar de paredes; então o bit
+      fica ligado exatamente nos pixels em que o plano de corte passa por dentro do sólido;
+   2. a "tampa": um retângulo no plano de corte, na cor chapada da ficha, que só pinta onde o bit está ligado e o
+      desliga ao passar, deixando o estêncil limpo para o sólido seguinte.
+   Quando um sólido está dentro de outro, a tampa de maior prioridade fica um pouco mais perto da câmera. */
+const CAP_GEO = new THREE.PlaneGeometry(900, 900);
+const capStencil = { stencilWrite: true, stencilFunc: THREE.EqualStencilFunc, stencilRef: 1, stencilFuncMask: 1, stencilWriteMask: 1, stencilFail: THREE.KeepStencilOp, stencilZFail: THREE.ZeroStencilOp, stencilZPass: THREE.ZeroStencilOp };
 
 /** Contorno translúcido (raio X): só as bordas aparecem, para deixar ver o que está dentro. */
 function ghostMaterial(planes) {
@@ -66,7 +51,7 @@ function ghostMaterial(planes) {
   });
 }
 
-const _ray = new THREE.Ray(), _dir = V(0.3713, 0.7421, 0.5583).normalize(), _p = V(), _c = new THREE.Color(), _c2 = new THREE.Color();
+const _ray = new THREE.Ray(), _dir = V(0.3713, 0.7421, 0.5583).normalize(), _p = V(), _z = V(0, 0, 1), _c = new THREE.Color();
 
 export class Stage {
   /**
@@ -79,8 +64,13 @@ export class Stage {
     this.box = { ...box, c: box.c.clone().add(origin) }; this.dir = dir; this.dist = dist;
     this.plane = new THREE.Plane(V(0, -1, 0), FAR); this.planes = [this.plane]; this.clipOn = false;
     this.insts = []; this.fx = new Map(); this.mats = []; this.cache = new Map(); this.present = new Set();
-    this.nat = nat; this.capNat = capNat; this.mode = 'n'; this.extras = [];
+    this.nat = nat; this.capNat = capNat; this.mode = 'n'; this.vivid = new Set(); this.extras = [];
     this.ghost = ghostMaterial(this.planes);
+    // faces de corte: as marcas ficam em capRoot; as tampas, em capFrame, que acompanha o plano de corte
+    this.capRoot = new THREE.Group(); this.capRoot.visible = false; this.capFrame = new THREE.Group(); this.capRoot.add(this.capFrame); this.group.add(this.capRoot);
+    this.mark = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, depthTest: false, side: THREE.DoubleSide, clippingPlanes: this.planes, fog: false,
+      stencilWrite: true, stencilFunc: THREE.AlwaysStencilFunc, stencilWriteMask: 1, stencilFail: THREE.InvertStencilOp, stencilZFail: THREE.InvertStencilOp, stencilZPass: THREE.InvertStencilOp });
+    this.caps = 0; this.lit = new Set(); this.litKey = '';
     this.animate = () => [];
     // pulsos amarelos: os potenciais de ação em trânsito
     const pm = new THREE.MeshBasicMaterial({ color: 0xfff3b0, toneMapped: false, fog: false, clippingPlanes: this.planes });
@@ -110,9 +100,9 @@ export class Stage {
     return f;
   }
   paint(f) {
-    const n = this.mode === 'n';
-    f.base.set((n && this.nat[f.id]) || f.own);
-    f.capBase.set((n && this.capNat[f.id]) || (n && this.nat[f.id]) || f.own);
+    const own = this.vivid.has(f.id); // no modo de cor atual, esta ficha mostra a cor dela
+    f.base.set(own ? f.own : this.nat[f.id] || f.own);
+    f.capBase.set(own ? f.own : this.capNat[f.id] || this.nat[f.id] || f.own);
   }
   solid(id, o = {}) {
     const key = id + '|s|' + (o.shade || '');
@@ -124,12 +114,12 @@ export class Stage {
     this.cache.set(key, m); this.mats.push(m);
     return m;
   }
-  capOf(id, pri, color) {
-    const key = id + '|c|' + pri + '|' + (color || '');
+  capOf(id, color) {
+    const key = id + '|c|' + (color || '');
     if (this.cache.has(key)) return this.cache.get(key);
     const f = this.fxOf(id);
-    const m = asCap(new THREE.MeshBasicMaterial({ color: f.capBase.clone(), side: THREE.BackSide, clippingPlanes: this.planes }), pri * BIAS);
-    m.userData = { ...m.userData, fx: f, kind: 'cap', tint: color ? new THREE.Color(color) : null, id };
+    const m = new THREE.MeshBasicMaterial({ color: f.capBase.clone(), ...capStencil });
+    m.userData = { fx: f, kind: 'cap', tint: color ? new THREE.Color(color) : null, id };
     this.cache.set(key, m); this.mats.push(m);
     return m;
   }
@@ -148,26 +138,34 @@ export class Stage {
     const it = { card, geo, key: o.key || card, side: o.side || 'm', layer: o.layer || '', pri: o.pri ?? 1, capable: o.cap !== false, map, state: o.state || 'solid', pick: o.pick !== false, label: o.label !== false, mat: o.mat || {}, capColor: o.capColor, capCard: o.capCard };
     it.mesh = new THREE.Mesh(geo, null); it.mesh.userData.inst = it;
     (o.parent || this.group).add(it.mesh);
-    if (it.capable) { it.cap = new THREE.Mesh(geo, null); it.cap.visible = false; it.cap.userData.inst = it; it.cap.frustumCulled = false; (o.parent || this.group).add(it.cap); }
+    if (it.capable) {
+      const k = this.caps++;
+      it.mark = new THREE.Mesh(geo, this.mark); it.mark.renderOrder = 20 + 2 * k; this.capRoot.add(it.mark);
+      it.cap = new THREE.Mesh(CAP_GEO, null); it.cap.renderOrder = 21 + 2 * k; it.cap.position.z = it.pri * BIAS; it.cap.frustumCulled = false; this.capFrame.add(it.cap);
+    }
     this.insts.push(it); this.dress(it);
     return it;
   }
   dress(it) {
     it.cards = it.map[this.mode] || it.map.n;
     it.mats = it.cards.map((c) => this.solid(c, it.mat));
-    if (it.cap) it.cap.material = this.capOf(it.capCard || it.cards[0], it.pri, it.capColor);
+    if (it.cap) it.cap.material = this.capOf(it.capCard || it.cards[0], it.capColor);
     this.show(it);
   }
   show(it) {
     const s = it.state;
     it.mesh.visible = s !== 'hide';
-    it.mesh.material = s === 'ghost' ? this.ghost : it.mats.length > 1 ? it.mats : it.mats[0];
+    if (s === 'ghost') { // em contorno; a ficha escolhida aparece translúcida, na cor dela
+      const ms = it.cards.map((c) => (this.lit.has(c) ? this.solid(c, { shade: 'glow', opacity: 0.5 }) : this.ghost));
+      it.mesh.material = ms.every((m) => m === this.ghost) ? this.ghost : ms.length > 1 ? ms : ms[0];
+    } else it.mesh.material = it.mats.length > 1 ? it.mats : it.mats[0];
     it.mesh.renderOrder = s === 'ghost' ? 6 : it.mats[0].transparent ? 2 : 0;
-    if (it.cap) it.cap.visible = s === 'solid' && this.clipOn;
+    if (it.cap) it.cap.visible = it.mark.visible = s === 'solid';
   }
-  /** Modo de cor: 'n' natural, 'l' lobos, 'a' áreas, 'o' origem. Decide a que ficha cada peça responde. */
-  setMode(mode) {
-    this.mode = mode;
+  /** Modo de cor: 'n' natural, 'l' lobos, 'a' áreas, 'o' origem. Decide a que ficha cada peça responde.
+      vivid: as fichas que aparecem com a cor própria nesse modo; as outras ficam na cor natural. */
+  setMode(mode, vivid = []) {
+    this.mode = mode; this.vivid = new Set(vivid);
     for (const f of this.fx.values()) this.paint(f);
     for (const it of this.insts) this.dress(it);
     this.census();
@@ -178,13 +176,18 @@ export class Stage {
   /** Plano de corte, em coordenadas do palco: some o lado para onde a normal NÃO aponta. null desliga. */
   setClip(normal, point) {
     this.clipOn = !!normal;
-    if (normal) this.plane.setFromNormalAndCoplanarPoint(_p.copy(normal).normalize(), point.clone().add(this.origin));
-    else this.plane.set(V(0, -1, 0), FAR);
-    for (const it of this.insts) if (it.cap) it.cap.visible = it.state === 'solid' && this.clipOn;
+    if (normal) {
+      this.plane.setFromNormalAndCoplanarPoint(_p.copy(normal).normalize(), point.clone().add(this.origin));
+      this.capFrame.position.copy(point); this.capFrame.quaternion.setFromUnitVectors(_z, _p.negate()); // +Z da tampa aponta para o lado retirado
+    } else this.plane.set(V(0, -1, 0), FAR);
   }
+  /** Antes de cada quadro: as faces de corte só são desenhadas quando a câmera está do lado retirado. */
+  beforeRender(camera) { this.capRoot.visible = this.clipOn && this.plane.distanceToPoint(camera.position) < 0; }
 
   /* ---------- foco: a ficha escolhida fica com a cor dela; o resto vira argila ---------- */
   focus(sel, hover, flash, dt, clay, instant) {
+    const key = sel.join() + '|' + flash.join();
+    if (key !== this.litKey) { this.litKey = key; this.lit = new Set([...sel, ...flash]); for (const it of this.insts) if (it.state === 'ghost') this.show(it); }
     const k = instant ? 1 : Math.min(1, dt * 9), any = sel.some((id) => this.present.has(id));
     let moving = false;
     for (const f of this.fx.values()) {
@@ -242,12 +245,11 @@ export class Stage {
   }
 
   /* ---------- rótulos automáticos ---------- */
-  idMat(i, cap, pri) {
-    const key = 'id|' + i + '|' + (cap ? pri : '');
+  idMat(i, cap) {
+    const key = 'id|' + i + '|' + (cap ? 'c' : '');
     if (this.cache.has(key)) return this.cache.get(key);
-    const m = new THREE.MeshBasicMaterial({ side: cap ? THREE.BackSide : THREE.FrontSide, clippingPlanes: this.planes, toneMapped: false, fog: false });
+    const m = new THREE.MeshBasicMaterial(cap ? { toneMapped: false, fog: false, ...capStencil } : { clippingPlanes: this.planes, toneMapped: false, fog: false });
     m.color.setRGB((i & 255) / 255, ((i >> 8) & 255) / 255, 1, THREE.LinearSRGBColorSpace);
-    if (cap) asCap(m, pri * BIAS);
     this.cache.set(key, m);
     return m;
   }
@@ -261,20 +263,21 @@ export class Stage {
     const num = (card) => { let i = idx.get(card); if (i === undefined) { ids.push(card); i = ids.length; idx.set(card, i); } return i; };
     const keep = [];
     for (const it of this.insts) {
-      keep.push([it.mesh.material, it.mesh.visible, it.cap && it.cap.material, it.cap && it.cap.visible]);
-      if (it.state !== 'solid') { it.mesh.visible = false; if (it.cap) it.cap.visible = false; continue; }
+      keep.push([it.mesh.material, it.mesh.visible, it.cap && it.cap.material]);
+      if (it.state !== 'solid') { it.mesh.visible = false; continue; }
       const mute = !it.label || (skip && skip(it));
       const ms = it.cards.map((c) => this.idMat(mute ? 0 : num(c)));
       it.mesh.material = ms.length > 1 ? ms : ms[0];
-      if (it.cap) it.cap.material = this.idMat(mute ? 0 : num(it.capCard || it.cards[0]), true, it.pri);
+      if (it.cap) it.cap.material = this.idMat(mute ? 0 : num(it.capCard || it.cards[0]), true);
     }
     const ex = this.extras.map((x) => x.visible); for (const x of this.extras) x.visible = false;
-    const rt = Stage.rt || (Stage.rt = new THREE.WebGLRenderTarget(W, H)), buf = new Uint8Array(W * H * 4);
+    const rt = Stage.rt || (Stage.rt = new THREE.WebGLRenderTarget(W, H, { stencilBuffer: true })), buf = new Uint8Array(W * H * 4);
+    this.beforeRender(cam);
     const prev = renderer.getRenderTarget(), col = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha(), fog = scene.fog;
-    scene.fog = null; renderer.setRenderTarget(rt); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(scene, cam);
+    scene.fog = null; renderer.setRenderTarget(rt); renderer.setClearColor(0x000000, 0); renderer.clear(true, true, true); renderer.render(scene, cam);
     renderer.readRenderTargetPixels(rt, 0, 0, W, H, buf);
     scene.fog = fog; renderer.setRenderTarget(prev); renderer.setClearColor(col, alpha);
-    this.insts.forEach((it, i) => { const k = keep[i]; it.mesh.material = k[0]; it.mesh.visible = k[1]; if (it.cap) { it.cap.material = k[2]; it.cap.visible = k[3]; } });
+    this.insts.forEach((it, i) => { const k = keep[i]; it.mesh.material = k[0]; it.mesh.visible = k[1]; if (it.cap) it.cap.material = k[2]; });
     this.extras.forEach((x, i) => { x.visible = ex[i]; });
     // mapa de fichas e distância de cada ponto à borda da sua região
     const map = new Uint16Array(W * H), d = new Float32Array(W * H);
@@ -289,7 +292,7 @@ export class Stage {
     for (let p = 0; p < W * H; p++) { const v = map[p]; if (!v) continue; const b = best[v - 1]; b.area++; if (d[p] > b.d) { b.d = d[p]; b.i = p; } }
     const out = [], rc = new THREE.Raycaster(), ndc = new THREE.Vector2();
     best.forEach((b, k) => {
-      if (b.i < 0 || b.area < 14) return;
+      if (b.i < 0 || b.area < 26) return;
       ndc.set(((b.i % W) + 0.5) / W * 2 - 1, (Math.floor(b.i / W) + 0.5) / H * 2 - 1);
       rc.setFromCamera(ndc, cam);
       const h = this.pick(rc);

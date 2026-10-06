@@ -261,7 +261,7 @@ export default [
     rel: ['cortex-cerebral', 'cortex-motor-primario', 'cortex-visual'],
   },
   {
-    id: 'cortex-motor-primario', g: 'areas', name: 'Córtex motor primário', aka: 'área 4, ou M1', color: '#DD5C74', sub: 'lateral',
+    id: 'cortex-motor-primario', g: 'areas', name: 'Córtex motor primário', aka: 'área 4, ou M1', color: '#D9485F', sub: 'lateral',
     rows: [['No modelo', R], ['Onde', 'giro pré-central'], ['Volta em', 'cap. 14']],
     morf: 'A área 4 de Brodmann, anterior ao sulco central, no lobo frontal.',
     func: 'Os neurônios dela mandam axônios direto aos neurônios motores do corno ventral da medula espinhal, que fazem os músculos contrair. Por isso é chamada de córtex motor primário.',
@@ -270,7 +270,7 @@ export default [
     rel: ['giro-pre-central', 'area-pre-motora', 'area-motora-suplementar', 'tracto-corticospinal', 'nucleo-ventral-lateral'],
   },
   {
-    id: 'area-motora-suplementar', g: 'areas', name: 'Área motora suplementar', aka: 'parte da área 6', color: '#E98A9B', sub: 'lateral',
+    id: 'area-motora-suplementar', g: 'areas', name: 'Área motora suplementar', aka: 'parte da área 6', color: '#F08FA8', sub: 'lateral',
     rows: [['No modelo', R], ['Onde', 'à frente da área 4, no alto do hemisfério'], ['Volta em', 'cap. 14']],
     morf: 'A parte de cima da área 6, logo à frente do córtex motor primário.',
     func: 'É uma das áreas de controle motor do lobo frontal. O capítulo 7 só a localiza; o controle do movimento é assunto do capítulo 14.',
@@ -278,7 +278,7 @@ export default [
     rel: ['area-pre-motora', 'cortex-motor-primario', 'lobo-frontal'],
   },
   {
-    id: 'area-pre-motora', g: 'areas', name: 'Área pré-motora', aka: 'parte da área 6', color: '#F2A9A0', sub: 'lateral',
+    id: 'area-pre-motora', g: 'areas', name: 'Área pré-motora', aka: 'parte da área 6', color: '#F6B28E', sub: 'lateral',
     rows: [['No modelo', R], ['Onde', 'à frente da área 4, na face lateral'], ['Volta em', 'cap. 14']],
     morf: 'A parte lateral da área 6, à frente do córtex motor primário.',
     func: 'É uma das áreas de controle motor do lobo frontal. O capítulo 7 só a localiza; o controle do movimento é assunto do capítulo 14.',
@@ -286,7 +286,7 @@ export default [
     rel: ['area-motora-suplementar', 'cortex-motor-primario', 'lobo-frontal'],
   },
   {
-    id: 'cortex-somatossensorial', g: 'areas', name: 'Córtex somatossensorial', aka: 'áreas 3, 1 e 2', color: '#7CC45E', sub: 'lateral',
+    id: 'cortex-somatossensorial', g: 'areas', name: 'Córtex somatossensorial', aka: 'áreas 3, 1 e 2', color: '#5BBF4A', sub: 'lateral',
     rows: [['No modelo', R], ['Onde', 'giro pós-central'], ['Volta em', 'cap. 12']],
     morf: 'As áreas 3, 1 e 2 de Brodmann, logo atrás do sulco central, no lobo parietal.',
     func: 'Trata da sensação somática, o tato. É uma área sensorial.',
@@ -295,24 +295,24 @@ export default [
     rel: ['giro-pos-central', 'nucleo-ventral-posterior', 'lemnisco-medial', 'cortex-parietal-posterior'],
   },
   {
-    id: 'cortex-parietal-posterior', g: 'areas', name: 'Córtex parietal posterior', aka: 'áreas 5 e 7', color: '#9C86CF', sub: 'lateral',
+    id: 'cortex-parietal-posterior', g: 'areas', name: 'Córtex parietal posterior', aka: 'áreas 5 e 7', color: '#7B5FCB', sub: 'lateral',
     rows: [['No modelo', R], ['Volta em', 'caps. 12, 21 e 24']],
     morf: 'As áreas 5 e 7 de Brodmann, no lobo parietal, atrás do córtex somatossensorial.',
     func: 'É uma das três áreas associativas que o livro destaca. As áreas associativas não são diretamente motoras nem sensoriais.',
-    where: 'Atlas, modo Áreas: o alto do lobo parietal, em roxo.',
+    where: 'Atlas, modo Áreas: o alto do lobo parietal, em roxo-escuro.',
     rel: ['lobo-parietal', 'cortex-somatossensorial', 'cortex-pre-frontal', 'cortex-temporal-inferior'],
   },
   {
-    id: 'cortex-visual', g: 'areas', name: 'Córtex visual', aka: 'áreas 17, 18 e 19', color: '#9BD07C', sub: 'lateral',
+    id: 'cortex-visual', g: 'areas', name: 'Córtex visual', aka: 'áreas 17, 18 e 19', color: '#35B39A', sub: 'lateral',
     rows: [['No modelo', R], ['Onde', 'lobo occipital'], ['Volta em', 'cap. 10']],
     morf: 'As áreas 17, 18 e 19 de Brodmann, no lobo occipital. A área 17 fica no extremo posterior.',
     func: 'A área 17 é o córtex visual primário, ou V1: recebe dos olhos por uma via direta, da retina ao tálamo e do tálamo ao córtex. Sem ela, o ser humano fica cego.',
     more: ['O núcleo geniculado lateral do tálamo é quem leva a informação ao córtex visual.', 'Em primatas que dependem da visão, como nós, estima-se que haja de 20 a 40 áreas visuais secundárias.'],
-    where: 'Atlas, modo Áreas: o lobo occipital, em verde.',
+    where: 'Atlas, modo Áreas: o lobo occipital, em verde-azulado.',
     rel: ['lobo-occipital', 'nucleo-geniculado-lateral', 'fissura-calcarina'],
   },
   {
-    id: 'cortex-auditivo', g: 'areas', name: 'Córtex auditivo', aka: 'áreas 41 e 42', color: '#62B37A', sub: 'lateral',
+    id: 'cortex-auditivo', g: 'areas', name: 'Córtex auditivo', aka: 'áreas 41 e 42', color: '#2F8F4E', sub: 'lateral',
     rows: [['No modelo', R], ['Onde', 'giro temporal superior'], ['Volta em', 'cap. 11']],
     morf: 'As áreas 41 e 42 de Brodmann, no lobo temporal, junto à fissura lateral.',
     func: 'Trata da audição. Recebe a informação pelo núcleo geniculado medial do tálamo.',
@@ -320,7 +320,7 @@ export default [
     rel: ['giro-temporal-superior', 'nucleo-geniculado-medial', 'coliculo-inferior'],
   },
   {
-    id: 'cortex-gustatorio', g: 'areas', name: 'Córtex gustatório', aka: 'área 43', color: '#A6D85F', sub: 'lateral',
+    id: 'cortex-gustatorio', g: 'areas', name: 'Córtex gustatório', aka: 'área 43', color: '#B5DE3C', sub: 'lateral',
     rows: [['No modelo', 'ponto marcado sobre a ínsula, posição aproximada'], ['Volta em', 'cap. 8']],
     morf: 'A área 43 de Brodmann. Fica na superfície inferior do lobo parietal, o opérculo, e na ínsula, escondida no fundo da fissura lateral.',
     func: 'É o córtex dedicado ao sentido da gustação.',
@@ -328,7 +328,7 @@ export default [
     rel: ['insula', 'lobo-parietal', 'nucleo-gustatorio'],
   },
   {
-    id: 'cortex-pre-frontal', g: 'areas', name: 'Córtex pré-frontal', color: '#B49ADB', sub: 'lateral',
+    id: 'cortex-pre-frontal', g: 'areas', name: 'Córtex pré-frontal', color: '#B08EE6', sub: 'lateral',
     rows: [['No modelo', R], ['Volta em', 'caps. 21 e 24']],
     morf: 'A grande região do lobo frontal à frente das áreas motoras.',
     func: 'É uma das três áreas associativas que o livro destaca. O córtex associativo é a aquisição evolutiva mais recente, marcante nos cérebros de primatas.',
@@ -336,12 +336,12 @@ export default [
     rel: ['lobo-frontal', 'cortex-parietal-posterior', 'cortex-temporal-inferior', 'nucleo-pulvinar'],
   },
   {
-    id: 'cortex-temporal-inferior', g: 'areas', name: 'Córtex temporal inferior', aka: 'áreas 20, 21 e 37', color: '#C6A9E0', sub: 'lateral',
+    id: 'cortex-temporal-inferior', g: 'areas', name: 'Córtex temporal inferior', aka: 'áreas 20, 21 e 37', color: '#D9A8EA', sub: 'lateral',
     rows: [['No modelo', R], ['Volta em', 'caps. 24 e 25']],
     morf: 'As áreas 20, 21 e 37 de Brodmann, na parte de baixo do lobo temporal.',
     func: 'É uma das três áreas associativas que o livro destaca.',
     more: ['A artéria cerebral posterior irriga a parte inferior do lobo temporal.'],
-    where: 'Atlas, modo Áreas: a parte de baixo do lobo temporal, em lilás-claro.',
+    where: 'Atlas, modo Áreas: a parte de baixo do lobo temporal, em lilás-rosado.',
     rel: ['lobo-temporal', 'cortex-pre-frontal', 'cortex-parietal-posterior'],
   },
 ];

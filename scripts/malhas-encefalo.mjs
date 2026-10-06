@@ -41,7 +41,7 @@ const PARTS = [
   ['hipofise', 'FMA13889', 0.15, { meio: 1 }], ['pineal', 'FMA62033', 0.3, { meio: 1 }], ['gen-lat', 'FMA73304', 1], ['gen-med', 'FMA73310', 1],
   ['nervo-optico', 'FMA50878', 0.12], ['quiasma', 'FMA62045', 0.2, { meio: 1 }], ['tracto-optico', 'FMA67936', 0.15], ['olho', 'FMA12513', 0.25, { lado: 'e' }],
   // mesencéfalo, ponte, bulbo e cerebelo
-  ['mesencefalo', 'FMA61993nsn', 0.08, { meio: 1, ao: 'tr' }], ['pedunculo', 'FMA62394', 0.1, { meio: 1, ao: 'tr' }], ['coliculo-sup', 'FMA73423', 1], ['coliculo-inf', 'FMA73435', 1],
+  ['mesencefalo', 'FMA61993nsn', 0.08, { meio: 1, ao: 'tr', reg: 'teto' }], ['pedunculo', 'FMA62394', 0.1, { meio: 1, ao: 'tr' }], ['coliculo-sup', 'FMA73423', 1], ['coliculo-inf', 'FMA73435', 1],
   ['ponte', 'FMA67943', 0.08, { meio: 1, ao: 'tr' }], ['bulbo', 'FMA62004', 0.1, { meio: 1, ao: 'tr' }], ['cerebelo', 'FMA67944', 0.2, { meio: 1, ao: 'cb', passo: 0.025, reg: 'verme' }],
   // ventrículos
   ['vent-lateral', 'FMA78450', 0.11], ['forame', 'FMA75351', 0.2, { meio: 1 }], ['vent-terceiro', 'FMA78454', 0.15, { meio: 1 }], ['aqueduto', 'FMA78467', 0.4, { meio: 1 }],
@@ -113,11 +113,16 @@ for (const [k, file, frac, o = {}] of PARTS) {
    de triângulos, e a página põe um material em cada uma. */
 const solid = (m) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(m.src, 3)); g.setIndex(new THREE.BufferAttribute(m.ix, 1)); return new MeshBVH(g); };
 const pre = solid(meshes.find((m) => m.k === 'pre-central')), hit = {}, pt = new THREE.Vector3();
+const colS = solid(meshes.find((m) => m.k === 'coliculo-sup')), colI = solid(meshes.find((m) => m.k === 'coliculo-inf'));
+const near = (bvh, c) => bvh.closestPointToPoint(pt.set(X0 + Math.abs(c[0] - X0), c[1], c[2]), hit).distance; // as malhas dos colículos são as do lado esquerdo
 const REG = {
   // faixa junto ao giro pré-central: fica como área 6 (pré-motora e motora suplementar) no modo de áreas
   area6: (c) => (pre.closestPointToPoint(pt.set(c[0], c[1], c[2]), hit).distance < 17 ? 1 : 0),
   // verme: a faixa mediana do cerebelo
   verme: (c) => (Math.abs(c[0] - X0) < 8.5 ? 1 : 0),
+  // teto do mesencéfalo: a face dorsal (atrás do aqueduto) junto às malhas dos colículos, que ficam logo abaixo
+  // da superfície. Região 1 = colículo superior; 2 = colículo inferior; 0 = o resto (tegmento).
+  teto: (c) => { if (c[1] < -82.5) return 0; const s = near(colS, c), i = near(colI, c); return Math.min(s, i) > 3.4 ? 0 : s <= i ? 1 : 2; },
 };
 for (const m of meshes) {
   const rule = REG[m.o.reg], nt = m.ix.length / 3, buckets = [];
@@ -127,7 +132,7 @@ for (const m of meshes) {
     (buckets[r] ||= []).push(a, b, c);
   }
   // em cada região: ordem de triângulos boa para a compressão
-  const parts = buckets.map((b) => { const ix = new Uint32Array(b || []); if (ix.length) { const copy = ix.slice(); const [remap] = MeshoptEncoder.reorderMesh(copy, true, true); const inv = new Uint32Array(remap.length); for (let i = 0; i < remap.length; i++) if (remap[i] !== 0xffffffff) inv[remap[i]] = i; for (let i = 0; i < copy.length; i++) copy[i] = inv[copy[i]]; return copy; } return ix; });
+  const parts = Array.from(buckets, (b) => { const ix = new Uint32Array(b || []); if (ix.length) { const copy = ix.slice(); const [remap] = MeshoptEncoder.reorderMesh(copy, true, true); const inv = new Uint32Array(remap.length); for (let i = 0; i < remap.length; i++) if (remap[i] !== 0xffffffff) inv[remap[i]] = i; for (let i = 0; i < copy.length; i++) copy[i] = inv[copy[i]]; return copy; } return ix; });
   // vértices numerados pela ordem de primeiro uso, de que o empacotamento depende
   const num = new Map(), pos = [], ix = new Uint32Array(m.ix.length); let w = 0;
   for (const part of parts) for (const i of part) {

@@ -18,7 +18,7 @@ export const isMidline = (key) => !!BY_KEY[key].m;
 /** Faixas de triângulos (regiões) de uma peça, na ordem do pacote. Sem regiões, uma faixa só. */
 export const regionsOf = (key) => BY_KEY[key].g || [BY_KEY[key].nt];
 
-const cache = new Map();
+const cache = new Map(), AO_FLOOR = { cerebelo: 96 };
 function decode(p) {
   const s = p.d; let i = 0;
   const next = () => {
@@ -41,7 +41,8 @@ function decode(p) {
   let nx = 0;
   for (let k = 0; k < idx.length; k++) { const n = next(); idx[k] = n === 0 ? nx++ : nx - n; }
   const ao = new Uint8Array(p.nv).fill(255);
-  if (p.ao) { let a = 0; for (let v = 0; v < p.nv; v++) { a += un(next()); ao[v] = Math.min(255, a * 4 + 3); } }
+  const floor = AO_FLOOR[p.k] || 0; // piso: o fundo das fissuras fica escuro, mas não preto
+  if (p.ao) { let a = 0; for (let v = 0; v < p.nv; v++) { a += un(next()); ao[v] = Math.max(floor, Math.min(255, a * 4 + 3)); } }
   return { pos, idx, ao };
 }
 
@@ -71,6 +72,3 @@ export function partGeometry(key, side = 'e') {
   cache.set(id, g);
   return g;
 }
-
-/** Libera o texto do pacote de uma peça depois de decodificada (economiza memória em peças que não voltam a ser lidas). */
-export const partCount = () => MALHAS.parts.length;

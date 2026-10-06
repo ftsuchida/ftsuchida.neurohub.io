@@ -49,10 +49,10 @@ export function tube(src, radius, o = {}) {
   };
   if (o.capStart) rings.unshift(...cap(rings[0], fr.tangents[0], -1).reverse());
   if (o.capEnd) rings.push(...cap(rings[rings.length - 1], fr.tangents[segs], 1));
-  return skin(rings, radial);
+  return skin(rings, radial, !!o.capStart, !!o.capEnd);
 }
 
-function skin(rings, radial) {
+function skin(rings, radial, closeStart, closeEnd) {
   const pos = new Float32Array(rings.length * radial * 3);
   let p = 0;
   for (const g of rings) {
@@ -71,6 +71,9 @@ function skin(rings, radial) {
       idx.push(a, a1, b, b, a1, b1);
     }
   }
+  // pontas arredondadas: fecha o furinho que sobra no bico, para a peça ser um sólido fechado
+  const last = (rings.length - 1) * radial;
+  for (let j = 1; j < radial - 1; j++) { if (closeStart) idx.push(0, j + 1, j); if (closeEnd) idx.push(last, last + j, last + j + 1); }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   g.setIndex(idx);
@@ -194,4 +197,44 @@ export class Builder {
     }
     return meshes;
   }
+}
+
+/**
+ * Tubo de secção oval ao longo de uma curva, fechado e arredondado nas pontas. rx é o raio para o lado e ry o raio
+ * na direção "up" (corrigida para ficar perpendicular à curva); os dois podem ser funções de t (0 a 1).
+ * shape(a, t) (opcional) multiplica o raio no ângulo a, para secções que não são ovais (triângulo, crescente).
+ */
+export function ovalTube(src, rx, ry, o = {}) {
+  const curve = Array.isArray(src) ? curveOf(src) : src, segs = o.segs || 24, radial = o.radial || 18;
+  const up = (o.up || new THREE.Vector3(0, 1, 0)).clone().normalize();
+  const fx = typeof rx === 'function' ? rx : () => rx, fy = typeof ry === 'function' ? ry : () => ry, sh = o.shape || (() => 1);
+  const rings = [];
+  for (let i = 0; i <= segs; i++) {
+    const t = i / segs, c = curve.getPointAt(t), tg = curve.getTangentAt(t);
+    const side = new THREE.Vector3().crossVectors(tg, up).normalize(), u = new THREE.Vector3().crossVectors(side, tg).normalize();
+    rings.push({ c, side, u, tg, rx: fx(t), ry: fy(t), t });
+  }
+  const cap = (r, sign) => { const out = []; for (let k = 1; k <= 4; k++) { const a = (k / 4) * (Math.PI / 2), m = Math.min(r.rx, r.ry); out.push({ ...r, c: r.c.clone().addScaledVector(r.tg, sign * m * Math.sin(a)), rx: Math.max(r.rx * Math.cos(a), 1e-4), ry: Math.max(r.ry * Math.cos(a), 1e-4) }); } return out; };
+  const all = [...cap(rings[0], -1).reverse(), ...rings, ...cap(rings[segs], 1)];
+  const pos = new Float32Array(all.length * radial * 3); let p = 0;
+  for (const g of all) for (let j = 0; j < radial; j++) {
+    const a = (j / radial) * Math.PI * 2, k = sh(a, g.t), x = Math.cos(a) * g.rx * k, y = Math.sin(a) * g.ry * k;
+    pos[p++] = g.c.x + x * g.side.x + y * g.u.x; pos[p++] = g.c.y + x * g.side.y + y * g.u.y; pos[p++] = g.c.z + x * g.side.z + y * g.u.z;
+  }
+  const idx = [];
+  for (let i = 0; i < all.length - 1; i++) for (let j = 0; j < radial; j++) { const a = i * radial + j, a1 = i * radial + ((j + 1) % radial), b = a + radial, b1 = a1 + radial; idx.push(a, b, a1, b, b1, a1); }
+  // fecha as duas pontas com um leque
+  const first = 0, last = (all.length - 1) * radial;
+  for (let j = 1; j < radial - 1; j++) { idx.push(first, first + j, first + j + 1); idx.push(last, last + j + 1, last + j); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Elipsoide: centro, raios [x, y, z] e, se vier, rotação (euler). */
+export function blob(c, r, rot, seg = 22) {
+  const g = ball(1, null, r, seg);
+  return place(g, { p: c, rot });
 }

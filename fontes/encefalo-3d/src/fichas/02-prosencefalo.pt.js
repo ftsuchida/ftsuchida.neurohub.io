@@ -25,12 +25,12 @@ export default [
     rel: ['substancia-branca', 'fissura-longitudinal', 'fornice', 'voc-comissura'],
   },
   {
-    id: 'fornice', g: 'tel', name: 'Fórnice', color: '#8CC98F', sub: 'medial',
+    id: 'fornice', g: 'tel', name: 'Fórnice', color: '#B5D95A', sub: 'medial',
     rows: [['No modelo', M], ['Volta em', 'cap. 24']],
     morf: 'Feixe de fibras em arco, logo abaixo do corpo caloso. O nome vem do latim para "arco". Liga o hipocampo de cada lado ao hipotálamo.',
     func: 'Alguns axônios do fórnice participam da regulação do armazenamento da memória. Os corpos mamilares do hipotálamo são um alvo importante dele.',
     more: ['No corte coronal 1 ele aparece cortado, junto ao ventrículo lateral.', 'Os neurônios da área septal mandam axônios para o fórnice.'],
-    where: 'Atlas, vista Medial: o arco fino sob o corpo caloso. Em Por dentro dá para seguir o arco inteiro, do hipocampo ao corpo mamilar. Fica verde quando escolhido.',
+    where: 'Atlas, vista Medial: o arco fino sob o corpo caloso. Em Por dentro dá para seguir o arco inteiro, do hipocampo ao corpo mamilar. Fica verde-limão quando escolhido.',
     rel: ['hipocampo', 'corpo-mamilar', 'hipotalamo', 'area-septal'],
   },
   {
@@ -95,11 +95,11 @@ export default [
     rel: ['nucleos-da-base', 'nucleo-caudado', 'globo-palido', 'insula'],
   },
   {
-    id: 'globo-palido', g: 'tel', name: 'Globo pálido', color: '#A98AD4', sub: 'dentro',
+    id: 'globo-palido', g: 'tel', name: 'Globo pálido', color: '#E2C04F', sub: 'dentro',
     rows: [['No modelo', M], ['Volta em', 'cap. 14']],
     morf: 'Um dos núcleos da base. Fica entre o putame e a cápsula interna.',
     func: 'Com o núcleo caudado e o putame, faz parte dos sistemas encefálicos que controlam o movimento.',
-    where: 'Cortes 1 e 2: a região roxa, medial ao putame. Em Por dentro, a peça roxa encostada nele.',
+    where: 'Cortes 1 e 2: a região amarelo-ocre, medial ao putame. Em Por dentro, a peça amarelo-ocre encostada nele.',
     rel: ['nucleos-da-base', 'nucleo-caudado', 'putame', 'capsula-interna'],
   },
   {
@@ -139,7 +139,7 @@ export default [
     rel: ['diencefalo', 'hipotalamo', 'terceiro-ventriculo', 'capsula-interna', 'nucleo-ventral-posterior', 'nucleo-ventral-lateral', 'nucleo-pulvinar', 'nucleo-geniculado-lateral', 'nucleo-geniculado-medial'],
   },
   {
-    id: 'nucleo-ventral-posterior', g: 'die', name: 'Núcleo ventral posterior', aka: 'do tálamo', color: '#7E57C2', sub: 'c2',
+    id: 'nucleo-ventral-posterior', g: 'die', name: 'Núcleo ventral posterior', aka: 'do tálamo', color: '#6A3FB8', sub: 'c2',
     rows: [['No modelo', E], ['Volta em', 'cap. 12']],
     morf: 'Um dos núcleos do tálamo. No corte 2 aparece na parte de baixo e de fora dele.',
     func: 'É parte do sistema somatossensorial. Projeta para o giro pós-central do córtex.',
@@ -148,15 +148,15 @@ export default [
     rel: ['talamo', 'giro-pos-central', 'lemnisco-medial', 'nucleo-ventral-lateral'],
   },
   {
-    id: 'nucleo-ventral-lateral', g: 'die', name: 'Núcleo ventral lateral', aka: 'do tálamo', color: '#9E8AE0', sub: 'c2',
+    id: 'nucleo-ventral-lateral', g: 'die', name: 'Núcleo ventral lateral', aka: 'do tálamo', color: '#5C7FE0', sub: 'c2',
     rows: [['No modelo', E], ['Volta em', 'cap. 14']],
     morf: 'Um dos núcleos do tálamo. No corte 2 aparece logo acima do ventral posterior.',
     func: 'É parte do sistema motor. Com o núcleo ventral anterior, que o livro não desenha, projeta para o córtex motor do giro pré-central.',
-    where: 'Corte 2, camada de células e fibras: a região lilás dentro do tálamo, acima do ventral posterior.',
+    where: 'Corte 2, camada de células e fibras: a região azul dentro do tálamo, acima do ventral posterior.',
     rel: ['talamo', 'giro-pre-central', 'cortex-motor-primario', 'nucleo-ventral-posterior'],
   },
   {
-    id: 'nucleo-pulvinar', g: 'die', name: 'Núcleo pulvinar', aka: 'do tálamo', color: '#C77ACF', sub: 'c3',
+    id: 'nucleo-pulvinar', g: 'die', name: 'Núcleo pulvinar', aka: 'do tálamo', color: '#D95BB0', sub: 'c3',
     rows: [['No modelo', E], ['Volta em', 'cap. 21']],
     morf: 'Núcleo da parte posterior do tálamo.',
     func: 'Está conectado com grande parte do córtex de associação e participa do controle da atenção.',
@@ -164,7 +164,7 @@ export default [
     rel: ['talamo', 'cortex-pre-frontal', 'cortex-parietal-posterior', 'nucleo-geniculado-lateral'],
   },
   {
-    id: 'nucleo-geniculado-lateral', g: 'die', name: 'Núcleo geniculado lateral', aka: 'do tálamo', color: '#D48AD8', sub: 'dentro',
+    id: 'nucleo-geniculado-lateral', g: 'die', name: 'Núcleo geniculado lateral', aka: 'do tálamo', color: '#F0627E', sub: 'dentro',
     rows: [['No modelo', M], ['Volta em', 'cap. 10']],
     morf: 'Pequeno núcleo do tálamo, na parte de trás e de baixo dele, onde o tracto óptico entra no tálamo.',
     func: 'Retransmite a informação do olho para o córtex visual. É o exemplo que o livro dá de "núcleo".',
@@ -172,7 +172,7 @@ export default [
     rel: ['tracto-optico', 'cortex-visual', 'talamo', 'nucleo-geniculado-medial', 'voc-nucleo'],
   },
   {
-    id: 'nucleo-geniculado-medial', g: 'die', name: 'Núcleo geniculado medial', aka: 'do tálamo', color: '#F0B966', sub: 'dentro',
+    id: 'nucleo-geniculado-medial', g: 'die', name: 'Núcleo geniculado medial', aka: 'do tálamo', color: '#F29A4A', sub: 'dentro',
     rows: [['No modelo', M], ['Volta em', 'cap. 11']],
     morf: 'Pequeno núcleo do tálamo, ao lado do geniculado lateral e mais perto da linha média.',
     func: 'Transmite a informação auditiva ao córtex auditivo.',
@@ -191,11 +191,11 @@ export default [
     rel: ['talamo', 'terceiro-ventriculo', 'hipofise', 'corpo-mamilar', 'amigdala', 'snv', 'diencefalo'],
   },
   {
-    id: 'corpo-mamilar', g: 'die', name: 'Corpo mamilar', color: '#E8825A', sub: 'ventral',
+    id: 'corpo-mamilar', g: 'die', name: 'Corpo mamilar', color: '#C8553D', sub: 'ventral',
     rows: [['No modelo', M], ['Volta em', 'cap. 24']],
     morf: 'Par de saliências arredondadas na superfície ventral do encéfalo, atrás do quiasma óptico. São núcleos do hipotálamo.',
     func: 'Fazem parte da circuitaria da formação da memória. Recebem informação do fórnice, de que são um alvo importante.',
-    where: 'Atlas, vista Ventral: as duas bolinhas alaranjadas na linha média, à frente da ponte. No Corte 2, na base do hipotálamo.',
+    where: 'Atlas, vista Ventral: as duas bolinhas cor de tijolo na linha média, à frente da ponte. No Corte 2, na base do hipotálamo.',
     rel: ['hipotalamo', 'fornice', 'hipocampo'],
   },
   {

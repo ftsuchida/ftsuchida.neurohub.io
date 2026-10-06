@@ -24,6 +24,25 @@ window.CATALOGO = {
 
   itens: [
     {
+      id: 'encefalo-3d',
+      titulo: { pt: 'Encéfalo em 3D', en: 'Brain in 3D' },
+      tipo: 'modelo-3d',
+      assunto: { pt: 'Neurociência', en: 'Neuroscience' },
+      resumo: {
+        pt: 'O encéfalo humano em malha anatômica: atlas por fora e por dentro, os nove cortes do apêndice, meninges, líquido cerebrospinal, artérias, nervos cranianos, oito vias em passo a passo, o desenvolvimento do tubo neural, a medula e um modo teste.',
+        en: 'The human brain as an anatomical mesh: atlas outside and inside, the nine sections from the appendix, meninges, cerebrospinal fluid, arteries, cranial nerves, eight pathways step by step, development from the neural tube, the spinal cord and a quiz mode.',
+      },
+      base: {
+        pt: 'Bear, Connors e Paradiso, Neurociências, 4ª ed., cap. 7 e apêndice',
+        en: 'Bear, Connors & Paradiso, Neuroscience, 4th ed., ch. 7 and appendix',
+      },
+      data: '2026-10-06',
+      url: 'itens/encefalo-3d/',
+      capa: 'assets/capas/encefalo-3d.jpg',
+      capaEscura: 'assets/capas/encefalo-3d-escura.jpg',
+      codigo: 'fontes/encefalo-3d',
+    },
+    {
       id: 'antidepressivo-sinapse',
       titulo: { pt: 'Antidepressivo na Sinapse', en: 'Antidepressant at the Synapse' },
       tipo: 'modelo-3d',
