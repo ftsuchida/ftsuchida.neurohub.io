@@ -33,7 +33,6 @@
     descricao: { pt: 'Modelos 3D, mapas mentais e outros materiais interativos para estudar neurociência.', en: '3D models, mind maps and other interactive materials for studying neuroscience.' },
     idioma: { pt: 'Idioma', en: 'Language' },
     tudo: { pt: 'Tudo', en: 'All' },
-    base: { pt: 'Base: ', en: 'Source: ' },
     abrir: { pt: 'Abrir', en: 'Open' },
   };
   // um texto do catálogo é uma string (igual nos dois idiomas) ou { pt, en }
@@ -49,8 +48,8 @@
   const all = (v) => (v && typeof v === 'object' ? Object.values(v).join(' ') : v || '');
   const itens = (C.itens || []).slice();
   itens.forEach((i) => { i._busca = plain([all(i.titulo), all(i.resumo), all(i.assunto), all(i.base), all(C.tipos && C.tipos[i.tipo])].join(' ')); });
-  // mais recentes primeiro; no empate, ordem alfabética no idioma da página
-  const ordenar = () => itens.sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')) || tx(a.titulo).localeCompare(tx(b.titulo), lang === 'en' ? 'en' : 'pt-BR'));
+  // itens com destaque primeiro; depois os mais recentes; no empate, ordem alfabética no idioma da página
+  const ordenar = () => itens.sort((a, b) => (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0) || String(b.data || '').localeCompare(String(a.data || '')) || tx(a.titulo).localeCompare(tx(b.titulo), lang === 'en' ? 'en' : 'pt-BR'));
 
   const state = { tipo: '', q: '' };
   // na ordem em que aparecem em CATALOGO.tipos; um tipo não declarado ali vai para o fim
@@ -82,7 +81,7 @@
 
   const CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"/></svg>';
   function card(i) {
-    const titulo = tx(i.titulo), resumo = tx(i.resumo), assunto = tx(i.assunto), base = tx(i.base);
+    const titulo = tx(i.titulo), resumo = tx(i.resumo), assunto = tx(i.assunto);
     const capa = i.capa
       ? `<picture class="cover">${i.capaEscura ? `<source srcset="${esc(i.capaEscura)}" media="(prefers-color-scheme: dark)">` : ''}<img src="${esc(i.capa)}" alt="" loading="lazy" decoding="async" width="1280" height="800"></picture>`
       : `<span class="cover none" aria-hidden="true">${esc(String(titulo || '?').charAt(0))}</span>`;
@@ -95,7 +94,7 @@
       <div class="kind">${kind}</div>
       <h2>${esc(titulo)}</h2>
       ${resumo ? `<p>${esc(resumo)}</p>` : ''}
-      <div class="meta"><span>${base ? esc(ui('base') + base) : ''}</span><span class="open">${esc(ui('abrir'))}${CHEV}</span></div>
+      <div class="meta"><span class="open">${esc(ui('abrir'))}${CHEV}</span></div>
     </div></a>`;
   }
 

@@ -97,7 +97,7 @@ h1 { margin: 0; font-size: clamp(32px, 5.2vw, 44px); line-height: 1.08; font-wei
 .kind .sub { color: var(--label2); font-weight: 500; }
 .card h2 { margin: 6px 0 0; font-size: 22px; line-height: 1.18; font-weight: 600; letter-spacing: -.015em; }
 .card p { margin: 8px 0 0; font-size: 15px; line-height: 1.45; color: var(--label2); text-wrap: pretty; }
-.meta { margin-top: auto; padding-top: 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; font-size: 12.5px; line-height: 1.35; color: var(--label3); }
+.meta { margin-top: auto; padding-top: 16px; display: flex; align-items: flex-end; justify-content: flex-end; gap: 16px; font-size: 12.5px; line-height: 1.35; color: var(--label3); }
 .open { flex: none; display: inline-flex; align-items: center; gap: 2px; font-size: 14px; font-weight: 600; color: var(--accent-text); }
 .open svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
 .card:hover .open svg { transform: translateX(2px); }

@@ -2,6 +2,7 @@
 //   1. ponha a página dele em itens/<id>/index.html (um arquivo único funciona melhor);
 //   2. ponha a capa em assets/capas/ (1280 × 800; a versão escura é opcional);
 //   3. copie um bloco de "itens" abaixo e ajuste os campos.
+// O campo "base" (de onde vem o conteúdo) não aparece no cartão; ele entra na busca.
 // Um texto pode ser uma string (igual nos dois idiomas) ou { pt: '...', en: '...' }. Sem "en", vale o português.
 // Este arquivo é um .js, e não um .json, para o hub abrir também com dois cliques, sem servidor.
 window.CATALOGO = {
@@ -59,6 +60,7 @@ window.CATALOGO = {
     },
     {
       id: 'neuronio-3d',
+      destaque: true, // aparece primeiro, antes da ordem por data
       titulo: { pt: 'Neurônio em 3D', en: 'Neuron in 3D' },
       tipo: 'modelo-3d',
       assunto: { pt: 'Neurociência', en: 'Neuroscience' },

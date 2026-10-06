@@ -55,7 +55,8 @@ Depois abra `http://localhost:4173/`.
 | `titulo`, `resumo` | Texto do cartão. O título também vira o `<title>` da página montada. Como todo texto do catálogo, pode ser uma string ou `{ pt: '...', en: '...' }` |
 | `tipo` | Chave de `tipos` no mesmo arquivo. Os tipos viram os filtros do topo |
 | `assunto` | Aparece ao lado do tipo |
-| `base` | De onde vem o conteúdo (livro, curso, artigo) |
+| `base` | De onde vem o conteúdo (livro, curso, artigo). Não aparece no cartão; entra na busca |
+| `destaque` | `true` põe o item no começo do índice, antes da ordem por data |
 | `data` | `AAAA-MM-DD`. Ordena o índice, do mais novo para o mais antigo |
 | `url` | Caminho da página, relativo à raiz |
 | `capa`, `capaEscura` | Imagens do cartão |
