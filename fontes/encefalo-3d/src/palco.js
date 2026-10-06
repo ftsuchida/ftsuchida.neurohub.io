@@ -41,6 +41,24 @@ function withAO(m) {
 const CAP_GEO = new THREE.PlaneGeometry(900, 900);
 const capStencil = { stencilWrite: true, stencilFunc: THREE.EqualStencilFunc, stencilRef: 1, stencilFuncMask: 1, stencilWriteMask: 1, stencilFail: THREE.KeepStencilOp, stencilZFail: THREE.ZeroStencilOp, stencilZPass: THREE.ZeroStencilOp };
 
+/* Janela: descarta os fragmentos que caem dentro (ou fora) de um cone com vértice em c e eixo w. Serve para abrir as
+   meninges em degraus e para pintar só uma faixa de uma superfície. win = { id, c, w, k }, com k = (cosseno acima do
+   qual some, cosseno abaixo do qual some). */
+function withWindow(m, win) {
+  const prev = m.onBeforeCompile, key = m.customProgramCacheKey ? m.customProgramCacheKey() : '';
+  m.onBeforeCompile = (sh, r) => {
+    if (prev) prev(sh, r);
+    sh.uniforms.uWinC = { value: win.c }; sh.uniforms.uWinW = { value: win.w }; sh.uniforms.uWinK = { value: win.k };
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWinP;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvWinP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWinP; uniform vec3 uWinC; uniform vec3 uWinW; uniform vec2 uWinK;')
+      .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n{ float wc = dot(normalize(vWinP - uWinC), uWinW); if (wc > uWinK.x || wc < uWinK.y) discard; }');
+  };
+  m.customProgramCacheKey = () => key + 'win';
+  return m;
+}
+const inWindow = (win, p) => { const c = _p.copy(p).sub(win.c).normalize().dot(win.w); return !(c > win.k.x || c < win.k.y); };
+const ON = (it) => it.state === 'solid' || it.state === 'glass'; // peça à mostra (inteira ou translúcida)
+
 /** Contorno translúcido (raio X): só as bordas aparecem, para deixar ver o que está dentro. */
 function ghostMaterial(planes) {
   return new THREE.ShaderMaterial({
@@ -70,7 +88,7 @@ export class Stage {
     this.capRoot = new THREE.Group(); this.capRoot.visible = false; this.capFrame = new THREE.Group(); this.capRoot.add(this.capFrame); this.group.add(this.capRoot);
     this.mark = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, depthTest: false, side: THREE.DoubleSide, clippingPlanes: this.planes, fog: false,
       stencilWrite: true, stencilFunc: THREE.AlwaysStencilFunc, stencilWriteMask: 1, stencilFail: THREE.InvertStencilOp, stencilZFail: THREE.InvertStencilOp, stencilZPass: THREE.InvertStencilOp });
-    this.caps = 0; this.lit = new Set(); this.litKey = '';
+    this.caps = 0; this.lit = new Set(); this.litKey = ''; this.subs = {}; this.fallback = ''; this.modeKey = 'n|'; this.stepViews = {};
     this.animate = () => [];
     // pulsos amarelos: os potenciais de ação em trânsito
     const pm = new THREE.MeshBasicMaterial({ color: 0xfff3b0, toneMapped: false, fog: false, clippingPlanes: this.planes });
@@ -105,11 +123,14 @@ export class Stage {
     f.capBase.set(own ? f.own : this.capNat[f.id] || this.nat[f.id] || f.own);
   }
   solid(id, o = {}) {
-    const key = id + '|s|' + (o.shade || '');
+    const key = id + '|s|' + (o.shade || '') + '|' + (o.win ? o.win.id : '');
     if (this.cache.has(key)) return this.cache.get(key);
     const f = this.fxOf(id);
     const m = withAO(new THREE.MeshPhysicalMaterial({ color: f.base.clone(), roughness: o.rough ?? 0.6, metalness: 0, sheen: 0.4, sheenRoughness: 0.5, sheenColor: f.base.clone().lerp(WHITE, 0.55), side: o.side || THREE.FrontSide, clippingPlanes: this.planes }));
     if (o.opacity != null) { m.transparent = true; m.opacity = o.opacity; m.depthWrite = false; }
+    if (o.offset) { m.polygonOffset = true; m.polygonOffsetFactor = -o.offset; m.polygonOffsetUnits = -o.offset; } // película por cima de outra peça
+    if (o.clear) { m.clearcoat = o.clear; m.clearcoatRoughness = 0.25; }
+    if (o.win) withWindow(m, o.win);
     m.userData = { ...m.userData, fx: f, kind: 'solid', op: m.opacity, tint: o.color ? new THREE.Color(o.color) : null, id };
     this.cache.set(key, m); this.mats.push(m);
     return m;
@@ -135,7 +156,8 @@ export class Stage {
     ready(geo);
     const map = {}; for (const [k, v] of Object.entries(o.map || { n: card })) map[k] = Array.isArray(v) ? v : [v];
     if (!map.n) map.n = [card];
-    const it = { card, geo, key: o.key || card, side: o.side || 'm', layer: o.layer || '', pri: o.pri ?? 1, capable: o.cap !== false, map, state: o.state || 'solid', pick: o.pick !== false, label: o.label !== false, mat: o.mat || {}, capColor: o.capColor, capCard: o.capCard, name: o.name || '', cut: false };
+    const it = { card, geo, key: o.key || card, side: o.side || 'm', layer: o.layer || '', pri: o.pri ?? 1, capable: o.cap !== false, map, state: o.state || 'solid', pick: o.pick !== false, label: o.label !== false, mat: o.mat || {}, capColor: o.capColor, capCard: o.capCard, name: o.name || '', cut: false, win: o.win || null, lift: o.lift || 0, see: !!o.see };
+    if (it.win) it.mat = { ...it.mat, win: it.win };
     it.mesh = new THREE.Mesh(geo, null); it.mesh.userData.inst = it;
     (o.parent || this.group).add(it.mesh);
     if (it.capable) {
@@ -158,8 +180,11 @@ export class Stage {
     if (s === 'ghost') { // em contorno; a ficha escolhida aparece translúcida, na cor dela
       const ms = it.cards.map((c) => (this.lit.has(c) ? this.solid(c, { shade: 'glow', opacity: 0.5 }) : this.ghost));
       it.mesh.material = ms.every((m) => m === this.ghost) ? this.ghost : ms.length > 1 ? ms : ms[0];
+    } else if (s === 'glass') { // translúcida: deixa ver o que tem dentro
+      const ms = it.cards.map((c) => this.solid(c, { ...it.mat, shade: (it.mat.shade || '') + '~', opacity: it.mat.glass ?? 0.42 }));
+      it.mesh.material = ms.length > 1 ? ms : ms[0];
     } else it.mesh.material = it.mats.length > 1 ? it.mats : it.mats[0];
-    it.mesh.renderOrder = s === 'ghost' ? 6 : it.mats[0].transparent ? 2 : 0;
+    it.mesh.renderOrder = s === 'ghost' ? 6 : s === 'glass' ? 3 : it.mats[0].transparent ? 2 : 0;
     if (it.cap) it.cap.visible = it.mark.visible = s === 'solid' && it.cut;
   }
   /** Modo de cor: 'n' natural, 'l' lobos, 'a' áreas, 'o' origem. Decide a que ficha cada peça responde.
@@ -170,9 +195,9 @@ export class Stage {
     for (const it of this.insts) this.dress(it);
     this.census();
   }
-  /** Estado de cada peça: fn(peça) devolve 'solid', 'ghost' ou 'hide'. */
+  /** Estado de cada peça: fn(peça) devolve 'solid', 'glass' (translúcida), 'ghost' (contorno) ou 'hide'. */
   setStates(fn) { for (const it of this.insts) { it.state = fn(it) || 'solid'; this.show(it); } this.census(); }
-  census() { this.present.clear(); for (const it of this.insts) if (it.state === 'solid') for (const c of it.cards) this.present.add(c); }
+  census() { this.present.clear(); for (const it of this.insts) if (ON(it)) for (const c of it.cards) this.present.add(c); }
   /** Plano de corte, em coordenadas do palco: some o lado para onde a normal NÃO aponta. null desliga. */
   setClip(normal, point) {
     this.clipOn = !!normal;
@@ -221,14 +246,18 @@ export class Stage {
   }
   /** O que o raio encontra primeiro: { id, point, normal, inst, cap }. Entende o corte e a face de corte. */
   pick(raycaster) {
-    let best = null;
+    let best = null, seen = null;
     const on = this.clipOn, pl = this.plane;
-    raycaster.firstHitOnly = !on;
     for (const it of this.insts) {
-      if (it.state !== 'solid' || !it.pick) continue;
+      if (!ON(it) || !it.pick) continue;
+      raycaster.firstHitOnly = !on && !it.win;
       for (const h of raycaster.intersectObject(it.mesh, false)) {
         if (on && pl.distanceToPoint(h.point) < 0) continue;
-        if (!best || h.distance < best.distance) best = { distance: h.distance, point: h.point, inst: it, face: h.face, object: h.object };
+        if (it.win && !inWindow(it.win, h.point)) continue; // caiu no buraco da janela: o raio segue
+        const d = h.distance - it.lift; // película por cima de outra peça: ganha o empate
+        // peça translúcida que deixa ver o que tem dentro (it.see): só responde ao clique se não houver nada atrás dela
+        if (it.see) { if (!seen || d < seen.distance) seen = { distance: d, point: h.point, inst: it, face: h.face, object: h.object }; }
+        else if (!best || d < best.distance) best = { distance: d, point: h.point, inst: it, face: h.face, object: h.object };
         break;
       }
     }
@@ -241,6 +270,7 @@ export class Stage {
         if (top) return { id: top.capCard || top.cards[0], point: P, normal: pl.normal.clone().negate(), inst: top, cap: true, distance: t };
       }
     }
+    if (!best) best = seen;
     if (!best) return null;
     const it = best.inst, id = it.cards[Math.min(it.cards.length - 1, (best.face && best.face.materialIndex) || 0)];
     const n = best.face ? best.face.normal.clone().transformDirection(best.object.matrixWorld) : V(0, 1, 0);
@@ -248,10 +278,13 @@ export class Stage {
   }
 
   /* ---------- rótulos automáticos ---------- */
-  idMat(i, cap) {
-    const key = 'id|' + i + '|' + (cap ? 'c' : '');
+  idMat(i, cap, it) {
+    const win = !cap && it ? it.win : null, off = (!cap && it && it.mat.offset) || 0, side = (!cap && it && it.mat.side) || THREE.FrontSide;
+    const key = 'id|' + i + '|' + (cap ? 'c' : '') + (win ? win.id : '') + '|' + off + '|' + side;
     if (this.cache.has(key)) return this.cache.get(key);
-    const m = new THREE.MeshBasicMaterial(cap ? { toneMapped: false, fog: false, ...capStencil } : { clippingPlanes: this.planes, toneMapped: false, fog: false });
+    const m = new THREE.MeshBasicMaterial(cap ? { toneMapped: false, fog: false, ...capStencil } : { clippingPlanes: this.planes, toneMapped: false, fog: false, side });
+    if (off) { m.polygonOffset = true; m.polygonOffsetFactor = -off; m.polygonOffsetUnits = -off; }
+    if (win) withWindow(m, win);
     m.color.setRGB((i & 255) / 255, ((i >> 8) & 255) / 255, 1, THREE.LinearSRGBColorSpace);
     this.cache.set(key, m);
     return m;
@@ -268,9 +301,9 @@ export class Stage {
     const keep = [];
     for (const it of this.insts) {
       keep.push([it.mesh.material, it.mesh.visible, it.cap && it.cap.material]);
-      if (it.state !== 'solid') { it.mesh.visible = false; continue; }
+      if (!ON(it) || it.see) { it.mesh.visible = false; continue; } // it.see: casca translúcida que não tapa os rótulos de dentro
       const mute = !it.label || (skip && skip(it));
-      const ms = it.cards.map((c) => this.idMat(mute ? 0 : num(c, it)));
+      const ms = it.cards.map((c) => this.idMat(mute ? 0 : num(c, it), false, it));
       it.mesh.material = ms.length > 1 ? ms : ms[0];
       if (it.cap) it.cap.material = this.idMat(mute ? 0 : num(it.capCard || it.cards[0], it), true);
     }
@@ -305,10 +338,33 @@ export class Stage {
     return out;
   }
 
+  /* ---------- subvistas ----------
+     this.subs[id] = { states(peça, o), clip, view, mode, vivid, enter(o), leave(), ... }: o que aparece, onde passa o
+     plano de corte, de onde a câmera olha. o = opções da interface (modo de cor, camada do corte, plano livre). */
+  /** Aplica uma subvista e devolve o enquadramento dela. o.reveal: chaves de peças (lado esquerdo) que viram contorno
+      para mostrar o que cobrem. */
+  enter(id, o = {}) {
+    const s = this.subs[id] || this.subs[this.fallback];
+    if (this.cur && this.cur !== s && this.cur.leave) this.cur.leave();
+    this.cur = s; this.curId = id; this.opts = o;
+    const mode = (typeof s.mode === 'function' ? s.mode(o) : s.mode) || (s.atlas ? o.mode : 'n') || 'n';
+    // fichas que aparecem na cor própria: as do modo de cor e, no modo Natural, as que a vista pede (s.vivid)
+    const vivid = [...(this.vividOf ? this.vividOf(mode) : []), ...((mode === 'n' && s.vivid) || [])], key = mode + '|' + vivid.join();
+    if (key !== this.modeKey) { this.modeKey = key; this.setMode(mode, vivid); }
+    const rv = o.reveal, states = s.states || (() => 'solid');
+    this.setStates((it) => { const v = states(it, o); return rv && it.side === 'e' && v === 'solid' && rv.includes(it.key) ? 'ghost' : v; });
+    const clip = typeof s.clip === 'function' ? s.clip(o) : s.clip;
+    if (clip) this.setClip(clip[0], clip[1]); else this.setClip(null);
+    if (s.enter) s.enter(o);
+    return typeof s.view === 'function' ? s.view(o) : s.view;
+  }
+  /** Reaplica a subvista atual (depois que peças novas entram no palco). */
+  refresh() { if (this.curId) this.enter(this.curId, this.opts); }
+
   /** Esfera que envolve as peças sólidas de uma ou mais fichas (de preferência as do lado esquerdo e do meio). */
   frame(ids, side) {
     const box = new THREE.Box3(); let n = 0;
-    const pass = (want) => { for (const it of this.insts) if (it.state !== 'hide' && it.cards.some((c) => ids.includes(c)) && (!want || want.includes(it.side))) { box.union(it.geo.boundingBox); n++; } };
+    const pass = (want) => { for (const it of this.insts) if (it.state !== 'hide' && !it.win && it.cards.some((c) => ids.includes(c)) && (!want || want.includes(it.side))) { box.union(it.geo.boundingBox); n++; } };
     pass(side || ['e', 'm']); if (!n) pass(null);
     if (!n) return null;
     const s = box.getBoundingSphere(new THREE.Sphere());

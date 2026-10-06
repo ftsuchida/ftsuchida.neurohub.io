@@ -548,11 +548,13 @@ function start3D() {
 
   /* ---------- clique e passagem do mouse ---------- */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  let hitName = ''; // nome próprio da peça sob o ponteiro, quando difere do nome da ficha (a artéria sobre a pia-máter)
   function pickAt(cx, cy) {
     const r = canvas.getBoundingClientRect();
     ndc.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
     const h = stage().pick(ray);
+    hitName = h ? h.inst.name : '';
     return h ? h.id : null;
   }
   const tip = $('tip');
@@ -574,7 +576,7 @@ function start3D() {
       if (id !== state.hover) { state.hover = id; canvas.classList.toggle('pt', !!id); dirty(); }
       if (!id || test.on()) { tip.hidden = true; return; }
       const a = app.getBoundingClientRect();
-      tip.textContent = BY_ID[id].name; tip.hidden = false;
+      tip.textContent = hitName || BY_ID[id].name; tip.hidden = false;
       let x = last.clientX - a.left + 14; const y = last.clientY - a.top + 18;
       if (x + tip.offsetWidth > a.width - 8) x = last.clientX - a.left - tip.offsetWidth - 12;
       tip.style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px)`;
@@ -586,8 +588,9 @@ function start3D() {
   const giz = $('gizmo'), GA = [['x', 0], ['y', 1], ['z', 2]];
   function placeGizmo() { giz.style.left = Math.round(vis.x + 10) + 'px'; giz.style.top = Math.round(vis.y + (phone.matches ? 6 : 10)) + 'px'; }
   function drawGizmo() {
-    const ax = built.axesOf(state.sub); giz.hidden = !ax || test.on();
-    if (!ax) return;
+    const ax = built.axesOf(state.sub), off = !ax || test.on();
+    giz.style.display = off ? 'none' : '';
+    if (off) return;
     const m = camera.matrixWorldInverse.elements, R = 23;
     let html = '';
     const items = [];

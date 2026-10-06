@@ -13,6 +13,7 @@ import { CHILDREN } from './partes.js';
 import { addSections } from './cortes.js';
 import { addAround } from './volta.js';
 import { addPathways } from './vias.js';
+import { ensureNerves } from './nervos.js';
 import { buildLayers } from './camadas.js';
 import { buildOrigin } from './origem.js';
 import { buildSpine, buildSegment } from './medula.js';
@@ -41,6 +42,7 @@ export function buildScene() {
   /** Aplica uma subvista e devolve o enquadramento dela. */
   function enter(sub, o = {}) {
     const a = addonOf(sub); if (a) ensure('+' + a);
+    if (sub === 'ventral') ensureNerves(stages.enc); // a vista ventral do Atlas mostra os nervos cranianos
     ensure(stageOf(sub));
     return stages[stageOf(sub)].enter(sub, o);
   }

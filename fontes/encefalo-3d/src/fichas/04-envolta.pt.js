@@ -120,7 +120,7 @@ export default [
     rel: ['meninges', 'dura-mater', 'pia-mater', 'espaco-subaracnoideo', 'vilosidades-aracnoides'],
   },
   {
-    id: 'pia-mater', g: 'men', name: 'Pia-máter', color: '#EFA9BC', sub: 'camadas',
+    id: 'pia-mater', g: 'men', name: 'Pia-máter', color: '#F0709E', sub: 'camadas',
     rows: [['No modelo', E]],
     morf: 'A meninge mais interna. O nome é latim para "mãe piedosa". É uma membrana fina, colada à superfície do encéfalo.',
     func: 'Ao longo dela correm os vasos sanguíneos que depois penetram no tecido nervoso.',

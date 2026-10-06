@@ -96,7 +96,9 @@ export const NAT = {
   'hemisferio-cerebelar': '#D8A296', verme: '#D29A8F', cerebelo: '#D8A296',
   tegmento: '#EAD8C5', ponte: '#ECDCC8', bulbo: '#E9D6C0', mesencefalo: '#EAD8C5',
   'substancia-branca': '#F4EDE0', 'corpo-caloso': CREME, fornice: '#EFE2C9', 'septo-pelucido': '#ECE0CC', 'capsula-interna': '#EEE6D6',
-  cranio: '#E9E2D0', 'medula-espinhal': '#EBDAC2', 'bulbo-olfatorio': '#EFE3C4', 'pedunculo-cerebelar': '#EFE4CC',
+  cranio: '#E9E2D0', 'medula-espinhal': '#EBDAC2', 'bulbo-olfatorio': '#EFE3C4', 'pedunculo-cerebelar': '#EFE4CC', 'nc-olfatorio': '#EFE3C4',
+  // nervos cranianos III a XII: claros no Atlas, coloridos no módulo dos nervos
+  ...Object.fromEntries(['nc-oculomotor', 'nc-troclear', 'nc-trigemeo', 'nc-abducente', 'nc-facial', 'nc-vestibulococlear', 'nc-glossofaringeo', 'nc-vago', 'nc-acessorio', 'nc-hipoglosso'].map((k) => [k, '#F1E6BF'])),
 };
 /* Cor natural na face de corte, quando difere da de cima: a faixa do córtex fica mais escura que a substância branca. */
 const FAIXA = '#CC9C90';
@@ -106,6 +108,7 @@ export const CAP_NAT = {
   'substancia-branca': '#F8F3EA', 'corpo-caloso': '#F5EEDF', cerebelo: '#D3A094', 'hemisferio-cerebelar': '#D3A094', verme: '#D3A094',
   tegmento: '#E6D0BC', ponte: '#EAD7C2', bulbo: '#E7D3BD',
 };
+export const NERVOS = ['nc-olfatorio', 'nervo-optico', 'nc-oculomotor', 'nc-troclear', 'nc-trigemeo', 'nc-abducente', 'nc-facial', 'nc-vestibulococlear', 'nc-glossofaringeo', 'nc-vago', 'nc-acessorio', 'nc-hipoglosso'];
 /* Fichas que ficam com a cor própria em cada modo de cor (as outras ficam na cor natural). */
 export const VIVID = {
   n: [],
@@ -115,6 +118,7 @@ export const VIVID = {
   o: ['telencefalo', 'diencefalo', 'mesencefalo', 'rombencefalo', 'medula-espinhal', 'vesicula-optica'],
   g: ['lobo-frontal', 'lobo-parietal', 'lobo-temporal', 'lobo-occipital', 'insula', 'mesencefalo'],
   c: [],
+  v: NERVOS, // módulo dos nervos cranianos
 };
 
 /* Quem acende junto: escolher a ficha da esquerda acende também as da direita. */

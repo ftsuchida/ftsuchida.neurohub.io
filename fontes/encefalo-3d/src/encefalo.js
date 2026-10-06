@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { Stage, V, ready } from './palco.js';
 import { partGeometry, isMidline } from './malhas.js';
 import { tube, curveOf, place, ovalTube, blob } from './geo.js';
-import { PARTS, mapOf, NAT, CAP_NAT, VIVID } from './partes.js';
+import { PARTS, mapOf, NAT, CAP_NAT, VIVID, NERVOS } from './partes.js';
 import { BY_ID } from './data.js';
 import { LINHAS } from './linhas.dados.js';
 import { tr } from '../../comum/lang.js';
@@ -56,7 +56,7 @@ export function buildBrain() {
     const c = curveOf(pts);
     const g = ovalTube(c, 0.15, 0.065, { segs: 36, radial: 14 }); // fita achatada: o tracto
     const bp = c.getPointAt(0.88), bulb = blob(V(bp.x, bp.y - 0.03, bp.z), [0.24, 0.13, 0.55], null, 20);
-    for (const geo of [g, bulb]) draw('bulbo-olfatorio', geo, { pair: true, layer: 'olf', pri: 3, map: { n: 'bulbo-olfatorio', o: 'telencefalo' } });
+    for (const geo of [g, bulb]) draw('bulbo-olfatorio', geo, { pair: true, layer: 'olf', pri: 3, map: { n: 'bulbo-olfatorio', o: 'telencefalo', v: 'nc-olfatorio' } }); // v: módulo dos nervos cranianos
   }
 
   /* ---------- começo da medula espinhal: continua o bulbo para baixo ---------- */
@@ -120,7 +120,7 @@ export function buildBrain() {
      Cada subvista diz o estado de cada peça ('solid', 'ghost' ou 'hide'), o plano de corte e o enquadramento.
      As do Atlas ficam aqui; cortes.js, volta.js e vias.js acrescentam as dos outros módulos. */
   const TEL = new Set(['cx', 'wm', 'deep', 'plexo', 'olf']);
-  const OFF = new Set(['ped', 'osso', 'men', 'art', 'nc', 'gust', 'via', 'vil']);
+  const OFF = new Set(['ped', 'osso', 'men', 'art', 'nc', 'gust', 'via', 'vil', 'sas']);
   const isTel = (it) => TEL.has(it.layer) || it.key === 'vent-lateral' || it.key === 'forame';
   const base = (it) => (OFF.has(it.layer) || it.layer.startsWith('nuc') ? 'hide' : 'solid');
   const atlas = (it, o) => (it.layer === 'gust' && o.mode === 'a' ? 'solid' : base(it));
@@ -129,7 +129,7 @@ export function buildBrain() {
   const NAMES = {
     lateral: ['lobo-frontal', 'lobo-parietal', 'lobo-temporal', 'lobo-occipital', 'giro-pre-central', 'giro-pos-central', 'giro-temporal-superior', 'cerebelo', 'tronco-encefalico', 'bulbo-olfatorio', 'medula-espinhal'],
     medial: ['talamo', 'hipotalamo', 'pineal', 'tegmento', 'teto', 'ponte', 'bulbo', 'cerebelo', 'giro-do-cingulo', 'corpo-caloso', 'fornice', 'bulbo-olfatorio', 'quiasma-optico', 'aqueduto', 'quarto-ventriculo', 'canal-central', 'hipofise', 'septo-pelucido', 'medula-espinhal'],
-    ventral: ['bulbo-olfatorio', 'quiasma-optico', 'nervo-optico', 'tracto-optico', 'hipotalamo', 'corpo-mamilar', 'mesencefalo', 'ponte', 'bulbo', 'lobo-frontal', 'lobo-temporal', 'cerebelo', 'hipofise', 'medula-espinhal'],
+    ventral: ['bulbo-olfatorio', 'quiasma-optico', 'nervo-optico', 'tracto-optico', 'hipotalamo', 'corpo-mamilar', 'mesencefalo', 'ponte', 'bulbo', 'lobo-frontal', 'lobo-temporal', 'cerebelo', 'hipofise', 'medula-espinhal', 'nervos-cranianos'],
     dorsal: ['lobo-frontal', 'lobo-parietal', 'lobo-occipital', 'giro-pre-central', 'giro-pos-central'],
     cerebelo: ['verme', 'hemisferio-cerebelar', 'medula-espinhal', 'bulbo', 'talamo', 'pineal', 'teto'],
     tronco: ['talamo', 'mesencefalo', 'ponte', 'bulbo', 'pineal', 'coliculo-superior', 'coliculo-inferior', 'pedunculo-cerebelar', 'medula-espinhal', 'tracto-optico'],
@@ -137,7 +137,7 @@ export function buildBrain() {
   const CB = { 'hemisferio-cerebelar': 'cerebelo', verme: 'cerebelo' }, TETO = { 'coliculo-superior': 'teto', 'coliculo-inferior': 'teto' };
   const ALIAS = {
     lateral: { ...CB, ponte: 'tronco-encefalico', bulbo: 'tronco-encefalico', tegmento: 'tronco-encefalico' },
-    medial: { ...CB, ...TETO }, ventral: { ...CB, tegmento: 'mesencefalo' }, cerebelo: TETO, tronco: { tegmento: 'mesencefalo' },
+    medial: { ...CB, ...TETO }, ventral: { ...CB, tegmento: 'mesencefalo', ...Object.fromEntries(NERVOS.filter((k) => k.startsWith('nc-') && k !== 'nc-olfatorio').map((k) => [k, 'nervos-cranianos'])) }, cerebelo: TETO, tronco: { tegmento: 'mesencefalo' },
   };
   const natural = (o) => !o.mode || o.mode === 'n';
   const A = (id, s) => ({
@@ -157,7 +157,8 @@ export function buildBrain() {
     medial: A('medial', { states: (it, o, b) => (it.side === 'e' ? 'hide' : it.key === 'vent-terceiro' ? 'ghost' : b), clip: [V(-1, 0, 0), V(0.002, 0, 0)], view: { box: { c: V(0, 0.3, 0), hw: 9.3, hh: 8.4 }, dir: V(1, 0.05, 0.04) },
       vivid: ['tegmento', 'coliculo-superior', 'coliculo-inferior', 'ponte', 'bulbo'], // o tronco em cores, como na figura do livro
       extra: () => [{ id: 'terceiro-ventriculo', pos: V(-0.02, v3.y + 0.2, v3.z), n: V(1, 0, 0), rank: 20 }] }),
-    ventral: A('ventral', { view: { box: { c: V(0, 0, 0.2), hw: 7.4, hh: 9.6 }, dir: V(0, -1, 0.02) }, minArea: 10 }),
+    // de baixo e um pouco da frente, para o tronco encefálico aparecer de face; os tocos dos nervos cranianos entram aqui (nervos.js)
+    ventral: A('ventral', { states: (it, o, b) => (it.layer === 'nc' ? 'solid' : b), view: { box: { c: V(0, -0.6, 0.4), hw: 7.4, hh: 8.6 }, dir: V(0, -1, 0.5) }, minArea: 10 }),
     dorsal: A('dorsal', { view: { box: { c: V(0, 0, 0), hw: 7.4, hh: 9.4 }, dir: V(0, 1, -0.02) },
       extra: () => [{ id: 'cerebro', text: tr('Hemisfério esquerdo', 'Left hemisphere'), pos: onTop(3.4, 4.6), n: V(0, 1, 0), rank: 25 }, { id: 'cerebro', text: tr('Hemisfério direito', 'Right hemisphere'), pos: onTop(-3.4, 4.6), n: V(0, 1, 0), rank: 25 }] }),
     cerebelo: A('cerebelo', { states: (it, o, b) => (isTel(it) || it.layer === 'olho' || it.layer === 'opt' ? 'hide' : b), view: { box: { c: V(0, -3.0, -2.6), hw: 6.4, hh: 6.6 }, dir: V(0, 0.5, -1) } }),
@@ -167,32 +168,14 @@ export function buildBrain() {
     dentro: A('dentro', { states: (it, o, b) => (['cx', 'wm', 'cb', 'olf'].includes(it.layer) ? 'ghost' : b), view: { box: { c: V(0, 0.2, 0), hw: 9.0, hh: 7.6 }, dir: V(1, 0.22, 0.42) }, max: 18 }),
   };
   st.subs.teste = { ...st.subs.lateral, atlas: false, auto: false, margin: false, extra: null };
-  /** Aplica uma subvista deste palco e devolve o enquadramento. o.reveal: chaves de peças (lado esquerdo) que viram
-      contorno para mostrar o que cobrem. */
-  st.enter = (id, o = {}) => {
-    const s = st.subs[id] || st.subs[st.fallback];
-    if (st.cur && st.cur !== s && st.cur.leave) st.cur.leave();
-    st.cur = s; st.curId = id; st.opts = o;
-    const mode = (typeof s.mode === 'function' ? s.mode(o) : s.mode) || (s.atlas ? o.mode : 'n') || 'n';
-    // fichas que aparecem na cor própria: as do modo de cor e, no modo Natural, as que a vista pede (s.vivid)
-    const vivid = [...(VIVID[mode] || []), ...((mode === 'n' && s.vivid) || [])], key = mode + '|' + vivid.join();
-    if (key !== st.modeKey) { st.modeKey = key; st.setMode(mode, vivid); }
-    const rv = o.reveal;
-    st.setStates((it) => { const v = s.states(it, o); return rv && it.side === 'e' && v === 'solid' && rv.includes(it.key) ? 'ghost' : v; });
-    const clip = typeof s.clip === 'function' ? s.clip(o) : s.clip;
-    if (clip) st.setClip(clip[0], clip[1]); else st.setClip(null);
-    if (s.enter) s.enter(o);
-    return typeof s.view === 'function' ? s.view(o) : s.view;
-  };
-  /** Reaplica a subvista atual (depois que peças novas entram no palco). */
-  st.refresh = () => { if (st.curId) st.enter(st.curId, st.opts); };
+  st.vividOf = (mode) => VIVID[mode] || [];
   /* Em que modo de cor a ficha aparece: as áreas do córtex pedem o modo "Áreas"; o resto fica no modo atual, se
      alguma peça responde por ela ali. */
   st.homeOf = (id, sub, ids, mode) => {
     const s = st.subs[sub]; if (!s || !s.atlas) return null;
     if (BY_ID[id].g === 'areas') return { mode: 'a' };
     if (LOBES.has(id)) return { mode: 'l' }; // o lobo inteiro em uma cor só
-    const has = (m) => st.insts.some((it) => it.map[m].some((c) => ids.includes(c)));
+    const has = (m) => st.insts.some((it) => (it.map[m] || it.map.n).some((c) => ids.includes(c)));
     const cur = ['n', 'l', 'a', 'o'].includes(mode) ? mode : 'n';
     return { mode: has(cur) ? cur : ['n', 'l', 'a', 'o'].find(has) || cur };
   };
@@ -200,7 +183,7 @@ export function buildBrain() {
   st.frameOf = (ids) => { const m = st.marks.find((x) => !x.twin && ids.includes(x.id)); return m && !st.frame(ids) ? { t: m.pos.clone(), r: 3.4 } : null; };
   st.axes = { x: [tr('esq.', 'left'), tr('dir.', 'right')], y: ['dorsal', 'ventral'], z: ['anterior', 'posterior'] };
   st.draw = draw; st.geoOf = geoOf; st.hitOn = hitOn; st.byKey = byKey; st.stepViews = {};
-  st.setMode('n', []); st.modeKey = 'n|';
+  st.setMode('n', []);
   console.log('[t] encefalo', Math.round(performance.now() - T0));
   return st;
 }
